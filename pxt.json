@@ -6,7 +6,8 @@
         "arcade-character-animations": "github:microsoft/arcade-character-animations#v0.0.2",
         "arcade-tile-util": "github:microsoft/arcade-tile-util#v1.1.0",
         "arcade-text": "github:microsoft/arcade-text#v1.3.0",
-        "project": "pkg:project.json"
+        "project": "pkg:project.json",
+        "Timers": "github:microsoft/arcade-timers#v1.1.0"
     },
     "files": [
         "main.blocks",
@@ -30,5 +31,5 @@
     "supportedTargets": [
         "arcade"
     ],
-    "preferredEditor": "tsprj"
+    "preferredEditor": "blocksprj"
 }

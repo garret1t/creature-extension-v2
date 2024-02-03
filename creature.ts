@@ -34,7 +34,8 @@ enum CreatureType {
     //% block=Steel
     Steel = 16,
     //% block=Water
-    Water = 17
+    Water = 17,
+    None = 18
 }
 
 namespace SpriteKind {
@@ -52,7 +53,8 @@ namespace creatures {
 
     export class Creature {
         public _sprite: Sprite;
-        public _creatureType: CreatureType;
+        public _creatureType1: CreatureType;
+        public _creatureType2: CreatureType;
         public _name: string;
 
         public _xp: number;
@@ -62,9 +64,10 @@ namespace creatures {
         public _sayHP: boolean;
         public _sayXP: boolean;
 
-        constructor(spr: Sprite, cType: CreatureType, name: string, xp: number = 0, hp: number = 20, attackValue: number = 5, xpReward: number = 10) {
+        constructor(spr: Sprite, cType: CreatureType, cType2: CreatureType = CreatureType.None, name: string, xp: number = 0, hp: number = 20, attackValue: number = 5, xpReward: number = 10) {
             this._sprite = spr;
-            this._creatureType = cType;
+            this._creatureType1 = cType;
+            this._creatureType2 = cType;
             this._name = name;
             this._xp = xp;
             this._hp = hp;
@@ -110,11 +113,17 @@ namespace creatures {
             this._sprite = sprite;
         }
 
-        get creatureType() {
-            return this._creatureType;
+        get creatureType1() {
+            return this._creatureType1;
         }
-        set creatureType(creatureType: CreatureType) {
-            this._creatureType = creatureType;
+        set creatureType1(creatureType1: CreatureType) {
+            this._creatureType1 = creatureType1;
+        }
+        get creatureType2() {
+            return this._creatureType2;
+        }
+        set creatureType2(creatureType2: CreatureType) {
+            this._creatureType2 = creatureType2;
         }
 
         //% group="Value" blockSetVariable="myCreature"
@@ -181,46 +190,71 @@ namespace creatures {
 
     }
 
-    let creatureDex = [sprites.create(img`
-        ..............eeeeeee...........
-        ............ee455662e2e.........
-        ..........ee45556723e2688.......
-        .........e46776677232e777668....
-        ........e46745554772227776778...
-        .......4448744444777766777678...
-        ......4522e7777776777766676668..
-        .....4523227766722e666eeeee888..
-        ....455232e76672322e4555dddd48..
-        ...44567777554623e455ddddddddd4.
-        ...e66774554477e455dddd55554dd44
-        ..e46777444677e55dd55555d55dddd4
-        ..e5668677666e5dd555555555555dde
-        .e45544e8776e5d555554555555555de
-        .e554eeee66e5d5555d55555dddd54de
-        .e55ee44fee5d5d555555d5d5dddddde
-        e454eeeefe45d55555555555dd4ddde.
-        e5e4eefffe5d55555555d5555dddde..
-        e5ee4eeff45d555555555555dddde...
-        e5eeeeffe5d55d555d5555d5ddde....
-        e5ffefeee5d55545555555ddd4e.....
-        e5ffffffe545555555d5d4ddee......
-        e54efeff45d55d55555dddde........
-        e5eeeffe5dd5555545dddee.........
-        e4eeefff5d5555d55ddde...........
-        e4efefff5d5d55555d4e............
-        .e4efffe5d555555dee.............
-        .e54eeee5d545dd4e...............
-        ..e554ee5dddddee................
-        ...ee5544dddee..................
-        .....eeeeeee....................
-        ................................
-    `, SpriteKind.Player)]
-    export function makeCreatureFromID(id: number){
-        if(creatureDex.length ==0 ) {       
+    let creatureImageDex = [sprites.create(img`
+        111111111111b1111ddd1dd1dd111ddd11111111
+        111111111111f1111bbb1bb1bb111bbb11111111
+        11111111111111111bbbb111b1bbb111b1111111
+        11111111111111111ddbbdd1d1dd1dbbb1111111
+        111111111111111111dbb111b1bd1bbbb1111111
+        111111111111d1111111bbbb1bddb1dbb1111111
+        111111111111fd3fdfebfddb11bbbbbb11111111
+        111111111111cddbdbbdbddb1bbbbbbb11111111
+        111111111111d1111111111b1bbbbbb111111111
+        111111111111fd33fbefdff111bbdfc3f1111111
+        111111111111cbb1d1dd1dd111d11cb1c1111111
+        111111111111fbbb1bddb111b1bd1bbb11111111
+        111111111111b111bddb1bbdffffffcdf1111111
+        111111111111111bdbddbbbbcdbccddbc1111111
+        11111111111113dffffcddd1bbffffff31111111
+        111111111111bddddddddffdffcbb111b1111111
+        111111111111b11b1bddbccbcddbbbb111111111
+        111111111111dddddceddddffdcffdbfd1111111
+        111111111111f1111bd11bb111bbbbbb11111111
+        111111111111fbb1bd1dbbbb1bbbb11111111111
+        111111111111dffdffeddff111111bbbb1111111
+        111111111111111bb111bbb1111db111b1111111
+        111111111111dbbbbddbbbbffffeddbff1111111
+        11111111111111111bddbbb1b1bbb111b1111111
+        11bbbbbbbbbb1bbbbddb1bbbb1bd1bb111111111
+        1111111111bb1ffdbbbbbbb1bbddb1dbb1111111
+        11f1111111bbfdddbbbbbddb11bd1bb1b1111111
+        1111111111b1fffddbbbdffb11bd1bb1b1111111
+        1111111111cf111bbd111111bbddb1db11111111
+        113cbbbbbbbbbbb1bbd1111c11bd1bb1b1111111
+        11f1111111db1fffdddbfffb1bbbbbb111111111
+        111fffffffbf1111bddb1bb111bd1bbb11111111
+        11f11111db111ffffffffff1bbbbbbb1f1111111
+        11fdeccfedbfbbbdb111b11111bd1bb1b1111111
+        1111111111bbfffddcedddd1bb11111b11111111
+        11fbd111dbb1bbbbb1dbb111b1bd111111111111
+        11bbbbbbbbdbbbbbbbd11bbbbbbbb11bf1111111
+        113bbbbbbbb1dddbbbd11bb111111bcf31111111
+        1113eccfedc3fffffb3bfdddddddddbf11111111
+        11d1dbbbd1b1bbbdbd111bbdfdcedffbf1111111
+        11d1dbbbd1b13bb13decddd1b1bd1bcfd1111111
+        111cd111dc1b111bb111bbbdddddddddb1111111
+        111111111111f111b1111bbbbbbbbbbbd1111111
+        111111111111111111dbb111b1bd1bb1b1111111
+        1111111111111111bbbbbbb1b1bd111111111111
+        11bbbbbbbbbbbbb1bd11111bbbbbd11b11111111
+        111111111111bbb1bbddb11ddffffbb1b1111111
+        111111111111bbb11bbbbbbdfdcff111b1111111
+        111111bbbbbb111bbd11111bbbbbbbbb11111111
+        11bbbbd1dbdb111bbddb1bbfddddddddf1111111
+        11bbbbbbd1b1bbb1bd111bbbb1bbbbbbb1111111
+        1111111111b1bbbb1bbbb1111bbbb1db11111111
+        11bbbbbbbbdbbbbbb111111ddffff3bfd1111111
+        11bbbbd1dbb111111bd1b11bb111111bb1111111
+        11bbbbbbd11b111111dbb11bb1bd1bbb11111111
+    `, SpriteKind.Creature)]
+    creatureImageDex[0].setFlag(SpriteFlag.Invisible, true);
+    
+    function makeCreatureImageDex(){
+        if (creatureImageDex.length == 1) {
             for (let i = 1; i <= 151; i++) {
-                switch(i) {
-                    case 1: 
-                        creatureDex[i] = sprites.create(img`
+                switch (i) {
+                    case 1:
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -261,9 +295,9 @@ namespace creatures {
                             111111111111117ffff777f111fff777f1111111
                             111111111111111111f77f11111f777f11111111
                             1111111111111111111ff1111111fff111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 2:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -312,9 +346,9 @@ namespace creatures {
                             1111111111111f1f11f1f1111f11ff11f11f111111111111
                             11111111111111f1ff1f111111ff1fff1ff1111111111111
                             111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 3:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
@@ -371,9 +405,9 @@ namespace creatures {
                             111111111ffffff11111ff1fff117f11f111111ff1fff1ff11111111
                             11111111111111111111111111fff1ff111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 4:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111144ff4411111111411111111111111111
                             1111111f1111114f111111141111114411111111
@@ -414,9 +448,9 @@ namespace creatures {
                             111111111f44444f444f1111f4f44444f1111111
                             111111111f4f44f44ff11111f44f44f4f1111111
                             11111111114fffff411111111fffffff11111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 5:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -465,9 +499,9 @@ namespace creatures {
                             1111111111111111ff114f14f1111111f14ffffff14f1111
                             111111111111111111fff1fff11111111fff144f14f11111
                             111111111111111111111111111111111111fff1ff111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 6:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111144111111111111
                             111111111111111111fff11111111111111111111144111111111111
@@ -524,9 +558,9 @@ namespace creatures {
                             1111111414ffff14444fff41111111111111f144f4144f1144f11111
                             1111111f1f1444f4444ff111111111111111f1144f1144f114411111
                             111111114fffffffffff111111111111111114ff414ff414f4111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 7:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -567,9 +601,9 @@ namespace creatures {
                             1111111111111111f1199f111111111111111111
                             11111111111111111bffb1111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 8:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             11111111111111fff1111111111111111111111111111111
@@ -618,9 +652,9 @@ namespace creatures {
                             111111111fffffff11111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 9:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             1111111111111111ff11111111111111111111111111111111111111
@@ -677,9 +711,9 @@ namespace creatures {
                             1111111111111ff111111111111fffff11199bff999bf11111111111
                             11111111111111111111111111111111f1119f11ffff111111111111
                             111111111111111111111111111111111ffff1111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 10:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -720,9 +754,9 @@ namespace creatures {
                             11111111111111ff1ffff11f777f77f111111111
                             1111111111111111117ffff111f77ff111111111
                             11111111111111111111117fff1ff11111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 11:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -763,9 +797,9 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 12:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111bfb111111111111111111111111111111111111
@@ -822,9 +856,9 @@ namespace creatures {
                             1111111111111111111111111111fffffffff1111111111111111111
                             11111111111111111111111111111fffffff11111111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 13:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             111111111111111f111111111111111111111111
@@ -865,9 +899,9 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 14:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111114fff41111111111111111
                             11111111111111111f411dddff11111111111111
                             1111111111111111f11111ddddf1111111111111
@@ -908,9 +942,9 @@ namespace creatures {
                             111111111111111111111ffff111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 15:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111114fff4111111111
                             11111111fff11111111111111111111111111114ffffffff41111111
                             1111111f4d4ff1111111111111111111111114fffff4dddddf411111
@@ -967,9 +1001,9 @@ namespace creatures {
                             1111111111111111111111114ffff411111111111111111111f11111
                             11111111111111111111111111111fff1111111111111111111f1111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 16:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1010,9 +1044,9 @@ namespace creatures {
                             1111111111f1ff111111f11f11efe111ff111111
                             1111111111ff1111111f1ff11f11111111111111
                             1111111111111111111ff1efe111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 17:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -1061,9 +1095,9 @@ namespace creatures {
                             1111f1f1fffffff1111f1333f1333ffff111f1f111111111
                             1111111f11111111111f3fffe1fff11111111f1111111111
                             11111111111111111111f1111f1111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 18:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111fff111111111f1111111111111111111
                             11111111111111111111111111fff11111111ff11111111111111111
                             111111111111111111111111111f1f1111111f1f1111111111111111
@@ -1120,9 +1154,9 @@ namespace creatures {
                             111111111111111111111111111111111fffff111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 19:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1163,9 +1197,9 @@ namespace creatures {
                             11111dffff1111111111ffff1111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 20:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111bf1111111
                             111111111111111111111111111111111111111f1f111111
@@ -1214,9 +1248,9 @@ namespace creatures {
                             1111111ff1ff11bf111111111111111f11dbd11fddf11111
                             11111111ff1f1ff1111111111111111f1ff1ffdffdf11111
                             111111111111f1111111111111111111f1111ff1ff111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 21:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1257,9 +1291,9 @@ namespace creatures {
                             111111ff1111111f11eefff11ffee1f111111111
                             1111111111111111ffff1111111ffff111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 22:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
@@ -1316,9 +1350,9 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 23:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1359,9 +1393,9 @@ namespace creatures {
                             11111111fbdddb11111dddb11ddbbf1111111111
                             1111111111fbddb111dddbdddbbff11111111111
                             111111111111bfffffffffffff11111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 24:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111bfffffffb1111111111111111111111111111111
                             11111111111111bffdddddddffd11111111111111111111111111111
                             1111111111111ffd11111dddddffbd11111111111111111111111111
@@ -1418,9 +1452,9 @@ namespace creatures {
                             1111111ffbbbfbbbbbbbbbbbff111111111111111dbfffffff111111
                             111111111fffffbbbbbfffff1111111111111111111dbffbd1111111
                             111111111111fffffffff11111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 25:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111411
                             111111111111dd1111111111111111111111ff11
                             14ff41111111ddd1111111114ffff111111f1f11
@@ -1461,9 +1495,9 @@ namespace creatures {
                             11111111111111111111111f44f111111dddd111
                             11111111111111111111111f44f1111111dd1111
                             111111111111111111111111ff11111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 26:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             1111111111111111111111111111114ffffff4111111111111111111
                             1111111111111111111111111114ffffffffffff1111111111111111
@@ -1520,9 +1554,9 @@ namespace creatures {
                             1111111f111111111111111fffffffff4fff41111111111111111111
                             111111111111111111111111111111111ff411111111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 27:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1563,9 +1597,9 @@ namespace creatures {
                             1111111eff11111111ef33efffffe11111111111
                             1111111111111111111effffff11111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 28:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111f1111111111111111111111111111
                             111111111111111111ff1111111111111111111111111111
                             11111111111111111e3f1111111111111111111111111111
@@ -1614,9 +1648,9 @@ namespace creatures {
                             111111111111111111111111111111111111e313f1e133f1
                             1111111111111111111111111111111111111e3f111f3f11
                             11111111111111111111111111111111111111f11111f111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 29:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1657,9 +1691,9 @@ namespace creatures {
                             1111fffff11f1bbfff11111111fff11111111111
                             11111111111ffff1111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 30:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -1708,9 +1742,9 @@ namespace creatures {
                             11111111f1f1ff11161616bbbbff11111111111111111111
                             11111111ff1f1111b1f1f1ffff1111111111111111111111
                             11111111111111111ffffff1111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 31:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111ff111111111111111fff1111111111111111111111111
                             1111111111fbbffff111111111ff11f1111111111111111111111111
                             1111111111fbbbbbbff111116f111f11111111111111111111111111
@@ -1767,9 +1801,9 @@ namespace creatures {
                             111111fffff1111fffff1111111111f1f1bf666f1bfff11111111111
                             11111111111ffff1111111111111111f11b6fff11bbf111111111111
                             11111111111111111111111111111111ffff111ffff1111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 32:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1810,9 +1844,9 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 33:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -1861,9 +1895,9 @@ namespace creatures {
                             1111f111f1f1111f1ddddbff111111fbfbdfbfdffffff1f1
                             11111fffff111111ffffff11111111ffdfd1dffdddd11f11
                             1111111111111111111111111111111ffffff11ffffff111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 34:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111bbb1111111111111111111f111111111111111111111
                             11111111111b111bb11111b1111111111f1fffff1111111111111111
                             111111111111bf111f111b1f111111111f1d111bf111111111111111
@@ -1920,9 +1954,9 @@ namespace creatures {
                             111111fd11ddddbffffff1111bbffffffffffffffbff111111ddff11
                             1111111fffffffb1111111111111111111bbfffffffff1111ddff111
                             111111111111111111111111111111111111111111111ffffff11111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 35:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1963,9 +1997,9 @@ namespace creatures {
                             11111111111111111111ffd3fffddddff1111111
                             11111111111111111111111fffffff3111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 36:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             ffff11111111111111111111111111111111111111111111
                             ffffff111111111111111111111111111111111111111111
@@ -2014,9 +2048,9 @@ namespace creatures {
                             1111111111f1f11fdf11111111111fffddddf11111111111
                             11111111111ffffff111111111111111ffff111111111111
                             111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 37:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111114ff4111111111111111111111111111111111111
                             1111111f1111f11111111111111111111111111111111111
@@ -2065,9 +2099,9 @@ namespace creatures {
                             111111111111114fffff111111ffffff11111114f4111111
                             1111111111111144fff11111114ffff41111111111111111
                             1111111111111111111111111114ff411111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 38:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111114ff4111111111111111111111111111111111111111
                             11111111114f41111f11111111111111111111111111111111111111
                             111111111f11111111f4111111111111111111111111111111111111
@@ -2124,9 +2158,9 @@ namespace creatures {
                             11411114111114ffffffff411114ffff4d1111114ff4111111111111
                             111111114fff4111111111111111111114fffff41111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 39:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2167,9 +2201,9 @@ namespace creatures {
                             11111111111311d33f111f3ddd11311111111111
                             11111111111fdddf3111113fddddf11111111111
                             111111111113ff31111111113ff3111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 40:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111ffff111111111111111111111ffff
                             13ff3111111111111ff1111ff1111111111111111fffdddf
                             1f111ff111111111fd111111df1111111111111ffdddd3df
@@ -2218,9 +2252,9 @@ namespace creatures {
                             1f3333333333333f33fffffffffffff33f3333333333333f
                             1f33333333fffff11111111111111111113fff333333333f
                             11ffffffff11111111111111111111111111111ffffffff1
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 41:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111116611111111111
@@ -2261,9 +2295,9 @@ namespace creatures {
                             1111111611111111111111f11111111111111111
                             1111111111111111111111611111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 42:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111b6fffffffffffff
                             ffff611111111111111111111111111111111b6fff11111111111f61
                             bb11fff6111111111111111111111111111bff11111666666661f111
@@ -2320,9 +2354,9 @@ namespace creatures {
                             111111111fbbff611b6ff1111111116fff611116f61116ff61111111
                             1111111111ff61111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 43:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2363,9 +2397,9 @@ namespace creatures {
                             1111111111111117fff711111771111111111111
                             11111111111111117f7111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 44:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             1111111141111111111111111f1111111111111111111111
@@ -2414,9 +2448,9 @@ namespace creatures {
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 45:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111144fffff4411111111111111111111111
                             1111111111111111111111fff441444ff41111111111111111111111
@@ -2473,9 +2507,9 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 46:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2516,9 +2550,9 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 47:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111fffffffff111111111111111111111111
                             111111111111111111111fffff444444ff1111111111111111111111
                             1111111111111111111ffff44444444444ff11111111111111111111
@@ -2575,9 +2609,9 @@ namespace creatures {
                             111111111f4ffff111111111111111ffffff41111111111f44f11111
                             1111111111111111111111111111111111111111111ff4444f111111
                             111111111111111111111111111111111111111111111ffff1111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 48:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111bff11111111111111111111111111111
                             1111111f1dbff111111111111111111111111111
                             111111f1111dbf111fb111111111111111111111
@@ -2618,9 +2652,9 @@ namespace creatures {
                             1111111111111111111f1ddbbfbf111111111111
                             11111111111111111111f1fbbff1111111111111
                             111111111111111111111ffff111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 49:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111fff1111111111111111bffffb1111111
                             11111111111111111111111fbbbf11111111111bfff11ddddfb11111
                             1111111111111111111111fbbbbbf11111111bf1111ddd11dddf1111
@@ -2677,9 +2711,9 @@ namespace creatures {
                             111111111111111ffbbdff111111111111111111111111f111df1111
                             11111111111111111fff111111111111111111111111111ffff11111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 50:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2720,9 +2754,9 @@ namespace creatures {
                             111111f11f1f111e1feff31ff311113331111111
                             1111111111111e11fff311113131113111111111
                             1111111111111111111131111111311111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 51:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -2771,9 +2805,9 @@ namespace creatures {
                             1311111111fe1e111111f31ff13f111111e1ef1111111131
                             111111111111113e31f1313113131f13e311111111111111
                             111111111111e113111111f11f111111311e111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 52:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2814,9 +2848,9 @@ namespace creatures {
                             11fdddff444dd4fff4dfddddddfddd44444f4f11
                             11fd4f44444fff111ffffd4ddf1fff44444f4f11
                             111ffffffff1111111111ffff11111fffffff111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 53:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111114ff41111111111
                             1ff4d111111111111111111111d41111111111114fddddf411111111
@@ -2873,9 +2907,9 @@ namespace creatures {
                             1111111f1ffffff11f4f11f44f11f411f11fdf11f4f111ff11f11111
                             1111111df11111d1ffff1fffff1fff1fff1f1f1ffffff1fd4ff11111
                             111111111111111f111dfd111ffd11fd11ff1ffd1111dff111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 54:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111f11f41111ddd111111111111111111111111
                             11f41f4f4114fff44d1111111111111111111111
                             111f4f4f4ff444444f4d11111111111111111111
@@ -2916,9 +2950,9 @@ namespace creatures {
                             1111ff111dd11ddd4ffffffff444dd1ddd111f11
                             111f41dfdd1fdd44ff4d11111dff4ddf4ddfd1f1
                             1111ffffffffffff4d11111111d4ffffffffff41
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 55:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111ffb11bf11111111111111111
                             11111111111111111111f111111fff1f11fb1f1f1111111111111111
                             11111111111111111111ff1111f11bf11bbff11f1111111111111111
@@ -2975,9 +3009,9 @@ namespace creatures {
                             111111111111111111111ff11f99ff9bf111111111f199bf11fb91f1
                             11111111111111111111111111ff11ff1111111111f1fffff1fff1f1
                             1111111111111111111111111111111111111111111f1111ff111f11
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 56:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -3018,9 +3052,9 @@ namespace creatures {
                             1111f111fffff3ef111111111111f11efe3eeeee
                             11111fff11111ff11111111111111ff111f33eef
                             11111111111111111111111111111111111effe1
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 57:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111ffff111111111111111111111111111111eff1111111
                             1111111111ff3333ff111111111111111111111111111f33eff11111
                             111111111f113333eef1111111111111111111111111f1333eef1111
@@ -3077,9 +3111,9 @@ namespace creatures {
                             1111111111111111111111111111111111111111111f111113e11111
                             1111111111111111111111111111111111111111111e11111f111111
                             11111111111111111111111111111111111111111111efffe1111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 58:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             11111111111111111111113efffe311111111111
                             111111111111111111111e1133333fe111111111
@@ -3120,9 +3154,9 @@ namespace creatures {
                             1111111fe333333e3f3333333ff11333f1111111
                             1111111efffe3e3e3f3e3e3ef3ee33e3f1111111
                             11111111efffffffffffffffe13effff11111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 59:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111fff111111111111111111111111111111111111111
@@ -3179,9 +3213,9 @@ namespace creatures {
                             111111f4f444f4f4f444ff44f44f4144444f44ff4111111111111111
                             111111f4f4f4f4f4f444f444f44f44444444ff411111111111111111
                             1111111ffffffffffff4114fffffffffffff44111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 60:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -3222,9 +3256,9 @@ namespace creatures {
                             11111111111111111111111111111116ff611111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 61:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111ffff61111111111111111111111111111
                             11111111111111f1ff6f6b11111111116ffff61111111111
@@ -3273,9 +3307,9 @@ namespace creatures {
                             1111111116fffff6b111111111111116ffffffffff611111
                             1111111111111111111111111111111116fffffff6111111
                             111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 62:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             111111111111111116fffff611111111111111111111111f61111111
@@ -3332,9 +3366,9 @@ namespace creatures {
                             11116fffffffffff6111111111111111111111111111111111111111
                             111116fffffff6111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 63:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             11111111111111ff1111111111111114f1111111
@@ -3375,9 +3409,9 @@ namespace creatures {
                             11111111ffff111111111111111111f44f111111
                             1111111111111111111111111111111ff1111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 64:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111ff1111111111111111111111111111111111111111111
                             11f11f111111111111111111111111111111111111111111
                             1f1111411111111111111111111111111111111111111111
@@ -3426,9 +3460,9 @@ namespace creatures {
                             1111111111111ff1d4fddd4ff111111fff4444ff11111111
                             111111111111f1f44f1f44f1f111111111ffff1111111111
                             111111111111fff11fff111ff11111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 65:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111114fff411111ff111111111111111
                             11111111111111111f44f1111114f1111df411411f11111111111111
                             11111111111ff111fd11df1111f111ddffddff111f11111111111111
@@ -3485,9 +3519,9 @@ namespace creatures {
                             11111f1fff11ffff111111111111111111111f411ffff111f1111111
                             111111f111ff11111111111111111111111111f11f11144ff1111111
                             111111111111111111111111111111111111111ff111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 66:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111fff1ff1f111111111111111
                             1111111111111111f111fb1fbf11111111111111
                             1111111111111111fdd11fbfbf11111111111111
@@ -3528,9 +3562,9 @@ namespace creatures {
                             11111111111111fbbf11111111111ffbbbbbf111
                             111111111111111ff11111111111111fffff1111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 67:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
@@ -3587,9 +3621,9 @@ namespace creatures {
                             111fbbbbbbbbfbbbbbbbfbb1111111111111fbbbbbbbbbbbbf111111
                             111bfbbbbbbfffbbbbffb111111111111111fbbbbbbbbbbbbf111111
                             1111bffffff111ffff1111111111111111111ffffffffffffb111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 68:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111fbbfff11111111111111111111111111111111111
                             111111111bffbbb111dddfb111111111111111111111111111111111
                             1111111fbbd1111dbddddbfb11111111111111111111111111111111
@@ -3646,9 +3680,9 @@ namespace creatures {
                             111111111111111111111111111111111111bffffb11111111111111
                             1111111111111111111111111111111111111bbbb111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 69:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             111111111111111117ffff711111111111111111
                             1111111111111111f111117f1111111111111111
@@ -3689,9 +3723,9 @@ namespace creatures {
                             111111111111111111111f111ff1111111111111
                             11111111111111111111f1111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 70:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             11111111111111111111117f711111111111111111111111
@@ -3740,9 +3774,9 @@ namespace creatures {
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 71:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111117ffffff71111111111111111111111
                             111111111111111117f711111f11111117f11117ff71111111111111
                             1111111111111111f7777f11f1111777117f17fffff7111111111111
@@ -3799,9 +3833,9 @@ namespace creatures {
                             11111111117fffff71111111111117ffff7111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 72:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             11111111111111111bfffffb1111111111111111
                             111111111111111bf111111ffb11111111111111
                             111111111111bffb111119bfffff111111111111
@@ -3842,9 +3876,9 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 73:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111ffffff111111111111111111111
                             1111111111111111111ff111111fff111111111111111111
                             11111111111111111ffbf11111fb1bff1111111111111111
@@ -3893,9 +3927,9 @@ namespace creatures {
                             1111111111111111111f9f1111f111f9f111111111111111
                             11111111111111111111f1111111111f1111111111111111
                             111111111111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 74:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -3936,9 +3970,9 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 75:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             1111111111111111111111111111111111111bb111111111
                             1111111bf111111111111111111111111111b11f11111111
                             111111b1df11111111111111111111111111f11f111bbf11
@@ -3987,9 +4021,9 @@ namespace creatures {
                             11111111111111111111111111111111fdddffffffddbf11
                             111111111111111111111111111111111fff11111fdddf11
                             111111111111111111111111111111111111111111fff111
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 76:
-                        creatureDex[i] = sprites.create(img`
+                        creatureImageDex[i] = sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -4038,1449 +4072,4605 @@ namespace creatures {
                             1f11f111fdbfddbf1111bffffb11111111f11fb1fb1df11b
                             1fbdfdbdfbbfbbbf111111111111111111fdbfbbfbbbfbbf
                             1bffbfffbff1fffb111111111111111111bffbffbfffbff1
-                        `, SpriteKind.Player)
+                        `, SpriteKind.Creature)
                     case 77:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111f411111
+                            1111111ff111ff4111111111111111111111111f44f11111
+                            111111f44f44114f411111111111111111111f4114411111
+                            11111f44f44111141f11111111111111114f41111f111111
+                            1111f4444111111444f11111111111111411111144111111
+                            11114414111111144141111111111111f4111114f1111111
+                            111f111411111144441f1f41111111114111114f11111111
+                            111f1141111114444441f11f11111114411444f111111111
+                            111f11411111444444441444f111111f1144411f41111111
+                            111f114111144f444444444444111114144441111f111111
+                            111f14411114f44f444444444f1111414444411111f11111
+                            111f44411114f44f444444444f1111f14444441111141111
+                            1111f444114f144f44441444441111f144444411111f1111
+                            1111f4441144144f444411f4114f11414444441111f11111
+                            11111f41141111144441111ff441f11f144444411f111111
+                            1111f411111ff111444111144441f11f14444441114f4111
+                            1111f41111f1f1111444444444111f1f4444444411114111
+                            1111441111fff11111444444111114f1f444444441144411
+                            1114111111ff11111114444444f11444fff4444441144f11
+                            111f1111111111f4111111444414ff411111f44441444f11
+                            111f444111111f44111111111111111111111f4444444411
+                            111f44444111f4441111111111111111111111f44444f111
+                            11144444441ff4411111111111111111111111f444f41111
+                            1111f4444f4ff441111111111111111111111114ff111111
+                            111114ff41f1f41111111111111111111111111f11111111
+                            11111111111141111111111111111f111111111f11111111
+                            11111111111f44111111141111114f111111114f11111111
+                            111111111ff44f11111144f1111444f11111144411111111
+                            11111111f1444f1111144f444444444f1111114441111111
+                            1111111f11444f11111444fffffff444f1111114f1111111
+                            1111111f4444f1111144f11111ff44ffff11111144111111
+                            1111111f4444f114444f1111111f44444fff11111f111111
+                            11111111f444f44444f111111111f444444ff11114411f11
+                            111111111ff4f444444ff41111111f44444fff1114f1f4f1
+                            11111111111f44444444f111111111f4444f11f1444f44f1
+                            11111111111f444444ff11111111111f444f111f444444f1
+                            11111111111f44444f111111111111f4444f111f44444f11
+                            1111111111f4444ffffff41111111f444444f111f444f4f1
+                            1111111111f444444444f1111111f44444ff1111f4444f11
+                            111111111f44444444ff11111111ff44f44f1111f444f111
+                            111111111f444444ff111111111f4fff1ff11111f444f111
+                            11111111fff44fff11111111111fffff11111111f44ff111
+                            1111111f4fffff1111111111111fffff11111111fffff111
+                            1111111ffffff11111111111111fff111111111f4ffff111
+                            11111111ffff111111111111111111111111111fffff1111
+                        `, SpriteKind.Creature)
                     case 78:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            111111111111111144111111111114fff41111111111111111111111
+                            114111111ffff111144111111111f111114f11111111111111111111
+                            11411111f11f4ff11141111111ff11111111f1111111111111111111
+                            1144111f1111f41ff1111f411f444f44441114f11111111111111111
+                            1114111111111f444f111f14f4f4444f4444111f1111111111114111
+                            11111111111111f4444111f144ff44114f444441f111ff1111144111
+                            11111411111111f444f1111f44f4111114f4444414ff114f11441111
+                            111114111f1111f444441111f44111111444f44411444111f1111111
+                            1111411114111f44444f1111f4ff111114444f44444441444f111111
+                            11144111f441f4414444111f4f1f1111144444f44444141111111111
+                            1114111f44f44441444114f44f4111114444444f4444414411111111
+                            111111f44444411444f1f444411111114444444444444111f1111111
+                            11111f444411111444f44f411111111444f44444f444411114111111
+                            1114f4411111114444ff4111111111444ff444444f4444111f111111
+                            11f111111111144444f411111141144fff44441144f4444411411111
+                            1f1111111144444444f1f11114444fffff444111144f444441f11111
+                            1411111144444444444f14fffff411f4ff4441111114f444411f1111
+                            4111114444444444444f11111111f4444f4411111114444441114111
+                            f111444444444444444f1111111f14444f44111111114f444111f111
+                            411144444444444444f1111111f114444f441111111144f441114111
+                            14144444444444444444f11111411144f4f111111111144f41111411
+                            1f1444444444444444ff1111141111f444f111111111144f44111f11
+                            1f144444444444444f1111111f11f44444f1111111111144f4111411
+                            1f14444444444444f4fffffffff444444441141111111144f4114111
+                            1f144444444444ff44111111111111144441114111111444f41f1111
+                            141444444444f4411111111111111111111111141111444ff4f11111
+                            11f14444444f4111111111111111111111114414414444f44f111111
+                            1141444444441111111111111111111111111441444444f44f111111
+                            1f1f144444f1111111111141111111111111114444444f4444411111
+                            1f114444444111111111114411111111411111444444f44444441111
+                            11f44f4444111111111114444111111441111144f44ff444444f1111
+                            111ff1f44f1111111111144f4441114f41111114f4ffff444444f111
+                            1111111f4f111111111444f44444444441111114ff111ff444444411
+                            111411111f11111114444ff444444444f4111114f1114ffff4444f11
+                            114411111f1111114444fffffffffffff4111114f114fff4ff444441
+                            114111111f111114444ff444444f11111f411111f11fff4444ff44f1
+                            114111111f1144444fff444444411111114111114114f44444444441
+                            1111f111f1111444ff4f444444f1111111f1111144111ff444444f11
+                            1111f1114111444f411f444444111111111f11114f111114ffff4111
+                            111f4f1f111444f1111f44444f1111111111f1114f11111111111111
+                            11f144ff11144f11111f4444411111111111411144f1111111111111
+                            11f144441114f11111144444f111111111111f1144f1111111111111
+                            111f4441114f111111114444f1111141111111f1144f111111111111
+                            111f4441114411111111f444f11111441111111f144f111111111111
+                            1111f441144111111ff1f444f111111441111f441444f11111111111
+                            1111f4f114f111411f4ff444411111111114f1444144411111111111
+                            11111f111441114411f4444444111111111114f44144ff1111111111
+                            111114111411114411f444444f11111111111114f44444f111111111
+                            111141114f111111111fff444f111111111111111444444f11111111
+                            1111f1144f11111111111f444f1111111111111111f4444441111111
+                            1111f1444111111111111f444f11111111111111114444fff4111111
+                            11114144f111111111111ff444f1111111111111111fffffff111111
+                            1111fffff111111111111ffffff1111111111111111fffffff111111
+                            1111fffff4111111111114fffff11111111111111114fffff4111111
+                            11114fffff1111111111114ffff411111111111111114fff41111111
+                        `, SpriteKind.Creature)
                     case 79:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            11111311111111111111fffffffff11111111111
+                            11111f11111111111fff3ddddddd3ff111111111
+                            111131ff311113fff3dddddddddddddf31111111
+                            1111f11113fff31ddddddddddddddd3d3f111111
+                            11113d1111d1d1d1d333333dddd3d3d3d3311111
+                            11111fd111111d1dfffffff3333d3d3d33f11111
+                            1111113fdddddff31111111ff3d3d3d333f31111
+                            111111113fff3111111111113f3d3d333fffd111
+                            11111111111111111113ffffff333333ffffd111
+                            11111111111111113ff333dddddf3fffffffd111
+                            1111111111111ffff333dddddddddf3fffffd111
+                            1111111111ff3df3333ddddddd11dddffff31111
+                            11111113f3dddf3333ddddddd1111dd11ffd1111
+                            1111113dddddf33333ddddddd1111dfdd11f3111
+                            111113dddfff333333ddddddd3ff3ddfddd11f31
+                            111113dff3ddff33333dddddfddddfddfdddd111
+                            111131f333ddd3ffffff333fddddddfdf3dddd31
+                            1111f1f333dff33d11dddfffddff11fd3f3dd3f3
+                            1111ff333f33dddd11dd333fdfdd11fddf333f1f
+                            1111df33f11dddddddd311d33f3dd3fdd3f33f1f
+                            11111df31f11ddddddd1111133f33fdd33ffff1f
+                            111111ff1111dddddd3111f1133ff33333fdddf1
+                            1111111f1fffffff3331111113d3f33333f11dd1
+                            111111fff311111d3fff111113d333ff3f111111
+                            1111d3fd111111111111ff113dd33333fff11111
+                            111fff111111111111111dfffd3333dd113ff111
+                            11f3df111f1111f111111111df333ddddd113f11
+                            df3ddf111dddddddd11111111df3dddddd111df1
+                            f1f333fdd3fffffff3dddd1131df3dddddddddf1
+                            f1f3333fffffffffffffffff11df33ddddd3fff1
+                            fddf3333fd1ff33333fd1ff111df3333dd3f11f1
+                            fddff33f13f33333333ffff111f3f333333f1df1
+                            1ff3dfff11ff3333333fff111dff3fffffffdfd1
+                            11ddddd3f111fffffff3d111dfddddddddddff11
+                            1111111ddf31111111111d3ffddd111ddddd1111
+                            1111111111ff311111d3fffd1111111111111111
+                            1111111111111ffffff1d1111111111111111111
+                        `, SpriteKind.Creature)
                     case 80:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111fff311111111111111111111111
+                            111111111111111ff11111111111f3dd1fd3fffffff3d11fffff1111
+                            11111111111111f31f111111111f333d3ff33333ddddf3f33d11f111
+                            11111111111ffffd11ffff11111f3333f33ddddddddddf3ddff11f11
+                            11111111111fd1fd111d1311111f333f3dddddddddddddddf11fdf11
+                            111111111111f3fd1111f1111111ffffff33dddddddddddf3ddddf11
+                            1111111111111ffdd1113f1111113f333dddddd3fff3dddff3dd3f11
+                            111111111111113dd11113111113f33ddddddd3f111f3ddd3f33f111
+                            1111111f31111f3dd11111f111ffffff3dddddf11111fdddd3ff1111
+                            1111111f1f111f3ddd11f131ffd1111dff3333f11f11fdddd33fd111
+                            1111111fd1f31f33dddfdfdfdd1111111dff33f11111fdddd33f3111
+                            11111113dd11fff3ddfd1ffffd111dff111dff3f111f3ddddd33f111
+                            11111111fddfd111ffdd1f3d3fddddf111111dfffff3dddddd33f111
+                            11111111f3df11dddfd11fd113fffddd1111111ff3dddddddd33f111
+                            111111111f3d111dddd113111df1ffffddd11111dff3dd3dd333f111
+                            1111111113fd1111ddd1f11113fffffffffdd11111dff3ddd333f111
+                            11111111113f1f1111f3111ddfd1ffff311ffdd11111dfddd33f3111
+                            1111111111fdf1f11111ddd3fd111f1ff1fffffdddf1dfdd333fd111
+                            111111111f3df1fddddd3ffdd111f1dfffffffffdfdd3fd333fd1111
+                            111111111fdf31dfff33ddd1111f1ddff333f333fdddf33333f11111
+                            11111111f3df3d11fddd11111dd1dddf333f3333fdddf3333fd11111
+                            11111111fddf3d11f111111dddd33d1f333333ff1ddf3f33fd111111
+                            1111f111f3d3f3dd111111111dddddffffffff11113ff333fffd1111
+                            111f1f11f3ddf3dd31111111111dddd3fdddf11111ff3dddd33fd111
+                            111fdf111f3ddf3311111111111dd3ffffdf1f111f33dddddd33f111
+                            111fd1f1ff33dddd113f1111dd3fff3d11f31f1df33dddddddd3fd11
+                            111f3d1f33ff333dddf1fddfff3d11111dfd11f333331dddddd33f11
+                            111f3d1dddd3fffffffd1ff3d1111111df3d1df3333f11dddddd3f11
+                            1113fdfdd1111dddddf311f1111111ddddd11f3333f111dddddd3f11
+                            1111f3fd111111111df3d11f1111dddddd11df33ffd111ddddd33f11
+                            11113fdd1111111ddd133d11f1111dddd11dfdffdd111dddddd33f11
+                            11113fdd11111111dd1333d1f111111dddffdfdd1111dddddd33fd11
+                            11111f3d111111111d33333f1111111111ddfdd111dddddddd33f111
+                            11111f3dd111111111d333d111111111133ffdddddddddd3333f3d11
+                            1111d3f3ddd111111111dd11111113ff3111fddddddd333333f33f11
+                            111d3f3ff3ddd1111111111dd3ff31111111f3dd33333333ff333f31
+                            11d3f33d3ff3ddddddd3ffff3111111111d13f33333333ff333333f1
+                            113ff3dddddd3fffff311111111111111d31df333333ff33dd3333f3
+                            1dff3dddd31111111d111d311111111dd3fdd3ffffff33ddddd3333f
+                            13ff3dddff3d11111311dd311111dd3fffdddd3f3333dddd3ff3333f
+                            df3f3dd31dff3d111df1df111dd3fffd3fdddd3ff1111111dd3f333f
+                            3f3f3ddd111dff3d1df1dfdd3fffdd1113ddddf11111ddddddd3f33f
+                            f33f3ddd1111fdf3d1df13fffddf111111dddf11111ddddddddd3f3f
+                            f33df3ddf1111dd3f1df13f3d11111111dddf1111ddddddddd3d3f3f
+                            f3ddf3dddf111f3d111311ddf3111111fddffff1ddddddddddd3d3f3
+                            f3dddf3ddd3f3dd111111111ddff311f3df1111fddddddddddd3d3f3
+                            f3dddfff3ddddd1111111111111ddf3dd3f1111f3dddddddddd3d3fd
+                            f33dddf1fff33dd111111111ddddddd3ffffd1df3dddddddddd33f31
+                            df3ddd311f3ffff33ddddddd333fffffff3ffddf33dddddddd333fd1
+                            1f33ddd3fddf111fffffffffffff111ff333ffffff3dddddd333f311
+                            1df33dddddddfffdddddddf11133f1ff3dddfdf111fdddd33333fd11
+                            111f333dddd3ddd3ddddd3d333dd3ff3dddfd1fd1df33333333fd111
+                            111dff333dddddddddddddddddd3ff3ddff3111fddf333333ffd1111
+                            1111d3fff33ddddddddddd33ffff3ddff3d1111dff33333ff3d11111
+                            1111111d3ffff333333fffff333dfff3d111111113fffffdd1111111
+                            11111111111d3fffffffffffffff3dd111111111113333d111111111
+                        `, SpriteKind.Creature)
                     case 81:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111ff1111111111111111111111111
+                            111111111111fb1f111111111111111111111111
+                            11111111111fb1f1111111111111111111111111
+                            11111111111fdfdf1dffffbd1111111111111111
+                            111111111111f1fdffbbbddff1111ff111111111
+                            111111111111111fbb1dd11dbf1ffddf11111111
+                            11111111111111fbddddd11ddff1dddff1111111
+                            1111111111111dfdddddddddfbb11bfddf111111
+                            1111111111111fbdddbbbdddfbbfffdddf111111
+                            1111111111111fdddb111bddfbbbf111ff111111
+                            1111111111111fddb11111bddfbbbbff11111111
+                            1111111111111fddb1f111bddbffff1111111111
+                            111111111111ffbdb11111bdbbbfb11111111111
+                            1111111111ffbbfddb111bddbbbffff111111111
+                            11111111ff111bfbddbbbddbbbfd1b1f11111111
+                            11111111fd11bfffbddddbbbbff1bdbf11111111
+                            11111111fddff1bbffbbbbbffbdf1b1f11111111
+                            111111111ffd111ffffffffbd111fff111111111
+                            1111111111fddff1f1fddd111111111111111111
+                            11111111111ff11ffffb11111111111111111111
+                            111111111111111f1b1f11111111111111111111
+                            111111111111111bfdbf11111111111111111111
+                            1111111111111111dffd11111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 82:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111fff1111111111111111111111
+                            111111111111111111111fbd11bf11111111111111111111
+                            11111111111111111111fddbbb11f1111111111fb1111111
+                            11111111111111111111fbfffffbf111111111fddf111111
+                            111111bf1111111111111ffd1dff111111111ff11df11111
+                            11111fddf1111111111111ffffb111111111ff1111f11111
+                            1111fd11ff1111111111fb11111ff111111ffbb11f111111
+                            1111f1111ff1111111fb111111111fb111ff1bbbf1111111
+                            11111f11bdff11111f1111111111111b1ff1ddbf11111111
+                            111111fbbb1ff111f11111bffb111111ffddddf11111ff11
+                            11ff111fbbb1ff11bd111f1111f11111fbbbdf11111f1df1
+                            1fddf111fbbbdf1fd11db111111b1111fbbbff111ff111df
+                            fdd11f111fbbbbfbd11df111111f1111bbbfff1ffdbb11df
+                            fd111bff1ffbbbfdddddf11f111f1111fbbbfffbddbbbff1
+                            ff11bbbffffbbbfdddddb111111b1111fbbbbbbbbbbff111
+                            11ffbbbbbfdbbffddddddf1111f11d1dbfbbbbbbbff11111
+                            1111ffbbbbbbbffdddddddbffbd1d1d1bbffbbfff1111111
+                            111111ffbbbbf11bfffddddddddfff1d1f11ff1111111111
+                            11111111ffff111f1d1fbbddddf1d1f1df11111111111111
+                            11111f1ff111111fdbdfbbbbddfdbdfdf11111111ff11111
+                            1111f111ff11111f1d1fbbbbbbf1d1f1b1111111f11ff111
+                            1111ff1dbff11111fffbbbbbbbbfffdf11111111fd11ff11
+                            111f1ffbbdff111111ffbbbbbbbbdfbf111111111fd1ff11
+                            111b11ffddff11111111ffbbbbbfbf1ffffb1111fdfd11f1
+                            111f1dbffddff111111111bfffbffbdf11d1ffff1dbfd1f1
+                            1111fbbbfddff1111111111fbfffbdf11d1d1dfb11f1ff11
+                            11111fbbddbfffb1111111fbbffbdf11d1d1d11bbf111111
+                            111111fbfbd111dbf1111bfbf11dfbf11d1d1111f1111111
+                            1111111fd1111111df1111ff11ffbbf111d1d1111f111111
+                            111111fd111111111df1111bff11ff11111d11111f111111
+                            111111bd111111111db111111f11111111bffb111db11111
+                            11111bdd111111111fdf1ff1fdd111111f1111f11df11111
+                            11111fddd1111111bdfdfbdffddd111db111111bddf11111
+                            11111fddddd111ddb1b11b1dfdddddddf11f111fddf11111
+                            11111fdddddddddbbdfdfbdfbbddddddf111111fddb11111
+                            11111bdddddd1ddbbfdf1ff11fbfffddb111111bdf111111
+                            11111bfdffddddddbbb111111ff1d1fddf1111fddf111111
+                            111111fbbbbfddddddf1111111fdbdfbddbffbddfff11111
+                            11111fbbbbbbfddddf11111111f1d1fbbdddddffdddff111
+                            11111fddffddfddbf1111111111fffbbbddddfbddddbbf11
+                            1111fbdfffddffb11111111111111ffbddddfbbbffbb11f1
+                            1111fbbffddff111111111111111111bfffbfbbfffff1fff
+                            111f11fffbdf111111111111111111111111fbbffb1ffffb
+                            111f11ff11ff111111111111111111111111fbbbf111ffb1
+                            111fffff11f11111111111111111111111111fb11f111111
+                            1111ff1ffff111111111111111111111111111fdfff11111
+                            1111111fff11111111111111111111111111111fffb11111
+                            111111111111111111111111111111111111111bfb111111
+                        `, SpriteKind.Creature)
                     case 83:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111fff1111111111111111111f1111111111111
+                            1111111ff111f33f1111111ee111111111ff111111111111
+                            111111f13f111f31f111111ffe111f1111fe111111111111
+                            1111111f13f11fe3f11111efefe11ff111f3f11ffe111111
+                            11111111fe3f11f31f1111feeef11fef11f3f1feef111111
+                            111111111fe3f1fe3f111efeeefe1f3f11f33f133fe11111
+                            11ff111111fe33ef31f11feeeeef1e3e11f3f113eff11111
+                            1f11fff1111fe33f333fffeeeeefe1f3f1ff3111fe3f1111
+                            1ff1133fff1fe333e333eeffee3ef1f3e1f13311f33ef111
+                            111fffe333ff3333e333333efe3eeff33f11331f1333f111
+                            111111ffe33333e3333e3333efeeeef33f3133ef113efe11
+                            11111111fee333f333ef33333efee3fefe3113f3111fef11
+                            1111111fe33333fe3efe33333effffffe3331ef3311f3fe1
+                            1111111f333133ffeff3111333fe33ef33331f13331f1ef1
+                            111111fe33ef13efff3effe133ef33f333333f1133f113f1
+                            111111f33f11e13ff3f1111f13ef3e333333fe311ef111f1
+                            111111f33f1efe1fee111111f3efef31333ef3311fe311f1
+                            111111f33f1fffe33effe111feeef311333fe3331f131fe1
+                            111111f33f1f1feeefeffe11feeef31333ef3333f113ef11
+                            1fe111fe3efe1ffffe1ffe11feef333333ee333ef311ef11
+                            f13fe11feeeffe33ef1ffe11eeef333333e3333fe331ef11
+                            f1111effeefe331111ff311feeef3111333333ef3331fe11
+                            1ff31111ffe33111111efffeeef31111133333fe333ef111
+                            111ef3111fe31111111113efeef3111113333ef333eef111
+                            11111ef31fee333311113333fefe11111333ef333eefe111
+                            1111111fffe3331111effe3ef3fe3111333ee3333eef1111
+                            111111111f3311111efe33ffe3fe333333333333eefe1111
+                            11111111f3311113ffffffe3333fe3333333333eeef11111
+                            1111111f3111113f1113ffee333fe33333333eeeefe11111
+                            111111f1111111ff3311113fffeefee33eefffffffffe311
+                            1111ff31111111eefff31113333ffffffffeeeeeeefe3111
+                            111f311111111e3feeeefff33333333eeeee3fffff311111
+                            11f311111111f3feeee3eeefff3333333eeeeeeffffff111
+                            11f31111113f3feeee311133eeefff3333eeeeeeeee1ef11
+                            11f3111113f3feeee31111133333eeefffeeeeeeee1ffef1
+                            11f33111ff3feeee311111113333eeeeeeffffeeee3feef1
+                            111f3eff33ffeee311111111333eeeeeeffffefffff3efe1
+                            1111fffffe1fe31111111111133eeeeeffff11113eeffe11
+                            111111111111fe311111111113eeeeeffff1111111133111
+                            111111111fff3ff3111111113eeeefffff11111111111111
+                            1111111fe11133ffe311113eeeefffffe3ffe11111111111
+                            111111ffffffff33ffe33eefffffffee33333ffe11111111
+                            111fff31111111ee13fffffffff1fe11fffe3111ffffe111
+                            11f11111133efe113333feee11111f33111fffe11e111fe1
+                            11efff333eff1111133fe331111111f3331111fe33f311f1
+                            11111effffefe1333ffe31111111111ff3333fffffefff11
+                            1111111111111ffffe11111111111111efffe11111111111
+                        `, SpriteKind.Creature)
                     case 84:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            111111111111111111111111111ff11111111111
+                            1111111111111111111111111ff11ff111111111
+                            111111111111111111111111f311333f11111111
+                            11111111111111111111111fee333333f1111111
+                            1111111111111111111111fe1fe333eeef111111
+                            1111111111fff111111111feffe33e1fef111111
+                            11111111ff111ff1111111f3ee333effef111111
+                            111111ff111113eff11111f3333333eeef111111
+                            11111f3331113333ef11111f3ff3333eef111111
+                            11111f3e333333333f1fff11f11fe3eef1111111
+                            1111f3e1e3333eee3efe3efff13efeef11111111
+                            1111f3efe333e1ffeef3e3ef13fffff111111111
+                            1111f3efe333efffeef33ef13fff111111111111
+                            1111f3ee3333efffeefeef13fff1111111111111
+                            1111f33333333eeeeefef13ffff1111111111111
+                            11111f3ff333333eeefef3feefef111111111111
+                            11111ff11f3333eeefeeefeeeeeef11111111111
+                            111111f11f33eeeeffeeeeeeeeeef11111111111
+                            11111f113feeeffffeeeeeeeeeeeef1111111111
+                            11111f13fffffe33eeee3e3eeeeef11111111111
+                            1111f13f1111fe3113e3e3e3eeeef11111111111
+                            1111f1f111111f31113e3e3e3eef111111111111
+                            111f13f11111fe331133e3e3eef1111111111111
+                            111f3f1111111ff33113333eeff1111ff1111111
+                            111ff1111111111ffe3333eff1111efeef111111
+                            11f3f11111111111ffefeffffe11effeeeff1111
+                            11ff1111111111111ffff1efffffffff3feef111
+                            1111111111111111effe1111effff1ff3ff3ef11
+                            1111111111111111fff1111111ef1f3f3f1f3f11
+                            1111111111111111fff1111111111f3f1f11ff11
+                            1111111111111111effe1111111111f3f1111111
+                            11111111111111111fff11111111111f11111111
+                            11111111111111111effe1111111111111111111
+                            111111111111111111fff1111111111111111111
+                            1111111111111111fffffff11111111111111111
+                            11111111111111ff3feffeef1111111111111111
+                            1111111111111f13f3f11ffef111111111111111
+                            11111111111111ff1f11111ff111111111111111
+                            111111111111111ff11111111111111111111111
+                        `, SpriteKind.Creature)
                     case 85:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            111111111111111111111fffff11e111111111111111111111111111
+                            11111111111111111111f11311fef111111111111111111111111111
+                            1111111111111111111f113111eff1eff11111111111111111111111
+                            11111111111ffff111f111311eff1efff11111111111111111111111
+                            1111111111f1111f1f3133111ff11fff111fff111111111111111111
+                            111111111f131111ff3313131ff1efe1fff111ff1111111111111111
+                            11111111f11311113f333331ffffff1f31111311f111111111111111
+                            11111111f11131113f333eff3efffff3311131111f11111111111111
+                            11111111f11131113fe3ef3333fe33f3131331111f11111111111111
+                            11111111f11133133efef33333e3333f313311111f11111111111111
+                            11111111f11113333eff333333333333f31311111f11111111111111
+                            111111111f3333333eff1133333333331f333111f111111111111111
+                            1111111111fe3333eefff11333333111ef333333f111111111111111
+                            11111111f11feefeeef3ff1133331fffefe333ef1111111111111111
+                            11111111ff11fefeeef3f1f13331f1ffefeeeef11111111111111111
+                            11111111eff11ffeeeef3fff333ffffeefeeef111111111111111111
+                            111111111ff11effeeef3333333333eeefeef1111111111111111111
+                            111111111eff1ff1feeef33effe3eeeefeef11111111111111111111
+                            1111111111efffff1feeeff111feeeefeef111111111111111111111
+                            111111111ffefffefffeeff113ffeffeef1111111111111111111111
+                            11111111f113ffe33efffef113fffefff1111111effffe1111111111
+                            1111111f1113fe3333efeef133fffeeef111111effe1111111111111
+                            1111111f111ef33333efeef13effe3eeef11111ffe11111111111111
+                            111111f3f133333333eefef33fee3e3eeef1fffff111111111111111
+                            111111f3f1333331113efff3ef33e3eeeeffffffeffffe1111111111
+                            111111f3ff333311111efff3fe333e3eeffe31feffffffe111111111
+                            111111f3f333313efffefff3f3333efffe3331ffffeef11111111111
+                            111111f333333fff1feefffef333effff33331efe133ef1111111111
+                            1111111f333333ffffeeffff3333efffe333331e13331ef111111111
+                            1111111feff33333eeefff33333e3eff3333333333311ef111111111
+                            11111111f11f33eeeeffe3e33ee3eeef3333333333311ff111111111
+                            11111111f111feeefffeee3efe3e3eff333333333331fff111111111
+                            1111111f111fffff11ffeeeeffeeeeff333111333331fef111111111
+                            1111111f133ff111111ffeeffffeefffe31ff11333333ef111111111
+                            111111f113ff1111111ffffffffffffff31ffff1f333eef111111111
+                            111111f13ff111111111fffffffffff1fe31f1ff333eff1111111111
+                            111111f33f111111111111ffffffff111fe33333eeef11f111111111
+                            11111f13f1111ffff11ffffefffff11111ffeeeeeeef111f11111111
+                            11111f1ff111f33fffffeeeffffff1111111ffffffff3331f1111111
+                            11111f3f111f113f3effffff11fef1111111111111ffff331f111111
+                            1111f3f1111f31f3eff3ff1111fef1111111111111fffff331f11111
+                            1111fff1111f3ff1eff3ef1111fef11111111111111fef1ff31f1111
+                            1111ff111111ff33ff1ef1111feef11111111111111fef111f31f111
+                            1111f11111111f3effeef1111fef1111111111111111fef111f3f111
+                            1111111111111f3f1fff11111fef1111111111111111fef1111f3f11
+                            11111111111111f111111111f1ef1111111111111111fef11111ff11
+                            111111111111111111111111f3f111111111111111111fef11111f11
+                            11111111111111111111111f3ef111111111111111111fef11111111
+                            1111111111111111111111ffef11111111111111111111ff11111111
+                            111111111111111fffffff3efef11111111111111111111f11111111
+                            11111111111111f133ee3eeffef11111111111111111111111111111
+                            1111111111111f33eff3eff1f1ef1111111111111111111111111111
+                            1111111111111fffff1ef1111f1ef111111111111111111111111111
+                            1111111111111111f1ef111111f3ee11111111111111111111111111
+                            11111111111111111ff11111111fff11111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 86:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            11111111111111111111116fff611111111111116ff61111
+                            111111111111111111111611111f11111111111fbbbbf611
+                            111111111111111111111ff11111f111111111f111bbbbf1
+                            111111111111f111111161111111161111111f11111bbff1
+                            111111111111f1111116bb1111111f111111f111111bbbbf
+                            111111111111f111111fbb11111111f1111f111111bbbbbf
+                            11111111111fbf111116bffb1111111f11f11111bbbbffbf
+                            11111111111fbf111111fbbbb1111111f1f1111bbbbbbbff
+                            11111111111fb6f111111fbbbbb11111161111bbbbbbbb6f
+                            1111111111f1bbf1111116bbbbbbbb111f11b6ff66bbb6f1
+                            111111111ff11b6fff61116f6bbbbbbb111b6f11fff666f1
+                            1111111ff1f11b6f111f611116ffff6b11bff111111fff11
+                            111111fb11f1bb6f11111ff1111111f611b6f11111111111
+                            11111f11111fb6f1111111bf1111111f11b66f1111111111
+                            1111f111f111ff111f11111bf1111116111b66f111111111
+                            1111611f1f111111f1f1111b611111116111b6f111111111
+                            111611111111111111111111bf111111f1111b6f11111111
+                            111f1116f11111116f111111b6111111611111b6f1111111
+                            116111f1ff11111f1ff1111bbb611116111111bb6f111111
+                            11f111ffff11111ffff1111bbbf1111f111111bbbf111111
+                            11f1111ff1111111ff1111bbbbf111f11111111bbbf11111
+                            11ff11fff111116fff61fbbbbbf11f111111111bbb611111
+                            11616f111f1ff61111161fbbbbbff1111111111bbbb61111
+                            1611f11111fff11111fb1fbbbbbf11111111111bbbbf1111
+                            1f111f111b6f611111611bfbb1bbf111111111bbbbb61111
+                            1611bbfbbbbbbbb11f11b6fb1111bf111111bbbbbbbb6111
+                            11fbb66fbf6b6f6bb6bb66f1111111f611bbbbbbbbbbf111
+                            1116ff66f66b66f6fb666f1111111111f6bbbbbbbbbbf111
+                            111111f6f6b666ff1ffff1111111111111f6bbbbbbbbf111
+                            11111f1bf61666f111111111111111111111bbbbbbbb6111
+                            11111f11f61666f11111111111111111111111bbbbbf1111
+                            11111f111f666f111111111111111111111111bbbbbf1111
+                            11111f1111fff11111111111111111111111111bbbb61111
+                            11111f111111111111111111111111111111111bbbf11111
+                            111111f1111111111111111b61111111111111bbbb611111
+                            111111f1111111111111111b6f11111111111bbbbf111111
+                            111111ff1111111111116111b6f111111111bbbbf1111111
+                            11111fbf111111111111f111b66fb11111bbbbbf11111111
+                            11111f1bf1111111111bf111bb6f6bbbbbbbbbf111111111
+                            1111f11bbf111111111bf111bb66fbbbbbbb6f1111111111
+                            1111f11bbbfbb1111bbbf111bbbb6f6bbb6f111111111111
+                            111f111bb6ff6bbbbbbb6111bbbb66f66f11111111111111
+                            11f111bbb6f11f6bbbbb6f11bbbbb66f1111111111111111
+                            11f16bfb6611111ff6bbbf1bbbbbbf66f111111111111111
+                            111f6f66ff111111116ffffbbfbb66fff111111111111111
+                            1111ffff111111111111111ffbf6666f1111111111111111
+                            1111111111111111111111111ffffff11111111111111111
+                        `, SpriteKind.Creature)
                     case 87:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111fff1111111111111111111111111111
+                            111111111111111ffbbbff11111111111111111111111111
+                            11111111111111f111bbbbff111111111111111111111111
+                            1111111111111f1111111bbbff1111111111111111111111
+                            111111111111f1111111111bbbff11111111111111111111
+                            111111111111f111111111111bbbff111111111111111111
+                            111111111111f1111111116ff11bbbff1111111111111111
+                            111111111f11fb11111166bbb6f11bbbf111111111111111
+                            11111111f1f11fb11111bbbbbbb6f1bbbff1111111111111
+                            11111111f11f1fbb111111111bbbb611bbbf111111111111
+                            11111111f11bfff6bb111111111bbb6f11bbff1111111111
+                            11111116f1b6fbbbffbbb11111111bbbbbbbb6f111111111
+                            111111f11fff11111bfbbb66611111bbbbbbbb6f11111111
+                            111116b111111bbb111fbbbbb666ff1bbbbbbbb6f1111111
+                            11111ffb1111bbff1111fbbbbbbbbbffff6bbbbb6f111111
+                            11116f1f1111bff1f111fbbbbbbbbbb66666fbbbb6f11111
+                            1111fff61111bffff1116fbbbbbbbb6666ff1fbbbb6f1111
+                            1116f66bbb1111ff1111bfbbbbbb666fff1111fbbb66f111
+                            111f1116f1111111111116fbbb6ffff1111111fbbbb6f111
+                            111f11111111111111111b6ffff11111111111fbbbb66f11
+                            1116b1111111111b111111bb6111111111111fbbbbbb6f11
+                            1111fbb111111bbf11111111bff1111111111fbbbbbb66f1
+                            11111fb6ff6bbbf11111111111b6ff111111fbbbbbbb66f1
+                            111111ffbbfff611111111111111bbff11ffbbbbbbbbb6f1
+                            11111f1fbbf1f1111111111111111bb6fffbbbbbbbbbb6f1
+                            111111fbbbbf111111111111111111bbb66ffbbbbbbbb66f
+                            111111fbb1111111111111111111111bbb666fbbbbbbb66f
+                            111111fb111111111111116111111111bbb666fbbbbbbb6f
+                            11111ffb1111111111111bb611111111bbbb66fbbbbbbb6f
+                            11111ff611111111111111bbf11111111bbbb666bbbbbb6f
+                            11111fbf111111111111111bf11111111b6bb66f111bbb6f
+                            1111f1bf1111111111111111bf11116111b6bb6f1111bb6f
+                            1111f1bb6111111111111111bbf1111611bb6b6611111bf1
+                            111f1bbbf1111111111111111bf1111611bb6bf111111bf1
+                            11f11bbbf11111111111111111bf1116111bb6f111111b61
+                            1f11bbbb6611111111111111111f1111611bbf1111111611
+                            1f1bbbbb6f111111111111111111f111611bbf1111111f11
+                            1fbbb6bbb6f11111111111111111f11161bff11111116111
+                            1fbb6bbbb66f11111111111111111fff1ff111111111f111
+                            11fb6bbbb666f111111111111111111111111111111f1111
+                            111ffbbb6666f11111111111111111111111111111f11111
+                            11111fff666f1f111111111111111111111111111f111111
+                            11111111fff1116f111111111111111111111111f1111111
+                            1111111111111111f1111111111111111111111f11111111
+                            11111111111111111f6111111111111111111f6111111111
+                            11111111111111111116f61111111111111ff11111111111
+                            11111111111111111111116ff61111116f61111111111111
+                            111111111111111111111111116ffff61111111111111111
+                        `, SpriteKind.Creature)
                     case 88:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111bb111111111
+                            11111bb11111111111111111bb11b11b11111111
+                            1111b11b111111111111111b11bbbddbfff11111
+                            1111b11f11111111111111b1111ddbbb11df1111
+                            111b11ddb1111111111111bdddd1111dddbf1111
+                            1bbddddd1ff111111111111fdd111dddbbf11111
+                            b11dddd111df11111111111fbdddddbbbf111111
+                            bdddbd11dddf111111111111bbdbbbbbbf111111
+                            1fddddddddf111111111111fbbdddbbbbf111111
+                            11fbbdddbbbfbffbbfff111fbbbdbbbbbf111111
+                            11fbbbbbbffb1111dbbbbfbfdbbbbbbbbbf11111
+                            111fdbbbfbdd111ddbffbbbfdbbbbbbbbbf11111
+                            111fdddb11bdddddbf111fdfdddbbbddbbf11111
+                            111f1dddf1fbbddbb11111bdbdddd11dbbf11111
+                            111f1db111fddbbbf11f11fbf1dd11ddbf111111
+                            1111fdf111b11dbbf11111fbfd1111dbbf111111
+                            1111fdf11f11111dbf111fbbfd111ddbbbf11111
+                            1111ff1fdddddd111dbffbbdbd111dbbbbf11111
+                            1111ffddbbbbbdddd11dbbd11dd1ddbfbbbf1111
+                            11111fbfffffffbbddd11111dbd1ddfbbbbf1111
+                            11111fffbfffffffdbbdd1dddbbddbfbdbbf1111
+                            11111fbfbbffffffdfbbff11dfbbbfbdddbf1111
+                            11111fbfdbffffffdffffbddbfdffdddddfbf111
+                            11111fbbddffffffdfffbbbddfdddddd11dbf111
+                            11111fbbb1bfffffdfffddddbfdddd11d1dbf111
+                            1111fbbbf1bffffbdbfbddbdbbd111111dbbf111
+                            1111fbbbf1bfffddbbfbddbdfbbdd111dbff1111
+                            1111fddbf1bffd11dbfb1dfdfbbfb111bfdf1111
+                            11111fdbf1bfb111dbfdddf1fbbbfb11bfdbf111
+                            11111fbbf1bfd111bbfd1dfdfbddbfddfddbf111
+                            111111fbfdbbd11dbbb1ddbfbd11bfbbfddbbf11
+                            11111bfdfdfbbddbbfd1dbfbbdd11bffbdbbbf11
+                            11111f1dfbfbbbbbbb11dbbbbbbddddbbbbbbf11
+                            11111f1dfbfbbbbbf11dbbfbbfffbbdddbbbfbf1
+                            1111fdddbdfbbbbfb1dbbbfbbdbbfffbbbffbbf1
+                            1111fbddb1bfbbff1dbbffbbddbbbbbfffbbbbbf
+                            11111bbbf1dbffb1dbfffbbddbbbbbdbbbbbbbbf
+                            111111fffd1dddddbfffbbbbbbbbbbffddbbbff1
+                            11111111ffd1ddbffffbbfffbbbfff11fffff111
+                            111111111bfffffbfffff111fff1111111111111
+                        `, SpriteKind.Creature)
                     case 89:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111bfffb11111111111111
+                            11111111111111111111111111111111111ff11dddf1111111111111
+                            1111111111111111111111111111111111f1111ddddfb11111111111
+                            111111111111111111111111111111111b11111ddddddf1111111111
+                            111111111111111111111111111111111f1111ddddbbddf111111111
+                            111111111111111111111111111111111f111ddddbbbfddf11111111
+                            1111111111111111111111111111bfdf11fdddddbbbbfbdbf1111111
+                            111111111111111111111111111b1111ffffdddbbbbfbbdbbf111111
+                            11111111111111111111111111b11111ddddffbbbffbbbbdbf111111
+                            1111111111111111111111111d11111d1d1dddfffbbbbbbddbf11111
+                            1111111111111111111111111b1111d1d1ddddbbbbbbbbbdffff1111
+                            1111111111111111111111111f11dddddbdddddbbbbbbbdfb111f111
+                            1111111111111111111111111fdddddbbbbdddddbbbbdbbb11111f11
+                            1111111111111111dbbfffb111fddbbbbbbdbbdddbbddbf11111d1f1
+                            1111111111111bffd11111dffb1ffbbbbbbbbbddddb1d1f1111d1df1
+                            11111111111bf111111d1d1dbbfffbbfffbbbbdbdd1d1df1d1d1ddf1
+                            111111111ff1111111d1d1d1dbbffdf111ffbbbbbdd111fd1ddddddf
+                            1111111bfddddd11111d1ddddbfbfdf11111fbbbbd1d1ddbbdddddbf
+                            111111bddddddb11111dddbbffddfbdf11111fbffbd1d1dfbbdddbbf
+                            11111fbdddbbbddbddbbbffbbddddbddf1111fbbbfbb1dbbfbbbbbbf
+                            1111bbbbbbbd1bfbbbffd111b111dddddf111fdbbbfbbbbbbffbbbf1
+                            111bddbbbd111dbffd111111bd1111dddbf11fdbbbbfbbbbbbbfbf11
+                            111fdddd111ddbbbbb1f1111bbddd111dbf11f1bbbbbbbbbbbbbbf11
+                            11b11d111ddbbbbbbbbbbbdbbbbbdddddbbf11fdbbbbfbbbbbbbbf11
+                            11f11111dddbbbbbbbddddddddbbbdddbbbbf1f1bdbbbffbbbffbf11
+                            11fd11d1ddddddbbbdd11ddddddbbbddbbbbdff1fddbbbbffffbbf11
+                            11fb1ddddddddbbbbbd111ddbbddbbbdbbbddbf1dfddbbbbffbfbf11
+                            111bdddddbdbbbbbbbbd11dbbbbdbbbbbbbddbbfdf1ddbbbfbbbdf11
+                            111fbdbdbbbbbbbffffbd1dbbffddbbbbdbdddbfdbfdddbfbbbfdf11
+                            1111fbbbbbbbffffffffbddbffffdbbbbddddddfddbbfffbbbbfdf11
+                            111111fbbffffffffffffddbffffddbbbddddddffddbbbbbbbbf1f11
+                            111111fbbbfffffffffffddbffffddddbddbbddfbddddbbbdbffbf11
+                            1111111fdbbffffffffffbdbffffbdddbddbbbdfbfddddddbb11f111
+                            1111111fdbfbffffffffffdbfffffdddddbbbbbfbbfddddfbf111111
+                            1111111b1f1fbfffffffff1bfffffdddddbbbbfddbdbfffbbf111111
+                            1111111b1f1fbfffffffff1bfffffbd1ddbbbbbddbbbbbbbbbf11111
+                            1111111bdf11fbffffffff1bffffffd1ddddbbbdbbbbbbbbbbf11111
+                            1111111fbf11fbffffffffdbfffbbfd11dddbdbbbbbbbbbbbf111111
+                            1111111fbf111fffffffffbdfbdddfbd1dddddbbbbbddbbbbf111111
+                            11111111f1111fffffffffbdfddddbfd1dddddbddbbdddbbbbf11111
+                            11111111b111ffffffffbfbdfdddbbfd11dd1ddddbbddddbbbf11111
+                            11111111b111bfffffbbdfbdfddbbbfd11dd11dddbbbddddbbf11111
+                            11111111111fbffffbdddfb1fdbbbbf111dd111ddbbbbbddbbbf1111
+                            1111111111ffbfffbd11dfb1fbbbbfb111ddd111dbbbbbbbbbbf1111
+                            11111111bfbbfffbbdddddf1fbbbff111ddddddddddbbbbbbbbbf111
+                            111111fbdfdffffbbbdddbfdfbbf1f111ddddbdddddbbbbbbbbbbf11
+                            11111b1dfdffffbbbbbbbbfdfbbfdb11dddddddbbdddbbbbdbbbbf11
+                            1111fbdb11ffffbbbbbbbbfdbfbbdddddddddddddbbdddddbdbdbf11
+                            111f11bf11bfffbbbbbbbf1ddffddddbbfbbbddddddbbbbbdbdbf111
+                            11bd111fbddbfffbbbbffbdddbbd1bbb1bbbbbbddddddbbbbbbbbf11
+                            1bbdd1ddfb11dbfffffbb111ddddbbbfbbbbbbbbbdddddddbbbbbbf1
+                            1bbbdddbbfb111111dddd11dddbfffbbbbffffbbbbbbdddbdbdbdbbf
+                            1ffbbbbbbbbffb1ddddbbbbbbbbbbbbbfffffffffbbbbbbdbdbdbbbf
+                            111fffbbfffffffffffffbbbbbbbfffffffffffffffffffbbbbbbfff
+                            111111fffffffffff111fffffffffffffffffffffff1111ffffff111
+                            1111111111111111111111111fffffffffffff111111111111111111
+                        `, SpriteKind.Creature)
                     case 90:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            11111111111fb111111111111111111111111111
+                            11111111111bdf11111111111ff1111111111111
+                            11111111111bf1f111111111f11f111111111111
+                            111111111111bd1f11111111f1ddfb1111111111
+                            1111111111111fd1ffffffffdddbddfb11111111
+                            111111111bbffff11fddddd1bffdddddfb111111
+                            1111111bfdddddb1111bbbffdddbbbddddf11111
+                            11111fddddddd1bbbffddddd111ffffddddfb111
+                            1111fddddddd1bfdddddddd11fbddddbbdfddf11
+                            111bdddddd1bfdddddddd111fdddddddffddfb11
+                            111fdddddbfdddddddd111fbddddddd1fdffb111
+                            11bddddbfdddddddd1111fdddddddd1bddf1ff11
+                            11fdddfbdddddddd111fbddddddddd1fddffdf11
+                            11fbdfbddddddd1111fbddddddddd11fdfbdb111
+                            111ffbbdddddd1111fbddddddddd11bdfbdbf111
+                            1111fbdddddd1111fbddddddddd11dffbd1ff111
+                            1111fbddddd1111fbddddddddd111bbdd1f1f111
+                            11111fbddd1111fbddddddddd111dfdd1b11f111
+                            1111ffbdd1111fbddddddddd111dfddff111f111
+                            111fdbfb1111dbbddddd1111111bddd1111df111
+                            111fdbbffd1dfbddddd1111111dfdd11111f1111
+                            11fdbbbbfffffbddddd111111dfdd11111df1111
+                            11fdbbbbffd1ffddddd11111dfddd11111ff1111
+                            11fdbbbff1111ffbdddd111dfddd11111dff1111
+                            11fdbbfff11f1fb1bfbbddbfbddd1111dfdf1111
+                            11fdbffbff11bffbfffffffffbd11ddffbdf1111
+                            111fdfbbffffffffffb11bfffffffffbbdf11111
+                            1111fdbbffffffffff11f1ffffbbbbbb1df11111
+                            1111fdbbfbbbffffffb11fffffbbbbbb1df11111
+                            1111fdbfbbbbbbfffffffffffbbbbbb1dff11111
+                            11111df1dddbbbbffffffffffbbbbbb1dff11111
+                            11111f1dddbddbbfffffffbfbbbbbb1dfbf11111
+                            11111f1ddbd11dbfffffbbffbbbbb1dffbf11111
+                            11111f1dbd1111bfbbbbbbfddddd1ff1fbf11111
+                            11111fdddd1111fbbbbbbddffffff1111ff11111
+                            11111f1dd1111dfddddddff11111111111111111
+                            111111fdd11ddf1ffffff1111111111111111111
+                            1111111ffffff111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 91:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            111111111111111111111111111f11111111111111111111111bf111
+                            11dfb11111111111111111111bf1fb1111111111111111111bf11f11
+                            1bddff111111111111111bfffdf1fdffb111111111111111f111df11
+                            1f1dddfb1111111111fff1111fd1bfdddfffb1111111111f11ddbf11
+                            11f1dddffd111111bf11111ddf11bfddddddbfbb111111f11dddf111
+                            11f11dddbbf1111f11111dddff11dbfddddbbbbbbbf11f11dddbf111
+                            111f11dddbbf1111f1ddffffbf1ddbfffffbbbbbbbf1b11dddbf1111
+                            1111f11dddbf1111bfffbbbdfd1ddbfbbbbfffbbbf11f1ddddbf1111
+                            1111b111ddfb11fffbbbddddf11ddbfbbbbbbbfff1111bddbbf11111
+                            11111f111fbbffbbbbddddddf11dddfbbbbdddbbfd11fddfbbf11111
+                            11111bf1fbdbbfbbbdddddddfd1dddbfbbbbdddbbfffdddbff111111
+                            1111111fbdddbbfffddddddbddddddbfbbbbddddbbfdddf111111111
+                            11111111fddddbbddddddddfdddddddfbbddddddbddddbfb11111111
+                            1111111bfbdddddddbbbdddddddddddbbdddddddddddbfdf11111111
+                            111111bfdfdddddfffbbbddddddbdbbdddddffbbddddbfdbf1111111
+                            11111bd1ddddddf11dfbbddddddddddddddf11fbbdddddddfb111111
+                            11111b1dddddddf1ddbfddd11111dddddbfd11bfbddddbddbfb11111
+                            1111b11ddddddfddddbdd111fff111dddd111dbfbdddddddbbf11111
+                            111bf11ddddddbdddddd11bbfffff11dddd1dddbbddddddddbbb1111
+                            111b1111ddddddddddd11bddbbffff1dddddddddfddddddddbbf1111
+                            11bf111111dddddddd11fddbbbfffff1bbbddddddddddddddbbfb111
+                            11fd111111111dddd11fdddbbbffffff11bdddddddd111ddbbbbf111
+                            11f111111dd111d111fdddbbbbbfffffb11dddd11111111bbbbbfb11
+                            11f1111dbfff11111fbdddbb1111bbfffdb11111111ffff11bbbdf11
+                            11fd1dffdddbfffffbdddd11bfbf11bbbbfb111bfffffffff1bbdf11
+                            11fddffddbbbbffffbdd11bffbdbff1bbbdbffffffbffffbff11f111
+                            111ffffdbbbbfffffb11bfffbd1dbfb1bddddd11fbbbfffbbfff1111
+                            11111ff1bbbb11ffb1bffffffbdbfffb11ddd1ff11dbbffbbfff1111
+                            11111fff111dff111bf11111bfbffb11bbb11fbbff111bfbbbff1111
+                            11111ff1fffffffbffff111f11ff11f111ffffbbbffff1fbbbf11111
+                            1111ffbb11fffbbbbffff11111ff11111fffffbbbbfff1fbbbf11111
+                            1111f1bbf1ffbbbbbfffffb11ffff11ffffffbbbbbff1ffbbf111111
+                            1111f1bfff1fbbbbbbfffffffffffffffbfffbbbbfff1ffbfb111111
+                            1111b1bfff11dddbbbffffffffffffd11bffbbbbff11fff1f1111111
+                            11111bdbfff1111dbbbffffffffd11b1bffbbbbb11ffff1f11111111
+                            11111f1dfffffff1dfbbfffbd111111fffbbbbf1fffff1f111111111
+                            111111f1dfffffff1ffbbbffffbd1bffbbbbbf1fffff1f1111111111
+                            1111111f1dfffffbf1fffbbbffffffbbbbbbb1fffffd1f1111111111
+                            11111111b1dfffbbf1dfffbbbbbbbbbbbbbb1ffffff1fb1111111111
+                            11111111f11ffbbbdff1ddffbbbbbbbbbb11bbbffff1f11111111111
+                            11111111b11dbbbddddff11dffbbbb1111bbbd11ff11fb1111111111
+                            11111111f11dddddddbbbff11ddd111fbbddd1f1111dbf1111111111
+                            11111111b111ddd1111fbffffffffffbbd111f1fb1dddbf111111111
+                            1111111f1db1111ffff1ffffffffffbbd1fbff111f11ddbf11111111
+                            111111b111dbbfff1ddf1ffffffffbbd1fbbf11111b11dddb1111111
+                            11111b111dbb1111fdbbf1bfffffbbd1ffbbf111111f11ddf1111111
+                            11111f11ddf111111fff1f11bbbbbd1f11ff11111111f1dbf1111111
+                            11111b1ddf111111111111bfb11111b11111111111111bff11111111
+                            111111bfb1111111111111f1dbfffb11111111111111111111111111
+                            11111111111111111111111f11ddbb11111111111111111111111111
+                            11111111111111111111111f1ddbb111111111111111111111111111
+                            111111111111111111111111ffbb1111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 92:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            111111111111111111111111d1111111111111111111111111111111
+                            111111111111111111111111111d1d11111111111111111111111111
+                            1111111111111111111d11d111111111111d11111111111111111111
+                            11111111111111d11111111111111d11d1111111d111111111111111
+                            111111111111d1111111d1111d11111d11d111111111111111111111
+                            111111111d111111bd11111d11d1d111d1111d111111111111111111
+                            111111111111111111d11111dddd11111111111d1111d11111111111
+                            111111111111d11d1d1b1bdd11b1dddd11dd11d1111111d111111111
+                            11111d111111dbdd1dd1db11bddd11b1d11dd1111d11111111111111
+                            11111111d1d11d1dd111ddb11db1d1d11dd1db11d1dd111111111111
+                            1111111111ddd1b11d1dbdddbdb1dbdbd11d11bd11111111d1111111
+                            1111d1111dd1d1d1bdb1bbdddbbd1bdb1bddbdd11d11d111111d1111
+                            111111d1111d11dbdb11bdbdb1dbdbddbbdb11db11d1b1d111111111
+                            1111dd111d1dbd1db1bddbbdbdddbdbddddbd11dd1b1d11111111111
+                            111111d111dd11dbbdbdbddbbdbbbdbdbbdddddb1bd111d111d11111
+                            11d111dd1b1ddbbddbddddbdbbdbddbddbfbdd1dd1d11d111111d111
+                            1111d11d11d11bbdbddbbdbdbbdbbdbdbbfddbdb11d1d11d11111111
+                            11d1d1d1dd1dbdbbbdddbbdbbdbbdbbbbffdbd1ddddd11d11d111111
+                            111dddd1dd1ddbdbbbbbdbbdbbdbbdbbfffbdddddd11b1111111d111
+                            11d1dddb1bdbdbbbdbdbbddbdbddbbbfddfbbdb1bd1dd1d111d11111
+                            1d1d1dd1bdbbbbbdbdbbdbbdbdbbbbfd11fbbbbd1dbd1dd1d1111111
+                            111d1dddbbbbdbdbbbbdbdfdbbbbffd111bbdbdbdbd1dd1d111d1111
+                            1111dbbbbdbdddbbbdbbbfbdbbbfd11111bbbddbddd1db11d1111111
+                            111ddfdbddbdbbbfbbbfdbbbbbfd111111bdbbbddb11bdd11d111111
+                            1d1ddfbbbdbbdbfdbdbbbdbbbfd1111111bbdbdbbdbddd11ddd1d1d1
+                            11111dfbbbbdbbdbfbbfbbbbfd1111111bbbdbbbdddbd1bddb111111
+                            1111ddfffbbbbdbfdbbbfbbfd11111111bbddfbddbdddd1d11111111
+                            11d11dfddfffbbbbfdfbfbfd11111111dbbdbbddbdbdddd111d11111
+                            1111ddbf1dddfffbbfdfffd11111111dbbbbbfbbdbbdd1ddd111d111
+                            1111bdbb1111dddfffffffb11f11111bbbbbfbddbdddd11d1d111111
+                            11d1dbdb1111111ddfffffff1f111dffbbbffbbddddddddd11d11111
+                            1d11dbddb1111111fdfffffffd1bffbbbbffbbdbdbddddd1d1d11d11
+                            1111ddddbd111111f1dfffffbfffbbbbbfffbdddbdd1bdd1d1111111
+                            11d111dddbb1111111ffbfbffbbbbbbf11fbbddd1d1dd1d11d111111
+                            11111bddbddbd1111ffffbfbbbbbbfff111bddbdbdddddd1d1111111
+                            1d11d1bdbdddddbffbbfbbbbbbbffffff11fbdddbd1bd1d1111d1111
+                            111111bd1bddddfbbbbbbbbfffffffffbf11dddd1111bd1d1d111111
+                            111d11d1dbdd1dbfff111fffbbfffffbbbf1bddddbd1d11d11111111
+                            11111d1bbdbbdbbbbff111bffffffbddbbbbddbdd1d11d11d1111111
+                            11d1111ddb1dbbbbdbff11ffffbbbdbd1ddddddb11b11111111d1111
+                            111111d11d1bdbdbbbbbf11bbbbbbb1dd1dd1bbbd1d1d11d11111111
+                            11111d11d1bdb1bb1bddbf1bbbdbbd1ddbdbbdbdbb11111111111111
+                            111d1111111bdbdddbddbbfbdbddbdddbd1ddd1b11111d1111111111
+                            11111d11dd1111bbd1bb1bbdbbddd1d11dd11b1ddd1d11d11d111111
+                            1111111d1111d1bdb1bbbddd1ddddd1d1db1db111d11111111111111
+                            11111d11d1111111ddb1bdbdb1bddd1ddbbdb1d111111d1111111111
+                            1111111d11d11d11dd1ddb1111dbddd1d1d1ddd111d1111d11111111
+                            111111111111111111111dbd1bd111111dd1111d1111111111111111
+                            11111111d1d11d1d111d1d1d1111d1d11dd11111d11d111111111111
+                            11111111111111111d1111111d1111111111d11d1111111111111111
+                            11111111111111d11d1d1bd11111d1d1dd1111111111111111111111
+                            111111111111111111d1dd11d11d111111111d111111111111111111
+                            11111111111111111111111d111d111d111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 93:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111d1111111111111111dddd11111111111
+                            111111111d1111111111111111111111dbfbd11111111111
+                            d1111d111111b11d111d11d111d1111dbffbd111d1d11111
+                            ddd1111111111111d1111111111d11dbfffbdd1111111111
+                            dbbdd1111d11d11d11b111db1b11ddbffffbd111111d1111
+                            1dbbbdd1111bd1111111111111dddbfffffbd1b111111111
+                            1dbffbbddd11111111ddddddddddbffffffbd1111b111d11
+                            1dbffffbbdd111ddddbbbbbbbffffffffffbd11d111d1111
+                            11dffffffbbdddbbbfffffffffffffffffbd111b1f111111
+                            11dbfffffffdbbffffffffffffffffffffbd11d11111ddd1
+                            11dbffffffdbffffffffffffffffffffffbd1111dddbbbd1
+                            11dbfffffdbfffffffffffffffffffffffbddddbbbfffb11
+                            1b1dbffffbfffffffffffffffffffffffffbbbffffffbd11
+                            111dbfffdbfffffffffffffffffffffffffffffffffbd111
+                            111dbfffbffffffffffffffffffffffffffffffffffd1111
+                            d111dffbfffffffffffffffffffbbbffbfffffffffbd1d11
+                            dbdddbfbfffffffffffffffffbb111ffbffffffffbd11111
+                            dffbbbffffffffffffffffffd11111ff1fffffffbd111111
+                            1dfffffffffffffffffffffd11111dff1fffffffd11f1d11
+                            1dffffffffffffffffffffb111111bfd1ffffffbd1d11111
+                            11dffff11ffffffffffffb111111dff11fffffbdd111d111
+                            d1dbfffb111bffffffffb1fb1111bfd1bfffffbbbdd11111
+                            111dffff11111bfffffb1f1f111bff11fffffffffbbdd111
+                            1d1dbfffb111bf1bffff1ff11bbfff1dfffffffffffbdd11
+                            ddddbfffff11f1f1bffffbbbbff1f11bfffffffddfbdd111
+                            dbbbbbfdffb11ffffffffffffff1bb1ffffffdbbbdd11111
+                            1dbfffffdfffbbbffffffffbfff11f1ffffffbbffbd11d11
+                            11dbfffffdfffffffffffff11ff11fbfffffdbffffddd111
+                            111dbfffff1dbff1bff11ff1d1f1dfffffffbfffffdbbd11
+                            111dddfffff11ff11ff111f1f111bffffffdbffffdbffbd1
+                            11dbbbbbffff11fd11f11b11fb11fffffffdfffffbffffbd
+                            1dbfffffbdfff11fd1d11f11fff1ffffffbbffffbbffffbd
+                            dbffffffffbfffdfb1f11ff1fffbffffdddffffdbfffffbd
+                            dbfffffffffdfffffdfbdfffffffffdbbbdfffdbfffffbd1
+                            dbfffddddddbfffffffffffffffffdbffbfffbdbffffbbd1
+                            ddbfdbbfffbdbffffffffffffffdbfffbdffbdbfffbbbfbd
+                            1dddbfffbddbbbfdffffffffffdbffffbdfbddbffbdbfffd
+                            11dbfffbddbbfbdbdffffffffdbffffbddbddbffbdbffffd
+                            1dbfffbddbffbdbfbddbffffdbfffffdddddbffddbffffb1
+                            1bffffbdbffbdbffbd1ddbffdbffffbdbfffbbddbffffbdd
+                            1bfffbdbfffdbfffd11d1ddfdbffffbbffffffdbfffbdd11
+                            1dbfbdbfffbbfffbd1111b1bdbbffbddbbbffffdfbddd111
+                            11dbdbffffbffffb111111d11dbbbbdfdddbbfffddbd1d11
+                            11111bfffbffffbd1d11d11111ddddfffd1ddbbbddd11111
+                            11111bfffbffffbd11111111111dbffffbd1bdddd1111111
+                            11111dbbbdbffbd1111111d1d1111dbfffd1111d1111d111
+                            111111ddd1dbbd11111d11111111111dbfbd1111d1111111
+                            11111111111dd11111111111111111111dddd11111111111
+                        `, SpriteKind.Creature)
                     case 94:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            1111111111bb111111111111b11111111111111111111111
+                            1111111111dfb1111b1111bbfb1111bb1111111111111111
+                            1111111111dffb111fb11bfffb11bffd11111111dbdd1111
+                            11111111111bffb1bffbffffffbbffd1111111dbbfbd1111
+                            11111111111dfffbffffffffffffffbbbd1ddbbffbd11111
+                            111111111111bfffffffffffffffffffffbbbfffbd111111
+                            111111111111dffffffffffffffffffffbbffffbd1111111
+                            11111111111dbbffffffffffffffffffffffffbd11111111
+                            11111111111bfbfffffffffffffffffffffffbd111111111
+                            1111111111dfffffffffffffffffffffffffbdbbbdd11111
+                            1111111111bffffffffffffffffffffffffbffffd1111111
+                            111111111dfffffffffffffffffffffffffffffd11111111
+                            111111111bfbffffffffffffffffffffffffffbbbd111111
+                            11111111dfbdbfffffffffffffffffffffffffffffbd1111
+                            11111111dfb11bfffffffffffffffffffffffffffbd11111
+                            11111111dfb111bfffffffffffffffffffffffffbd111111
+                            1111111dbfbd1f1bfffffffffbdbfffffffffffbd1111111
+                            1111111dbffb1f1bffffffbd111bffffffffffffbbbbd111
+                            11111dbdbffbd1dfffffb111111bffffffffffffffbd1111
+                            111dbbbdbfffbbfffffbdf1111dffffffffffffffbd11111
+                            11dbbbbdbfffffffffff1f11dbbfffbfffffffffbd111111
+                            1dbbbffdbffffffffffffbbbbffffbdbfffffffffb111111
+                            dbbffffdbffb1fffffffffffffbbdddbfffffffffb111111
+                            dbfffffdbfffbdbbfffffbddbdddb1bffffffffffbd11b11
+                            bffffffdbffffb1b1bd1bd1db111bdbfffffffffffbdbfb1
+                            bffffffdbfffffd1b1b11b111b11dbfffffffffffffbffb1
+                            1bfffbbdbbfffffdb11b11b11b1dbfffffffffffffffffd1
+                            1dbbbd11bbbfffffbb11b1bd1dbbfffbbffffffffffffb11
+                            11dd111dbbbfffffffffddddbffffbbbfffffffdfffffd11
+                            1111111dbbbffffffffffffffffddbbbfffffffdffffb111
+                            1111111ddbbffffffffffffffddbbbbfffffffbbffffd111
+                            11111111dbbbffffffffffffdbbbffffffffffbbfffb1111
+                            11111111ddbbfffffffffffdbffffffffffffbdffbbd1111
+                            11111111dbdbffffffffffdbfffffffffffffbdffbd11111
+                            11111111bbdbbfffffffffdbfffffffffffffdffbd111111
+                            1111111dbbfdbbfffffffdbffffffffffffbdfffbd111111
+                            1111111dbbffdbbffffffdbffffffffffbddfffffd111111
+                            111111dbbffffdbbbffffdbffffffffbddfffbfffbd11111
+                            11111dbbfffffffddbfffdfbfbfffbddfffbbffffbd11111
+                            1111dbbffffffffffdbffbfdfdffddbbbbbbfffffbd11111
+                            11111ddbffffffffbbddbbb1b1bbdbbbbbbfbfffffd11111
+                            1111111ddbbbbbbdd1111111111111dbbbbbffffffbd1111
+                            1111111111111111111111111111111ddbbbbffffffd1111
+                            111111111111111111111111111111111dbbbbfffffbd111
+                            1111111111111111111111111111111111dbbbbbfffbd111
+                            111111111111111111111111111111111111dbbbbbbbd111
+                            1111111111111111111111111111111111111dbbdddd1111
+                        `, SpriteKind.Creature)
                     case 95:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111ff1111111111111111111111111111111111111111
+                            1111111111111fdbf111111111111111111111111111111111111111
+                            1111111111111fdbf111111111111111111111111111111111111111
+                            1111111111111f1df111111111111111111111111111111111111111
+                            1111111111111f1dbf11111111111111111111111111111111111111
+                            11111111111111f1df11111111111111111111111111111111111111
+                            11111111111111f1dfbfffffb1111111bffb11111111111111111111
+                            11111111111111f1dffdddfbbffb11bffffffb111111111111111111
+                            11111111111111f1dfbf1ddfbdbbfbfffffffffb1111111111111111
+                            1111111111111f1fdfbfddddfdbbbffffffffffff111111111111111
+                            111111111111f11f1dfbddddddbbbbffffffffdddf11111111111111
+                            111111111111b11f1dfddddddfbfbdbffffffdddddf1111111111111
+                            11111111111b11ddfdbdbdddfbbfdddffffffdddbbdf111111111111
+                            11111111111fdddbffdbddddfbfbdddbfffffbbbddddf11111111111
+                            11111111111fbdbbfbdbdbffbfbbdddbffffddddddddf11111111111
+                            11111111111fbbbbbbbbbfbddbfbbbbbffffddddddddffb111111111
+                            11111111111ffdbbfbbbfbddffbfbbbfffffd11111ddfffff1111111
+                            111111111111ffdbfbfbbdffdfbbfffffbbffdd111ddffffbf111111
+                            111111111111fdfdfdbfdfdd1fbbbbbffbbbbfdddbddfffbbdf11111
+                            1111111fff11f1fffdfffdf11fbdddbfbbbbbbfdbdddfffdddf11111
+                            111111ffff111fdbf1ffb111fbdddbffbbbbbbbfbbdfffdddddf1111
+                            111111ffbf1111ff11bffffbbbbbbfffbbfbbbbbfffffdbdddbf1111
+                            11111ffff1111f1b11bffbbbbbbbf1ffbbbfbbbbbffffbd11ddf1111
+                            1111ffbbff111f1b1dffbbbbbbfff11ffbbbbbbbffffffd11ddf1111
+                            1111ffbfff111f1b1dfbbdbbbffbf1111fbbbbfffbbbbffd11df1111
+                            1111ffffff111bdd1fbdddbbffbf111111ffffffbbbbbbfd1ddf1111
+                            1111ffbbf11111bddddddbbfffbf1111111111fbbbbbbbfddbf11111
+                            111ffbbbdf1111fbddddbbfffbf11111111111fbbbbfbbbfbdf11111
+                            111fbbbddf11111bffffffffbf1111111111111fbbbbbbfffff11111
+                            11fffbbddf1111111bfffb1df111111111111111fbbbbfffff111111
+                            11ffffbbf11111111111bffb11111111111111111fbffffffff11111
+                            111ffffff111111111111111111111111111111ffffffffffff11111
+                            1111fffbbf1111111111111111111111111111fbbbbfffffffff1111
+                            1111ffbbbbf11111111111111111111111111fbfbbbfbdddffff1111
+                            111ffbbbdddf111111111111111111111111fbbbbbbf1111dfff1111
+                            111ffbbd111f111111111111111111111111fbbbbbfdd111ddf11111
+                            111fffdd1dbf111111111111111111111111fbbbbbfdd11dddf11111
+                            111fffddbff1111111111111111111111111fbfbbbfddddddf111111
+                            111fffffffff1111111111111111111111111fbfbbfddddff1111111
+                            1111fffffffff111111111111111111111fffffbbbfddfff11111111
+                            111111ffffffff1111111111111111111fbbbbbfffffff1111111111
+                            111111fffffffff11111111111111111fbbbbbbbfffff11111111111
+                            11111fbbfddd11f1111111111111111fbbbbbbbbfddff11111111111
+                            11111fbbfbd11dfffff111111fffff1fbbfbbbfffd1df11111111111
+                            11111fbbbfdddfbd11df1111fbbfbbffbbbfffffddddf11111111111
+                            11111ffbbfffffbd111df11fbbbbbbffffffffffdbddf11111111111
+                            111111ffbffffbbddddddffbbbbbbfffffffffffddbf111111111111
+                            11111111fffffbbfddbdffffbbbbffffffffffffddf1111111111111
+                            111111111111fbbbfddbfffdffffffffff1fffffbf11111111111111
+                            111111111111fbbbbfffffd11dddffffff11fffff111111111111111
+                            1111111111111fbbffffffd111ddddffff1111111111111111111111
+                            11111111111111fffffffffd11ddbddfff1111111111111111111111
+                            111111111111111fffffffffdddbddddf11111111111111111111111
+                            11111111111111111fff11fffdbdbddf111111111111111111111111
+                            111111111111111111111111fffffff1111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 96:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111f411111111111111111ff111111111111
+                            11111111111111fdd411111111111111ff14411111111111
+                            11111111111114dddf111111111111ff1dddf11111111111
+                            1111111111111fdddd4ffffffff41f114ff4f11111111111
+                            1111111111114ddd4f4dddddd444fdd4ff44f11111111111
+                            111111111111fd4fddddddddddd4dd4fff44411111111111
+                            111111111114dfdddddddddddddddd4ff44f111111111111
+                            111111111114fdddddd1dddddddddd44f44f111111111111
+                            11111111111f4ddddd1d1dddddddddddd444f11111111111
+                            11111111111fddddd1d1d1ddddddddddd444f11111111111
+                            111111111144dddddd111ddddddddddddd444f1111111111
+                            1111111111f4ddddd111dddddddddddddd444f1111111111
+                            1111111111ffff4dd11dddd4fffffdddddd444f111111111
+                            1111111111f11fdfddddd4fdf1111fdddddff4f1ff111111
+                            111114ff11fffffdddddd44ffffffdddddf11dff1df11111
+                            114ff11df1f4ddd111dddd444dddddddddfddd4fddfff111
+                            141dfddd4ff4dd44444dddddddddd4dddddf444f44fddf11
+                            1fdddf4d4ff4d4dd11dd44dddddddfdddddf444f44f4df11
+                            4df444f44ff4ddd111dddd4dddd4fdddddddf44444f44f11
+                            fddf4444411fddd11ddddddfffffdddfddddf4444444fff1
+                            1fff44444ddfdd4444ddddf444dddffddfff4dd44444fddf
+                            fdd444444f44f4d11dd4dff44ffff4ddf11ddddd44444ddf
+                            fd44444444fffdd1ddddd4fff444ddddfdddddddd44444f1
+                            1ff4444444fff4d1dddd4f44444ddddddfff44ddd4444f11
+                            1114ff44ff44f4ddddd44f444dddddddddddf444444ffd11
+                            111114f444444ffffffff44ddddddddddd4ddffff4444f11
+                            111111f4444444f4444444dddddddddddd4dd44444444f11
+                            111111f444444f4444444dddddddddddddd4dd444444f111
+                            1111111f44444f4444444ddddddddddddd44f4f444ff1111
+                            11111111ff444ffff444ddd44444ddddd4ffff4fffff1111
+                            1111111111ffffffff44dd4fffff4ddd4fffffffffff1111
+                            1111111111114ffffff44ffffffff444ffffffffffff1111
+                            111111111111ffffffffffffffffffffffffffffffff1111
+                            11111111111144fffffffffffffffffffffff4ddd4ff4111
+                            111111111114f4ffffffffffffffffffffff4fffffd4f111
+                            11111111114ffd4ffffffffffffffffffff4ff4ffff4f111
+                            1111111111fffd4ffffffffffffffffffffdf4d4fffff111
+                            1111111114fffd4fffffffffffffffffff4f4ddd4ffff111
+                            111111111fffffd4ffffffffffffffffffdff4d4fffff411
+                            1111111114ffffd4ffffffffffffffffffdfff4fffffff11
+                            1111111111fffffd4fffffffffffffffffdfffffffffff11
+                            11111111114fffffd44fffffffffffffff4fffffffffff11
+                            11111111111ffffffdd44ffffffffffffff4ffffffffff11
+                            1111111111fffffffffdd444ffffffffffff4fffffffff11
+                            111111111f4f44fffffffddd444ffffffffff444d4444f41
+                            1111111141f1114ffffffffffff444ffffff441d4111d4f1
+                            11111111f1f1114ffffff1111114fffff44f411d41111df1
+                            11111111ffffffffffff411111111111111ffffffffffff1
+                        `, SpriteKind.Creature)
                     case 97:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111144f11111111111111111111111111111111
+                            111111111111111111111f1f11111111111111111111111111111111
+                            111111111111111111114f1141111111111111111fff111111111111
+                            11111111111111111111f1ddf11111111111111ff44f111111111111
+                            11111111111111111114fdddd411111111111ff4dd4f111111111111
+                            1111111111111111111f4ddd4f4fffff411ff4ddfdf1111111111111
+                            1111111111111111111fdddff11111dd4ff4dd4f4df1111111111111
+                            11111111111111111144d111111ddddddddd4ff4dffff11111111111
+                            111111111111111111fd11111ddddddddd4fff4df111ffff11111111
+                            1111111111111114f4d1111dddddddddddddf4ddf1111111ff111111
+                            11111111111111f11fdd11dddddddddddddddfdfdddd1d1111f11111
+                            1111111111111f111fdfdddddddddddddddddddfdddfddd1d11f1111
+                            111111111111f1111fd1fddddddddddddddddd4fddd4fddfd11f1111
+                            11111111111fd4111fd4f4ddddddddddddddddffddddfddfdfd1f111
+                            11111111111141114dd41f41dddddddddddddfddfdddfdf4dfddf111
+                            111111111111f111fddd4ff1dddddddddddddfddfd4fd4f44f4f1111
+                            1111111114ffd111fddddf1ddddd4ffff4ddd4f4f44f44fffff11111
+                            11111114ffdf1111fddd4f1dddd41f41114dd4ff4fffff444f111111
+                            111114ffddfd11114dddf1dddddf4ffff44dd4f4fff4444444f11111
+                            1111ffddddfd1d411fd4f1dddddf444ddddd4f4ddf4f444444f11111
+                            111fdddddddfd4d11fdfddddddd4fdd44ddd4fdddf4f4444444f1111
+                            114fdddddddfdf1111dfddddddd4f4ddddd4f4dddf4f4d4444df1111
+                            11fddddddd44fd1111ffd11dddd4f44ddd4f4ddddf44fdd4ddd4f111
+                            11fddd4fff44fd11111f1111dd4f444444fdddd4ffff4dddddddf111
+                            11fdddddd4f4fd1111141111d4f444fff4ddddfd1f11fddddddd4f11
+                            11fdddddddff1fd11411f11d4fffff4d1d1fd4d1dfddd4dddddddf11
+                            114dddddddf11fdd4d11fd44fdddd111111dff1dfffd4fdddddd4f11
+                            111fddddddd411fdfd111fff11d111111111df1d414d4fddddd4f111
+                            111fdddddddf114fdd111111111111111111df1df4fd4fdd44ff4111
+                            111fdddddddf111ffdd1111114111111d11dd4ddddd44fffff411111
+                            111fddddddd44114dffddd11df1111114111ddf44444f41111111111
+                            1114ddddddd4f111fdd4ffddfdd1111d4ddddddfffff411111111111
+                            1111fdddddd4f1111fddd4ff4ffdddfffddffff44444111111111111
+                            1111fddddddd441111fdddd4444fff44fff444f11111111111111111
+                            1111fddddddd4f114ffddddd44444f44444444f11111111111111111
+                            1111fddddddddff44d4fdddddd444444444444f11111111111111111
+                            1111fdddddddd4f4ddd4dddddddd4444444444f41111111111111111
+                            1111fddddddddd4fddd4ddddddddd444444ddf4f4111111111111111
+                            1114fdddddd4fdd4fddddddddddddddddddddfd4f411111111111111
+                            111fddddfddf44ff44ddddddddddddddddddd4dddf41111111111111
+                            111fddfdfddf4d4444dddddd4444ddddddddddddddf4111111111111
+                            111fddfddfddfdddddddddd4444444dddddddddddddf411111111111
+                            1111fddfddfddfddddddd444ffff444dddddddddddddf41111111111
+                            111114fd4fd4ffddddd444ff1111ff4ddddddddddddd4f1111111111
+                            1111fddddddddddd444fff11111111f44dddddddddddd44111111111
+                            1111fdddddddd444fff111111111111ff44dddddddddd4f111111111
+                            11111fdddddd4fff4f111111111111111f44dddddddd44f411111111
+                            1111fffdddd444444f1111111111111114ff44ddddd444fff1111111
+                            11ff4ddfff44444444f111111111111111f4ff4dd444ffdddf111111
+                            1fddddddddf444ddd4f111111111111111f444f444ddddff4f111111
+                            fdd4fddddddddddd44f1111111111111111f4444ddddddddf4111111
+                            fd4dddf4dddddd44ff111111111111111111f4dddddfffdddf111111
+                            1ffddfddddd44fff111111111111111111111f4dddddddf44f111111
+                            111ff44444fff1111111111111111111111111f4444444fff1111111
+                            11111fffff111111111111111111111111111111ffffff1111111111
+                        `, SpriteKind.Creature)
                     case 98:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111114ff11ff41111111111111111
+                            1111114ff11111fff1ffff1fff11111fff111111
+                            11111ff11f11ff44f4f44f4f44ff11f14ff11111
+                            1111f4f144ff4444f4f44f4f4444ff144f441111
+                            1111fff4444f4fff44444f44fff4f1444fff1111
+                            111ff14f44f4f411f444444f114f4f44f44ff111
+                            1114f444f4ff11111f4444f11111ff4f444f4111
+                            111f4f444ff441f11f4444f11f144ff444f4f111
+                            111f4ff44f14441114444444114441f44ff4f111
+                            111f4f1ff444f44444144444444f444ff1f4f111
+                            1fff4f11f44f1f444444444444f1f44f11f4fff1
+                            f411f11f44f11ffff444444ffff11f44f11f411f
+                            ffff411f44f14f444ff44ff444f41f44f114ffff
+                            1fff111f4f444111144ff441111444f4f111fff1
+                            f44fff1ff1114f111114411111ff111ff1fff44f
+                            f44ff4fff11f114ff111111fff11f11fff44f44f
+                            1f44f44f4f4111144f1111f1111114f4f44f4441
+                            1f44ff44fff1114444f44f4411114fff44ff44f1
+                            14ffffff114ff444444ff444441ff411ffffff11
+                            1f114ff111111ffff411114ffff111111ff444f1
+                            1f1f44fffff411111111111111114fffff44f4f1
+                            11f4444f4444f41111111111114f4444f4444f11
+                            11f4144f44444f411111111114f44444f4444f11
+                            11f4444f444444f1111111111f44444ff4444f11
+                            1f444444f444444f11111111f444444f444444f1
+                            1f444444ff44444f11111111f44444ff444444f1
+                            1f414444fff4414f11111111f4444fff444444f1
+                            1f414444ffff114f11111111f144ffff444444f1
+                            1f444444ff11f14f11111111f11f11ff444444f1
+                            11f44444ff11f1f1111111111f1f11ff44444f11
+                            11f44444ff114f111111111111f411ff44444f11
+                            11f44444ff11111111111111111111ff44444f11
+                            111f44444f11111111111111111111f44444f111
+                            111f44444ff111111111111111111ff44444f111
+                            1111f44444f111111111111111111f44444f1111
+                            11111f11444f1111111111111111f41444f11111
+                            111111f11444ff111111111111ff41114f111111
+                            1111111ff44444f1111111111f444114f1111111
+                            111111111ffff4111111111111ffff4111111111
+                            1111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 99:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111ff41111111111111111fff11111111111111111
+                            111111111111111f4444f11111111111111f444ff111111111111111
+                            1111111111111ff411114f111111111111f444444ff1111111111111
+                            111111111111f411111114f1111111111f444444444f111111111111
+                            11111111111f444444111441111111111f4444444444f11111111111
+                            1111111111f444444444144f11111111f444444444444f1111111111
+                            111111111f4444444444444f11111111f4444444444444f111111111
+                            11111111f44444444444444411111111f44444444444444f11111111
+                            11111111f444444444444444f111111f444444444444444f11111111
+                            1111111f444444fff4444444f111111f4444444fff444444f1111111
+                            1111111f44444f44ff44444f11111111f44444f444f44444f1111111
+                            111111f44444f4fffff444ff11111111ff444fffff4f44444f111111
+                            111111f4444f4fffffff4f4f11111111f4f4fffffff4f4444f111111
+                            111111f444f4ffffffff4f4f14111141f4f4ffffffff4f444f111111
+                            11111f4444f4ffffffffff4f14111141f4ffffffffff4f4444f11111
+                            11111f444f4ffffffffff4f11f1111f11f4ffffffffff4f444f11111
+                            11111f444f4ffffffffff4f14f4114f41f4ffffffffff4f444f11111
+                            1111f444f4fffffffffff4f1444114441f4fffffffffff4f444f1111
+                            1111f444f4fffffffffff4f1444114441f4fffffffffff4f444f1111
+                            1111f44f4ffffffffffff4f1f4f11f4f1f4ffffffffffff4f44f1111
+                            1111f44f4fffffffffff4f4ff4f11f4ff4f4fffffffffff4f44f1111
+                            111f444f4fffffffffff4f4ff4f11f4ff4f4fffffffffff4f444f111
+                            11f444f4ffffffff4fff4f44f4ffff4f44f4fff4ffffffff4f444f11
+                            11f444f4fffffff444f4f4f4f4f44f4f4f4f4f444fffffff4f444f11
+                            1f4444f4ffffff4444f4f4f4444444444f4f4f4444ffffff4f4444f1
+                            1f4444f4fffff444444f4444444ff4444444f414444fffff4f4444f1
+                            f4444fffffff4411444f44ff44f44f44ff44f1144444fffffff4444f
+                            f444f444fff441144444f111f444444f111f411444444fff444f444f
+                            f44f44444f4411444444f1111f4444f1111f1144444444f44444f44f
+                            f4441444f441114444444f111f4444f111f411444444444f4444444f
+                            f4441444f441144444444f1f11f44f11f1f414444444444f4444444f
+                            4f44444f4444444444444f4111f44f1114f4144444444444f44444f4
+                            4f44444f444444444444f44441444414444f444444444444f44444f4
+                            1f4444f4444444444444f44444444444444f4444444444444f4444ff
+                            ff4444f4444444444444f444ff4444ff444f4444444444444f4444ff
+                            f1f444f444444444444f4f4f1f4444f4f4f1f444444444444f444f4f
+                            f4ff44f444444444444f11f11f4444f14f41f444444444444f444f4f
+                            f44f44f44444444444f411411ff44ff111411f44444444444f44f4f1
+                            1fff44f44444444444f11111144ff44111111f44444444444f44ff11
+                            1111f44f44444444ff44441111111111114444ff44444444f44f1111
+                            1111f44f444444ff441111111111111111111444ff444444f44f1111
+                            11111f4f444fff44ff11111111111111111144ff44fff444f4411111
+                            11111ff4fff114f111ff4111111441111114ff144f411fff1ff11111
+                            11111f1f14fff1f111111f411444444114f111144f1fff44f4f11111
+                            1111f14f14f44ff41111144f44444444f11111444ff44f41f44f1111
+                            11fff1f114f4444f44114444ffffffff11114444f4444f114f4fff11
+                            1f44fff14f1ff444ff44444f44111144f44444ff444ff1f44fff44f1
+                            11ff44ff4f111fff14fffff4111111114fffff41fff111f4ff44ff11
+                            1f44ff44f11111111111111111111111111111111111111f44ff44f1
+                            1fff11fff11111111111111111111111111111111111111fff11fff1
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
+                    case 100:
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            111111111111111114fffff41111111111111111
+                            1111111111111114fdddddddf411111111111111
+                            11111111111114fdd4fdd44444f4111111111111
+                            111111111111fd1dd411dd4ff444f11111111111
+                            11111111111f4fdd4f11dffdd4444f1111111111
+                            1111111111f4ddf44fdffdd111f4f4f111111111
+                            1111111111411fdf44f4df11114f4ff411111111
+                            111111111fd11f144444ff1114f4f4ff11111111
+                            111111111fdf1ff4444444444f4f4fff41111111
+                            1111111144444444fffff44444f4fffff1111111
+                            11111111f4444ffdd1111dffff4ffffff1111111
+                            11111111f4ffdd111111111dddfffffff1111111
+                            11111111fff41111111111dddddddffff1111111
+                            11111111fd1111111111dddddddddd4ff1111111
+                            11111111f1111111111dddddddddddd4f1111111
+                            111111114111111111dddddddddddddd41111111
+                            111111111411111111ddddddddddddd411111111
+                            111111111f1111111dddddddddddddd411111111
+                            11111111114111111dddddddddddddf111111111
+                            1111111111f111111ddddddddddddd4111111111
+                            11111111111f11111144444ddddddf1111111111
+                            111111111111f11114ddddd4ddddf11111111111
+                            11111111111114f11411ddd4ddff111111111111
+                            1111111111111114f1444441ff11111111111111
+                            111111111111111114ffffff1111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 101:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            111111111111111fffffffff1111111111111111
+                            111111111111fff111111111fff1111111111111
+                            1111111111ff111d11111111111ff11111111111
+                            111111111f111111d4d1111111111ff111111111
+                            11111111f1111111111d44d11111114f11111111
+                            1111111f111111111111111dd4444d11f1111111
+                            111111f11111111111111111111111111f111111
+                            11111f1114111111111111111111111111f11111
+                            11111f111f1111111111111111111111d1f11111
+                            1111f1111d11111111111111111111111d1f1111
+                            1111f1111df1111111111111111111111d1f1111
+                            111f11111ddf1111111111111111111111d1f111
+                            111f1111d11f1111111111111111111111d1f111
+                            111f1111d111f111411111111111111111d1f111
+                            111f1111d111f111f11111111111111111dd1f11
+                            11fdf111d1111f1114111111ffffff1111dd1f11
+                            11fdf111d11114f11f1111ffd11141111ddd1f11
+                            11fd1f11d1f1111111414fd11111d1111ddd1f11
+                            11fd1df11df11111111f11111111d1111ddd1f11
+                            11fd1d4f11dddd1111111f111111d111dddd1f11
+                            111fd1d4df11111111111f111ddd1111dddd1f11
+                            111fd1d444df1111111dddddd1111111ddddf111
+                            111f4d444444dfff111111111111111ddffff111
+                            111f444444f44444dffff111111111fffffff111
+                            1111f44444f4444444444dfffffffd4ffff4f111
+                            1111f444444ffff4444444444444444fffff1111
+                            11111f444444fffffff4444444f444ffff4f1111
+                            11111f4444444fffffffffffff4444fff4f11111
+                            111111f4444444fff4dd1111df444fff4f111111
+                            1111111f4444444f4dd1111df444fff4f1111111
+                            11111111f4444444fddd11df444fff4f11111111
+                            111111111ff444444ffdddf444ff4df111111111
+                            11111111111ff444444fff44444ff11111111111
+                            1111111111111fff44444444ffd1111111111111
+                            1111111111111111fffffffd1111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 102:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111113ff3111111111111111d33f11111111
+                            11111111dd1111111111113ff1111ff311111111113f11113f111111
+                            1111111ffff1111111113f11111111113f1111113f11111111f11111
+                            11111331f33ff111113fd111111111111dff111311111111111f1111
+                            111131133f333f111f11ffd11111111dff11f13f11111111113f1111
+                            111311f113f33ffff11111ffdd1d1dff11111f1f111111111311f111
+                            111f13f1131ff3dfd3111f13f1d1df31f1113f1311111111ff11f111
+                            11fd313331d3ddddd333fff3d1111d3fff33331f31111113f3311f11
+                            11f131111113ddddfdd111111111111111ddf13f11111ddfdd1f3f11
+                            11f3133111d13dddfdd111111111111111113111113dddfdddd11f11
+                            11f111f11d1d3dddfddd1111111111111113111111ffddfddddd1f11
+                            113111f11ddd3dddfddd111d3ff3f3d1111fdf11d311ffdddddd1f11
+                            111f111dddd333dfdddd11d31111113d111fd3fddd11f1ff3ddddf11
+                            1113dddddd3dd3dfd3ffff1111111111111fddffdd31111dddddf111
+                            1111fdddd3ddddf3f113f1ff111111111113dddfdddd33ddddddf111
+                            111113fdd3ddff311131f111f11111111111fddddddd3ddddddf1111
+                            11111113ffffdd11111f1f11df11111111113ddddddfdddddddf1111
+                            11111111fddddf11111113d1df111111111d1fddddd3ddddddf11111
+                            11111111f1dddf1111111d33ddf111111111ddfddddfdddddf111111
+                            111111113111311111ffdd1f3ff11111111d1ddffdddfddff1111111
+                            111111131111f11111f3fd113df111111111d1ddd3fffff111111111
+                            1111111f1111f11111df3fddddf111111d1d1ddddd3333f111111111
+                            1111111f1111f111ddddddddddfd1111d1d1ddddddd3d3f111111111
+                            1111111f1d1d1f1ddddddddddfdd11111d1ddddd333ff3f111111111
+                            1111111fd1d1d31ddddddddddfdd1111d1d1dd3f11111ff111111111
+                            11111113ffffddf1ddddddddfddd111d1d1d3f111111131f11111111
+                            111111ff1111ffd3fdddddffdddd11d1d1d3111111111d11f1111111
+                            11111f11111111fdd3ffffddddd11d1dddf11111111111311f111111
+                            111131111111111fddddddddddd1d1dddf1111111111111d1df11111
+                            11131111111111ddfdddddddddddddddf1d1111111111113d1f11111
+                            111f111111111ddddfddddddddddddd3113111111111111f1d3f1111
+                            1131111111d1ddddddfddddddddddddf11f11111111111d1ff3f1111
+                            11f11111111d1dddddfddddddddddd3111f111111111111df3ddf111
+                            1131111111d1dddddddfddd3d3ddddf111df1111111111d13dddf111
+                            131111111d1d1ddddddfdd3d3d3d33111ddf11111111111d3dddf111
+                            1f11111111ddf3dd3dddf3d3d3d3df111d11f11111131113dddddf11
+                            1f11111111df3dddfdddfd3d3d3d3f111f11ff111131111fdddddf11
+                            1ff111111df1dddd3dddf3d3d3d3f1111f11f3f111d111d3dddddf11
+                            1fdfd1113f11ddddd3ddf33d333df1111df111d113dddd3fff3ddf11
+                            1fd13fd11f11fddddfdff3333333f111111ff1d11133ff11dddddf11
+                            13d11f1113ffdddddffdf3333333f111111111111111f1113dddf111
+                            11f3f11111dddddddfddf3333333f11111111111113d111f3dddf111
+                            113111111ddddddddfddf33333333f111111111111ddff33ddddf111
+                            111f1111ddddddddd3df333333333f1111131111dddddd3ddddf1111
+                            1113d3fffddddddd3ddf1ff33333ff11111ff3dddddfddfddddf1111
+                            1111fddddf3dddddfdf1111fffff11f1111113fffffdddddddf11111
+                            111113fdddddddd3ff111111111111f11111dddddddddd3dddf11111
+                            1111111ffdddddff111111111111111f1d1ddddddddddddddf111111
+                            111111111fffff111111111111111111f1d1d1ddddddddddf1111111
+                            111111111111111111111111111111111f3d1d1dddddddff11111111
+                            11111111111111111111111111111111111f31d1ddddff1111111111
+                            11111111111111111111111111111111111113ffffff111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 103:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111fffffff711111111111111111111111111111111111111
+                            111111111f7777777ff7111111111111111111111111111111111111
+                            1111111111fff777777ff7111ff1ff111117ffffffffffff71111111
+                            1111111111117ff777777ff7ffffffff1fff777777777777ff711111
+                            117ffffffffffffff777777ffffffffff7777fffffff777777fff711
+                            7ff77777777777777ff77777fffffff7777ff7777777777777777ff1
+                            f777777fffffffff777f7777ffffff77fff7777fffffffff7777777f
+                            1fffff7777711117ff77f1777fffff7f777ffff771177777ffffffff
+                            111117fffffff11177ff7f111ffff777fff77ffff711777777f11111
+                            111111fffffffffffffff7ff17fff77f77fff7717fffffffff7f1111
+                            1111ff77777ffffffff77f77f1ff7ff7ff777fffff7117777ffff111
+                            111f777ffff777ffff77f7777f7ff77f77fff7177fffffff7777f111
+                            117ffff77777777ff7ff117777ffffffff777ffff7777777ff777f11
+                            1171f7777777777f7f711ffffffffffffffff7171117fff77ff777f1
+                            1111f777777777f7f71ff77777777fffffffffffffff777ff7fffff7
+                            111f7777777777f7f7f777777777777f77777f7f7f77ff777f7f111f
+                            111f77777ff77f777f77777777777777f17777f7f7f777ff77f7f111
+                            11f1f777f1117f71f7777777777777777f1177ff77f7777fff77f111
+                            11f1f777f1f17f1f777771111111177777f1177f777f7777f1f77f11
+                            11f1f77771117f1f7111171111171111777fff7f177f77777f1f7f11
+                            117f77777ff77ff711777f17771f7777177f77fff17f777777f1ff11
+                            17777777771117f777fff1777711ffff717f77777fff77777ff1ff11
+                            1f77777771111f71ff111f77777f1111ff77f777777fff777ff11f11
+                            11f7177711111f7117111f77777f11117117f77777f111f77ff11111
+                            111ff71111111f71171f177777771f117117f77777f1f1f7777f1111
+                            111ff77ff1111f7111777177777777771111f111777111777777f111
+                            1111ff1ff1111f7111111717711111111111f111177f7f777777f111
+                            11111fff11111f71117f7111111117111111f1111177777717ff7111
+                            111111f711111f7111f17771117777711117f111111771177fff1111
+                            1111111ff1111f71111ff7777777ff771117f11111117ff11fff1111
+                            111111111ff111f7111777fffff77f17117f7111111177ffffff1111
+                            11111111111ffff71111f1fffff1f711117f71111111177fff7f1111
+                            11111111111111f71111fffffffff111117f111111111777777f1111
+                            111111111111117f71117fffffff711117ff71111111117777f11111
+                            11111111111117ff711117777777111117fff7111111117777f11111
+                            1111111111117ffff1111111111111117fffff77111111177f111111
+                            111111111117fffff771111111111117f77fffff77111177f7111111
+                            11111111117ffffffff771111111777f777ffffff77777fff1111111
+                            1111111117ffffff77fff7777777fff777fffff77f777f77f1111111
+                            111111111f7777fff7777fffffff777777ffff7771fff7777f111111
+                            11111111f7fff77fff777777777777777fff7f111f77f7111f111111
+                            1111111f77777ff7f7ff777777777777f7ff7ffff77777ffff111111
+                            1111117f7777777f7f77ffffffffffff77fff777777777777f111111
+                            111111f777777777f7f777777777777777ff77777ffff77777f11111
+                            11111f77777777777ff177777777777771ff777ff7777ff7777f1111
+                            1111fffffff777777f7ff1177777777711f777f77777777f777f1111
+                            111f77777777f77777ff1fff1111111ffff77f7777777777f77f1111
+                            111fff77777777f777f11111fffffff111f77f71717171717f7f1111
+                            11f777f777ff7777ff11111111111111111f7f17171717171f7f1111
+                            1f1117f77f77f77ff1111111111111111111f7f111111111f7f11111
+                            1f1111f7f1117ff7111111111111111111111fff1111111fff111111
+                            1ffffffff1111f71111111111111111111111111ffffffff11111111
+                            11111111fffff1111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 104:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            11111ff1111111111111111111111ff111111111
+                            1111f1df11111ffffff11111fff1f11f11111111
+                            1111f1dbf1fff11111dff11f11df11df11111111
+                            1111fddbffb111111111dff11dbf1ddf11111111
+                            11111fbf1111111111111df11bfdddbf11111111
+                            111111fb111111111d111111dffffbbf11111111
+                            111111f1111111111fd11111bffddfbf1ff11111
+                            1111ff11111111111dfddd11fddfddfffbbf1111
+                            111fdf11111d111ddbbfbbbd1ddfdddfbbbf1111
+                            111fdf1111d111dbfffffffbddbffddfbbbf1111
+                            11fddf1111111dbfffbbbbbfdbfbfdddfbf11111
+                            11fdbfd11111dbfffbdbfffdfbbfddddfbf11111
+                            1fddbfd11111dbffbdbff1fdfffdddddbf111111
+                            1fddbbf11111dbffdbff11fdffbdddddbf111111
+                            1fdbbbfd1111dbfbbfff11fdffbddddbbf111111
+                            1fdbbffd11111dfdf1ff1fdffbbddfbbbf111111
+                            1fbbbf1f11111dfddffffddffbbdddfbbf111111
+                            11fff11f111111dfddddddfdfbbdddfbbf111111
+                            1111111f1111111dffffffdfbbddddffbf111111
+                            111111fd111111111111dddffbddddffff111111
+                            111111f1111111111111dddffbdddbffbbf11111
+                            111111f11111111111111dffbbdddbfbbbf11111
+                            111111fd11111bbd11111dffbddddbfbbbf11111
+                            111111fd11111bffd111dffbbdddbbffbbbf1111
+                            1111111fd1111dffd1ddfffbddddbf1fbbbf1111
+                            1111111fdd1111fd1ddfdfffddbbbf11fbbf1111
+                            11111111fdddddddddfffff1fbbbf1111ff11111
+                            111111111fdddddddf1ff111fbbf111111111111
+                            1111111111fffffff1ff111fbbf1111111111111
+                            11111111111111ffff1111dfff11111111111111
+                            1111111111ffff1111111df11111111111111111
+                            111111111f1111111111dbf11111111111111111
+                            11111111f11111111111bf111111111111111111
+                            11111111f1111dd1111df1111111111111111111
+                            111111111f11dd11111df1111111111111111111
+                            1111111111fffd1111dbf1111111111111111111
+                            1111111111111ffdddbf11111111111111111111
+                            111111111111111ffff111111111111111111111
+                        `, SpriteKind.Creature)
                     case 105:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111fff111111111111111111111
+                            1111111111111111111111fffddf11111111111111111111
+                            111111111111fff1fffffffddddf11111111111111111111
+                            1ffff111111fddbfdddffffffff111111111111111111111
+                            f1111fffffffdbbfdddbbbbbbbf111111111111111111111
+                            f111111111fddbffffddfffffbbf111fff11111111111111
+                            f11dd1111dfdfffdddddddbbbffffffddbf111fff1111111
+                            1fdf1111ddfffbdddddddddbbbbff11ddbf11f111fff1111
+                            1ff1111ddfbfb1ddddddddddbbf111ddbf11f111111df111
+                            11f11dddf1fb11111dddddddbb111dddbf1f1111111ddf11
+                            11f1dddf1bf1111111dddddb111ddddbf11f11111111ddf1
+                            111fdddf1f111111111ddddddddddddbf11f11111111ddf1
+                            1111fff1bf111111111dddddddddddbfb111fdd1111dddf1
+                            11111111f1111111111ddddddddddbffbf11ffddddddddf1
+                            1111111bf11111111111dddddddddfbfbf11f1fdddddddf1
+                            1111111fb11111111111ddddbbddbbbfbbfff11ffddddf11
+                            1111111f11111111111dddbbffbdddbfbb111f11dfdff111
+                            1111111f11111111111ddbff11fdddbfb11111fffffdf111
+                            1111111f1111111111dbffff11fdddbfd111111dddddf111
+                            1111111f111111111dbff1ff1fddddbfd111111dddddf111
+                            1111111fd1111111dbf1bffb1b1ddbfdd111111ddddf1111
+                            1111111fdd1111ddbf111111f111dbfdd11111ddfff11111
+                            1111111fdddddddbfdbfffbb1111bffdd111ddfff1111111
+                            1111111fbdddddbbf1111111111dfbfddd11dfbbf1111111
+                            11111111fdddddbf1111111111dfbbbfdd1dfbbf11111111
+                            11111111fddddbbf111111111dfbbbbbfd1bfff1111111f1
+                            11111111fdddbbfd111111111fddbbbbbf1dff111111fff1
+                            11111111fb1dbfd111111111fdddddbbbfd1ffffffff1df1
+                            11111111fb1dbfbb111111ffd11ddddbfbf1df1111111df1
+                            11111111fbddbffb1111ff111111ddffbbfd11f11111dbf1
+                            111111111fbbbffb11ff11111111ffdbbbbfd1fd11dddbf1
+                            1111111111fffbbbff111111bffbdddbbbbfd11fdddbbbf1
+                            11111111111fffff11bffffb1111ddffbbbfd11fbbbbbf11
+                            11111111111111fbb11111111111ffddbbbbfd1dfbbbbf11
+                            11111111111111f1bfb111111ffbdddddbbbfdddfbbbf111
+                            1111111111111f11b11fffffb111dddffbbbfdddffff1111
+                            1111111111111f11b111111111111fbddbbbbfddbff11111
+                            111111111111f111bbf1111111bfb1dddbbbbfdbbffb1111
+                            111111111111f111bbbfbffffb1111ddbbbbfbbbbfffb111
+                            111111111111f11dbbbbf11111111ddbbbbbfbbbfffffb11
+                            111111111111f11dbbbbff1111111bfffbbfffffffffffb1
+                            1111111111111fdbbbbbffffffffff111ffffffffffffffb
+                            1111111111111fbbbbbbffff111111111bbffffffffffffb
+                            11111111111111fbbbfffffb11111111111bbffffffffffb
+                            111111111111111fff1ffff11111111111111bfffffffffb
+                            1111111111111111111bffb111111111111111bfffffffb1
+                            11111111111111111111fb11111111111111111bfffffb11
+                            1111111111111111111111111111111111111111bbbbb111
+                        `, SpriteKind.Creature)
                     case 106:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111eff1111111fff111
+                            111111111111111111111111111111111111111e111f11111f111f11
+                            111111111111111111111111111111111111111f1111ff11f31111f1
+                            111111111111111111111111111111111111111f111331fff31111f1
+                            1111111111111111111111111111111111111111f3333333f3331f11
+                            1111111111111111111111111111111111111fffff33333333333f11
+                            11111111111111111111111111111111111fe33333ff33ee33333f11
+                            111111111111111111111111111111111fe333333333ffeeee333ff1
+                            11111111111111111111111111111111f11333333333effeeee333f1
+                            1111111111111111111111111111111f1113333ff333e1feeee333f1
+                            111111111111111111111111111111f1113333ffff3e111feeeff3f1
+                            11111111111111111111111111111f1111313ff1ff3e113feef1133f
+                            111111fff11111111111111111111e111311f111e333113fef11133f
+                            1111ff111eff3fffff1111111111f111331ff1f1f333113fff11133f
+                            111e1333111ff11113effffff111f113333f11ff3333e33efff333ff
+                            1111f11331f11111111111313eff13ff3333ffe33333e333ffffff3f
+                            11111fe33e111111111313131333ffffff33333333333e33effffef1
+                            1111111f3f11111111313333333333ff1f333333333333ffeeeeeef1
+                            11111111f1111111113333333333333fff333333333333eeffeeff11
+                            11111111e111111113333ffff3333333f33333333333333eeefff111
+                            11111fff11111111333ffeeeeff333333f3333333333333eeeeef111
+                            111fe11e1111111333fee3333eef33333f333333333333eeeeeef111
+                            1fe111e11111113333fe311333ef3333eeffffff333333eeeeeef111
+                            f13311e1111113333eee311333eee333eef11f11fff33eeeeeeeef11
+                            f11333e1111131333feee3333eeef333eefe3efe3f1ffeefffeeef11
+                            1fe133e1111313333feeeeeeeeeef33eeefeeefeeee3fff333feef11
+                            111fe1e1111131333feeeeeeeeeef33eeefeeeefeefeefef333eee11
+                            11111ffe1113133333feeeeeeeefe3eeeefeeeefeefeefeff33eeef1
+                            1111111f1131333333feeeeeeeeeeeeeefeeeeefeefeefefef3eeef1
+                            1111111f33131333333ffeeeeffeeeeeefeeeefeeefefeefefeeeef1
+                            1111111fe333333333333fffeeeeeeeefeeeffeeeffefeffefeeef11
+                            11111fe1fe33333333333333eeeeeeeeffffeeffffeffffffeeeef11
+                            111fe1111ee3333333333eeeeeeeeeef1111ff3ffffffffffeeef111
+                            11f111113feee33333eeeeeeeeeefff1111111f3333fffffeeeef111
+                            111ffe3333feeeeeeeeeeeefffffe1111111111f33333ffeeeef1111
+                            111111ffff1ffeeeeeeffffeeeef111111111111ff333333eef11111
+                            11111111111111ffffe11fffeef111111111111111ff33333ff11111
+                            11111111111111111111ffeefff11111111111111111f3333ef11111
+                            1111111111111111111f33feeffff111111111111111f333eff11111
+                            1111111111111111111e333ffee333f11111111111111ffffff11111
+                            111111111111111111f3333eeee333f11111111111111feeffff1111
+                            111111111111111111f333feeeefff111111111111111f3eefeff111
+                            111111111111111111e333f3e3f1111111111111111111fffeeff111
+                            11111111111111111f133f3333f1111111111111111111feeefeeff1
+                            11111111111111111f11ff3333f11111111111111111111fffeeff3f
+                            11111111111111111f11f1f3133f11111111111111111111feefef3f
+                            111111111111111111ff11f11133f1111111111111111111fffeee3f
+                            11111111111111111111111ff113f1111111111111111111e3ffe33f
+                            1111111111111111111111111fff1111111111111111111f3333333f
+                            11111111111111111111111111111111111111111111111f3333333f
+                            111111111111111111111111111111111111111111111111f3333ef1
+                            11111111111111111111111111111111111111111111111f1feef1f1
+                            11111111111111111111111111111111111111111111111f1f11f1f1
+                            111111111111111111111111111111111111111111111111ff11fff1
+                            1111111111111111111111111111111111111111111111111f1f1111
+                            11111111111111111111111111111111111111111111111111f11111
+                        `, SpriteKind.Creature)
                     case 107:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111e11111ffe111111111111111111111
+                            11111111111111111fef11ef31ee11111111111111111111
+                            1111111111111111ee3f1f3313ef11111111111111111111
+                            11111111111111e1fe3ef33113ef1efe1111111111111111
+                            1111111111111e1fe3ef331113eff11ee111111111111111
+                            1111111ffe111f3fe3ef33113eff113ef111111111111111
+                            111111f113ffff3e33f331113ef1113ef111111111111111
+                            111111e111133fe333f33113ef1113efffe1111111111111
+                            1111111f31113fe333331113ef113efe311e111111111111
+                            1111111e33113fe33333113ef1113ef3113f111111111111
+                            11111111f3311fee3331113e1113ee3113ef111111111111
+                            11111111e3331fee333111311133e33133ef111111111111
+                            111111111e333eff3331111113ff33333efffe1111111111
+                            111111111f33eef1f31111113f11f333effeeefe11111111
+                            111111efffffeef11f111113f111f333efee333efe111111
+                            1111ef3333eefff1ff11111ff311e33efee333113efe1111
+                            111f33333333efffff1111ff1f1e33effe333111113efe11
+                            11f331133333eff3331113fffefe33efee333333111113e1
+                            11f3111133333efe3333333fff333efeeee33333333331f1
+                            1ee3311333333efe333333333333eefeeeeeffffffffffe1
+                            1fe33333333333ef3e333333333eefffffffffff11111111
+                            1fe33333333333efe3eeee333eeeffffeefffffef1111111
+                            1eee3333333333effe33133eeefffee3eeefffeeef111111
+                            11fe333333333eefefeeeeeefffe33133eeffe3effe11111
+                            11fee33333333eefeffffffffeeee333eeefe33efff11111
+                            111feee3333eeefeeffffffe3333ee3eeefe33fffeef1111
+                            1111feeeeeeeeefefffffe3331133eeeefe3ffffefeeff11
+                            11111ffeeeeeffffffffff3311133eeefeffffefeefeeef1
+                            1111111ffffffffffe333efe3133eeefefefeeef33efeeef
+                            111111111ffffeeeefffe33fe33eeefefeef333e3333ffef
+                            1111111ffeeeeeeeeeeeff3ef3eeefeee3f13333e33333ff
+                            11111efee3333333eeeeeefeefeefeee33f13333f13333ef
+                            1111eee33333333333eeeefeefeffee333f13333ff133ef1
+                            1111fe3333333333333eeeefeff1fe3333f1eeeefff1ef11
+                            111eee33311133333333eeefef11fffffe1effffff1ff111
+                            111fe333111133333333eeeff111111111111feeef111111
+                            111fe333111333333333eefe1111111111111f33ef111111
+                            111fe333311333333333eef11111111111111e33ffe11111
+                            111fe33333333333333eef3111111111111111e3333e1111
+                            111fe3333333333333eefef1111111111111111ee333fe11
+                            111eee333333333333eefef111111111111111111e33ffe1
+                            1111fe333333333333eeeee1111111111111111111ffeef1
+                            1111fee3333333333eeeef1111111111111111111feeeef1
+                            11111feee33333eeeeeeee111111111111111111e33eeef1
+                            11111eeeeeeeeeeeeeeef1111111111111111111feeeefe1
+                            111111efeeeeeeeeeefe11111111111111111111effffe11
+                            11111111effeeeeefe111111111111111111111111111111
+                            11111111111efffe11111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 108:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111ffffffff111111ff11111111111111111111
+                            111111111111111111ffddddddddff111f11fff11111111111111111
+                            111111111111ff11ffddddddddddddff11ffdddf1111111111111111
+                            111111111fff11ff11dddddddddd3333f1fdddddf111111111111111
+                            1111111ffdddfdfd11ddddddddd333333ffddddddf11111111111111
+                            111111fddddd3ffddddddddddd3dd11d33fddddddf11111111111111
+                            111111fdddd33fdddddddddddddd1ffdddf3ddddddf1111111111111
+                            11111fddddd33fddd33333ddddddf1ff3d3fddddddf1111111111111
+                            11111fdddd33f1dd3333333dddddffff3d3fddddddf1111111111111
+                            11111fddd33f1111ddddd33ddddddff3dd3fddddddf1111111111111
+                            11111fddd3fd11d33dd33ddddddddddddd3fddddddf1111111111111
+                            11111fddd3fddddff3dff3dddddddddddd3fddddd3f1111111111111
+                            111111fdd3fdddddddddddddddddddddd3fdddddd3fffff111111111
+                            111111fdddf3ddd33333333dddddddddd3fddddddf11dddff1111111
+                            111111f3dd3f3d3ffffffff333ddddddd3fddddd3f11dddddf111111
+                            1111111fddd3f3ffffffffffff33dddd3f3ddddd3fddddddddf11111
+                            1111111f3ddd3fffffffffffffff3ddd3f3dddd3fddd1ddddddf1111
+                            11111111f3ddd333fffffffffffffddd3333dd33fddddddddddf1111
+                            111111111f3333333f33fffffffffddd33333333fdddddddddddf111
+                            1111111111ff33333f3f333fffff3dd333333333fdddddddddddf111
+                            111111111111ff33fd3f333ffff3d33f3dd33333fddddddf3dddf111
+                            11111111111111fffd3f333f333d3ff33ddd33333fddddddf3dddf11
+                            111111111111111fd3f3333fdddfff33ddddd3333fddddddf3dddf11
+                            11ffffff1111111fd3f3333fffffdd3ddddddd3333fd3d3d3f3ddf11
+                            1f11d333ff1111fd133333fffdd111dddddddd3333f3d3d33f3dd3f1
+                            1f11d33333f11fd13f3333fdd1111d3dddddddd3333f3d333f33d3f1
+                            fddd3d33333f1fd33f3333f1111dd333ddddddd3333f333333f3d3f1
+                            fd33d1d3333ffd33f3333f111dd3333dddddddd33333f33333f333f1
+                            fd333d333333fd33f3333fddd33333d11dfffff33333f33333f333f1
+                            fd3333333333f33f33333f333333d111df11111ff3333f3333f333f1
+                            fd3333333333f33f3333f33333d11dddf11111dddf333f3333f333f1
+                            1fd3333333333ff33333fdddd111d33fdffffffff3f33f3333f33f11
+                            11fd333333333ff3333f111111dd333fddddddddd3f333f33f333f11
+                            111fd333333333f3333fdddddd3333fddddddddddd3f33f33f333f11
+                            1111ffd33333333f33f33333333331fddddddddddd3f33f33f33f111
+                            111111ffd3333333ff133333333111fddddfffdddd3f33f3f1f3f111
+                            11111111fffffffff111111111111dfdddf133fddd3f33f3f1f3f111
+                            111111111111f1111f111111111dd3fdddf333fddd3f33ff111f1111
+                            11111111111f1111ddfdddddddd333fdddf333fddd3f3ff111111111
+                            11111111111f1111d33ff3333333333fdddfff3dd3f33f1111111111
+                            1111111111f111ddd33fffff333333dfdddd33ddd3f3f11111111111
+                            1111111111f11ddd333ffffffffffffffddddddd3f3f111111111111
+                            111111111fffffff33ffff11111111111ffffffffff1111111111111
+                            11111111f11dddddffff111111111111111111111111111111111111
+                            111111111ffffffffff1111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 109:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111dd11111111111111111111111111111111111ddd1111
+                            111dbddd1111dd11111111111111111111111111ddddd111
+                            111dbbdd111ddddd111111dd1111111111111111dbdddd11
+                            1111ddd1111dbddd11111bdd11111111dd111111bdddbd11
+                            11111dd1111bdbdd111111bb1111111bddd111111bdbdb11
+                            1111dddd11bdbdb111111111111111bdbdd111bdbdbdb111
+                            111dddddd1dbdb11111111ffff11111bdbd1dddddbdb1111
+                            111dddbdb1bdbb1111111f1dbff11111bbdddddddd111111
+                            1111bbdbd11bb1111111bf1dbbf1111111bdddbdb1111111
+                            11111dbdb11111111111f1ddbff11111111ddbdbdb111111
+                            1111dbbb111111111bffbb1dbbffffb111ffddbdfdf11d11
+                            111ddbd11111111ffbbbbbbbffbffffffdddfddfdf11dbd1
+                            111dbdb11bff1bfbbbbbbbbbbbfbfbfbbdbbbfddf111bdb1
+                            1d1ddbd1bfdbffbbbbbd11111dbfbfbfbfbbbf11ddb11b11
+                            dddddd11fddbfbdbbb1111bbd1dbfbfbbbfbf11bdddb1111
+                            ddbdb111f1dfbdbbbd1bbbbbb11bbfbbbbbfb1bdbdbb1111
+                            dbdbdb111f1fdbbbb11bbddbd11bbbbbbbbf111bddbf1111
+                            11bdbbd11bfbdbbbb11dd1111dbbbbbbbbbbf111dbf11111
+                            111bbdd111fbbbbbbb1111111bbbbbbbbbbfbf1111111111
+                            11111d111bfbbbbbbbbd1b1bdbbd1bbbbbfbff111111d111
+                            11dddd111fbfbbbd11bb1bdbbb1111bbbbbfbf1111dddd11
+                            1dddddd11fbbbbd1111bbbbbbdd11bbbbbfbfbb111dbdbd1
+                            ddddddd11fbbbbbd1bb1dbbd11bbbbbbbfbfbff111bdbdb1
+                            bbdbdd11bfbbbbbbbbbbd111dbbbbbbbfbfbfbf1111bdb11
+                            bdbddb1bdfbfbbbbbbd11dbd1bd1bbbbbfbfbff111111111
+                            1bdfbf1bdffbbbbb111dbbbbb1111bbbfbfbfff111111111
+                            11bbf11fbfbfbbbbddbbbfbbbbd1bbbbbfbfbbbf11111111
+                            1111111fbbfbbbfffffbfbfbbffffffbbbfbfd11f1111111
+                            111111ddfffbbff1111fbfbbff1111fbbfbfbbd1f111dd11
+                            11111dddddfbbb111f11fbbbf1f1111bbbfbfbbbf111dd11
+                            11111dbdddbfbbf11111fbbbf111111bbbbbffff11111111
+                            11111ddddbdbbbbbf11bbbbbb1111ffbbbbffb1111111111
+                            11111dbdbb1bfbbbbbbbbbbbbbffbbbffbbff11111111111
+                            11111bdbdb11dbbffffbbbbbbbbbffddfbffb1111dd11111
+                            111111bbb11fdbbfffff1fffff1fdddffffbdd11dddd1111
+                            11ddddd1111fbbfbffdd1fdddd1fddfffbbddddddbddb111
+                            1ddddddd1111ffffbbbfffbbbbffffbbf11dbdddbdbdb111
+                            dddddddd11111ff11ffbbbbbbbffbbbdf11bdbdb1bdbd111
+                            dddddddb111111111111ffffff11fbdf1111bdbd11bd1111
+                            dddbdbdb111111111111fbddf1111ff111111bdd11111111
+                            1dbdbdb1bb111bd111111fbb111111111111bdddd1111111
+                            11dbdbdddbb1bdbd1111111111dd1111111bdbdddd111111
+                            11111dddfdf1dbdb111111111ddddb11111dbdddfd111111
+                            11111bdfdfb11bb111111111bdddbdb1111bdbdfdf11dd11
+                            111111bbfb111111111bd11bdbdddbd11111bdfdf111dd11
+                            11111111111111d1111dd111bddbbd1111111fdf11111111
+                            11111111111111111111111111bdd1111111111111111111
+                            111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 110:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111ddd11111111
+                            111dddd1111111111111111111111111111111111111ddddb1111111
+                            11ddddddd11111111111111111111111111111111111dddbdb111111
+                            11dddddbd111111111111111111111111111bffffbd11dbdb11bd111
+                            11ddbdbdb1111111111bfff111111111111f11dbbbfb11bbddbdbd11
+                            11dbbbdb1111111111bdddbb1111111111fd11bbbbbfb111dddbddd1
+                            111dbdb1111111111bfdbbff1111111111fbdbdbbbbbb1111dddddd1
+                            11111111ffb111bffffdbffff1111111bfbdbdbbbbbbfb11dddddbb1
+                            111111bfdbfffffddbbbbbbfffb11bfffbdbbbbbbbbffb11ddbdbdb1
+                            111111fddbbfdbbbbbbbbbbbbffffdddbbfdbbbdbdbffb111bdbdb11
+                            111111f1dbfbbbbbfffbbbbbbbdddbbbfffffbbbdbfff11111bbb111
+                            11dd11bfbbbbbbbf111fbbbbbbbfbf1111ffffbfbfbfb11111111111
+                            1dddb11ffbbbbbf1111bbbbbbbbbf111111fffbbfbff111111111111
+                            1bdbb1ffdbbbbf1f11bf1fddbbbbbff1111fdbbbffb1111111111111
+                            11bb11fdbbbbbb11bbff1fffdbbffbbfffffbdbf1111111111111111
+                            11111ffdbbbffbbbbf1fffffbffbbbbbdbdbdbbf1111111111111111
+                            11111fdbbbf11bbbbffffdbbffbdbbbbbdbdbfffb111111111111111
+                            1111bfbbbf1f1bbbfffdbbffdb1b1bdbbbdbfbfbf111111111111111
+                            111bffbbf111dbbfffdbffffb1b1b1bbbbbbbfbfbf11111111111111
+                            111fbdbbf11dbbfffdbffffbbbdbdbdbdbbbbbfbfbf1111111111111
+                            111fddbbbbbbf1ffdbfbfbfbbbbbbdbdbdbbbbbfbffbbfff11111111
+                            111fdfbbbbbfffffbbbfbfbbbbbbbbdbdbbbbbfbfbbffd11f1111111
+                            1111ffbfbb11dffdbbbbbbbbbbbbbbbdbdbbbbbbbbfddddd1f111111
+                            11111ffbbbbffffdbdbbbbbbbbbbbbbbbbbbbbbbbdddbddddf111111
+                            111111ffbbbdffdbfdbbbbbbbbbbbbbbbbbbbbbbbbbddbbdbf111111
+                            11111bfbbbbbddbfdbbbbbbbfbbbbbbbbbbbbbbbbbbbbbbbbf111111
+                            11111bbfbbbbbbbfdbbbbbbfbfbbbbbbbbbbbbbbbbbbbbbff1111111
+                            1111bfddbbbfbfbbffbbbbbbfbfbbbbbbbbbbbbbbbbbbffb11111111
+                            1111fddbbffbfbbbddffbbbfbfbfbbbbbbbbbbbbbbbbfbff11111111
+                            1111bfdffbffbbbbb1ddffbbfbfbbfbbbbbbbdbdbbbbbbff11111111
+                            11111bffb1bffbbbb111fdffbfbffbbbbbbbdbdbdbbbbfbf11111111
+                            111111bb11bfbbfbbf11f1ddbfbbfbbbbbbbbdbdbdbbbbff11111111
+                            11111111111fbfbbbbff111bbbfbfffbbbbbbbbbdbdbbfbfbf111111
+                            11111111111fbfbdbbbbffbbbbfbdfdffbbbbbbdbdbbbbbbddf11111
+                            11111ddd111fbff1fbbbbbbbbbbb1f1ddffbbbbbdbdbbbbfddf11111
+                            111dddddb111fbf1ffbbbbbbbbbbf1111ddffbbbbdbbbbbfbdf11111
+                            111dbddddb11fbf1df1bbbbbbbbbbfb11111ddfbdbbbbbfbbbfdd111
+                            11dbdbdddd1fbbf1dff1fbbbbbbbbbbfb1111bbbbbbbbbffffdddb11
+                            111dbddbdb1fbbbfdffffdfbbbbbbbbbbbbbbbbbbbbbbbfb1dddbd11
+                            111dddbdb1ffbbbbbbdfffffbbbbbbbbbbbbbbbbbbfbfbf11ddbdb11
+                            1111dddb1fbdffbbbbbbdfff1fbbbbbbbbbbbbbbbbbfbb1111bdb111
+                            111dddd11fdbfffbbbbbbbdff1ff1bbbbbbbbbbbbbfbff1111111111
+                            11ddbddd1fbbbfffbbbbbbbbfff11bbbbbbbbbbbbfbfbfb111111111
+                            1ddbdbdd11fbfffbd1ddbbbbbff1dffbbfbbbbbbbbfbddfb11111111
+                            1dddbddb111ffbbf1111dbbbbf11dfdfbbfbbfbfbbbbdddf111ddd11
+                            11ddddbdb111111bf1111dbbbb1dffffbbfbfbfbfbbdbddf11dddd11
+                            11dbdbdb11111111bfb111dbbbbdffffbbbfbfbfbfbbdbfb11dddbd1
+                            111dbdb1111111111bfbb11dbbbbdffbbbbfbbfbf1fbbfb11dbdbdb1
+                            1111111111dd1111ddbbfb11fbfbbbbbbbbfbfff111ffb11dddbdbb1
+                            111111111dbdb111ddddbffdbfbfbfbfbbfbbf11111111ddddbdbb11
+                            111111111bdbb111dbddddbffffbfbfbbfffbbf111111ddddddd1111
+                            111111111dbdb111bdddbd111bbffffffffbbbf111111ddbdbdb1111
+                            1111111111bb11111bdbdb111111bbffffffbf1111111dbdbdb11111
+                            111111111111111111bbb111111111111bbff111111111dbdb111111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 111:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            111111111111111111111111111ff111111111111111111111111111
+                            11111111111111111111111111f11b11111111111111111111111111
+                            11111111111111111111111111f1ddb1111111111111111111111111
+                            1111111111111111111111111f11ddbf1111111f1111111111111111
+                            1111111111111111111111111f11ddbf111111fbf111111111111111
+                            111111111111111111111111ff11ddbbf1fb1fbbf111111111111111
+                            1111111111111111ff11111fff1ddbbbbfbdfbbbbf11111111111111
+                            1111111111f1111b11f11ffff1ddbbbbbbbdbfbbbf111fff11111111
+                            111111111f1f111f11dff11dfdddbbbffddfddffff1ffbbf11111111
+                            111111111f1df11f11ddbfffdddbbbf11fdfbddddffbbbbf11111111
+                            111111111f1ddf1f11ddbbbdddddddfddfbbfddddddffbbf11111111
+                            111111111f1ddbff11dbbbdddddddf11dbbfbfdddff11fbf11111111
+                            111111111fddbbbf1dbbbbdbbbdbbbf1dbbbbbfff11ddbff11111111
+                            111111111fddffff1ddbffffffbfff1ddbbbbbbf111dbbbf11111111
+                            111111111fdbf111ddbf111bbffff1fdddbbbff11dddbbbfb1111111
+                            111111111fbf1ddbbfff111fbbffbdffffdfff11dddbbbfdf1111111
+                            111111111ffffbbffbb111dfffdbfbddddffddddddbbbbfdf1111111
+                            11111111f1111ffbbbbf111fffddbfbddddddddddbbbbbfddf111111
+                            1111111f11111ddbbbb111dffffdbfbdddddddddddbbbbfdddb11111
+                            111111f1111ddddbbff111ddbbbdbfbbddddddddddbbbbfbbdf11111
+                            111111f111ddbbbff111ddddbbbdbdbfbddddddddddbbbfffbf11111
+                            11111f111ddbbfff1111dddddddbddbfbbddddddddddff11ffffff11
+                            11111f11ddbfffff111ddddddbfbdfffffbddddddddbbd1111111f11
+                            11111f1ddbfffff11dddddddffbbfddbfffffbdddbbffdddddddd111
+                            1111f11dbbffff11dddddddbbbbbbdddbffffffbbfffdfdddbbbf111
+                            1ff1fdddbfffff11dddddbffbbbfddddbffffffffdbbfbfdbbbbff11
+                            b11fddbbffffff11ddddffffbbfddddbbfbbbbddddddbbbfbbbfbf11
+                            f1111fbbfffff111dddbfdfbbfdddddbfbbbbbbddddbbbfbbbdfbf11
+                            f11111ffffff111dddbfddfbfddddddbfbbbbbbbbbbbbfbdddddffff
+                            f11111ddfffddddddbfdd1ffbddddddbfbbbbbbbbbbbffbddddddddf
+                            1f1111dddfbddddddfdd11ffbdddddbbbfbbbbbbbbbffbbfdddbbbf1
+                            1f1111dddbbfdddddf1111fbbddddbbbbbfbbbbbbbbfbbbbfbbbbf11
+                            f1f11ddddbbbddddb1f11fbbdddddbbbbbfbbbbbbbbfbbbbbfbbfdf1
+                            f1fdddddbbbbddddfff1fbbdddddffbbbbfbbbbbbbbbbbbbbfbbbfbf
+                            f1fddddbbbbdddddffffbbddddbffffbbfbdddbbbbbbbbbbffbbfbdf
+                            f1dfbbbbbbbddddf111ddddddffffffffbbfffddbbbbbbbfbbfffbdf
+                            f1ddfbbbbbbddbf11dddddddfffffffbbfffffffdbbbbffbbfffbbbf
+                            f1ddffbbbbdddf111dddddbfdfffffbbbfbbfffffbbffffffffbffbf
+                            1fdddfbbbdddf111dddddffddffffbbffbbbbbfffffffffffffbfbbf
+                            1fdddd1fbdddf11ddddbfddddfffbbfbddbbbbbbffffffffffffbfbf
+                            11ffdd111ddf111dddffdd11fffdbbf1ddddbbbbfffffffffffbfbbf
+                            11fbfd111ddf11bbbffff11fff1dbf1ddddddbbbffffffffffffbffb
+                            11fbfddddddbbbbbffffffffffbffddddddddbbfbbffffffffffffb1
+                            111fbdbbddbbbbfffffffffffdbfbbbbbdddbbbf11bbffffffffffb1
+                            1111ffffbbfffffffffffbbbbffffffbbbddbbbf1111bffffffffb11
+                            1111ffffffffffffffbbbbbbffbbbbbfffbbbbf111111bfffffffb11
+                            11111ffffffffffbbbbbbbbff1111ddbbbfbbbf1111111ffbbffb111
+                            11111fdffffddddddddfffff111ddddddbbfbf11111111bb11bb1111
+                            111111f11dd1111bbbbff11f111dddddddbbff111111111111111111
+                            1111111ff11fbbbfffff111fff1dddddddbbf1111111111111111111
+                            111111111ffbffffffff11f11dfbbfffdbbbf1111111111111111111
+                            1111111111fbbbf11fff1f11ddfbf11dfbbbf1111111111111111111
+                            111111111fffbbf1ddff1fffff1ff1ddffff11111111111111111111
+                            11111111f11fff1fff11111111111fff111111111111111111111111
+                            111111111fff11111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 112:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111bbb1111111111111111bbbb1111111111111111111111111
+                            11111111bddf1111111111111bb11df1111111111111111111111111
+                            11111111fdddbf1111111111b11ddbf1111111111111111111111111
+                            11111111fdddbbff111111bf1bffbf11111111111111111111111111
+                            111111111fddbbbffffffff1bfbbbf11111111111111111111111111
+                            111111111fdbbffb1111dfdbfbbbbff1111111111111111111111111
+                            11111111bbffb111111d1ddfbbbbbbf111111bff1111111111111111
+                            1111111f1dddd111d1d1ddddddbbbdbf1bbff11df111111111111111
+                            1111ff11ffbbbbbd1d1dddddddddddddff111bbbf111111111111111
+                            111f11f1fdffffdddddddddddddddddddbfbbbdf1111111111111111
+                            111f111ffddbbbddddddddd1dddddddddddfbdddfff1111111111111
+                            111fbd11fddbbbddddddd11ddbfdddddddddfddddbbff11111111111
+                            1111fbd11fddbdddddd11ddbfbddddfddddddfdbbddddf1111111111
+                            1111fbdd11f11dddd111bdbfd1bddddffddddfbbdddfff1111111111
+                            11111fbdd11f1111111bddfd111bddddbfddddfddff1111111111111
+                            11111fbbd1b1f11111dbdfb1111fdddbfdddddfbbbbf111111111111
+                            11111fbffb111f111dbdfffb11fbdddffffddddfbddf111111111111
+                            11111bfbbdd11bf11dbd1bfffbddddd1111fdfdfdff1111111111111
+                            11111ffbbbddbdb1dddfbff11dddddddd1bfddfffbdf111111111111
+                            11111fdfbbbbdddddddff111dddddbbbbffddfbbfbbf111111111111
+                            11111fdffffdddddddddddddddddbbbffbdddbddbffff11111111111
+                            1111ffddfbbbddbdddddddddddbbbbbbbfddddddddbbbf1111111111
+                            111b1fdddfbbbbdddddddddbffffffbbbbfbdbddddddbbf111111111
+                            11b11dfd1111dddddddddbfd11fffbbbffbdbdbddddddbbf11111111
+                            11b11dfb11bfddbfddddbfd11ffffbbfbbdbbbbdddddddbf11111111
+                            1b111ddff111ddddddbffff1fffdffffbbbbbbbbfbbbdddbf1111111
+                            1b11dddbbff1dddbffffffffdddffffbbbbbbbff1dddbdbbf1111111
+                            1b1dddbbbbffffffbbbbbdddffffffbbbbbbbf111ddddfbbf1111111
+                            1fdddbbbbbbffbbbddddddffffffbbbbbbbff1111dddddfbf1111111
+                            f1fddbbbffddbffffffffffffbbbbdbbbbf1f111ddddddfbf1111111
+                            fdffffff1fddddddbbbbbbbbbddbdbbbbf1dfbddddddbbff11111111
+                            1ff1df11fdddddddddddddddddbdbdbbbbffffbddbbbbbf111111111
+                            111ff111fddddddddddddddddddbdbdbbbbf11fbbbbbbfbf11111111
+                            11111111bddddddbffffffffffbdbdbbbbbf1dbffbbbfbdf11111111
+                            1111111fdddddbff1111111dddffbbbbbbbbfff11fbffff111111111
+                            1111111fddddbf111111111ddddbffbbfbdddbf1dfffffff11111111
+                            1111111ffdddf111111111ddddbbbbf111d1dddffbbfffbbf1111111
+                            111111bddddbf111111111ddddbbbf11111d1ddddfbbfbbbf1111111
+                            11111fd11ddbf111111111dddbbbf11111d1ddddddfbfbbbbf111111
+                            11111b111dbbffffffffffffffff1111111d1dbfbbbfbbbbbbf11111
+                            1111b1111dbbfddddddddddddbbfd11111d1dbf1ffbfbbbfffbf1111
+                            1111f111ddbbfd1111111dddbbfddddd1d1ddbfd1bffbbfbbbbbf111
+                            1111fddddbbbfbd111111dddbbfdddddddddbbfbd1dbffffbbb1bf11
+                            1111fddddbbbbfd11111dddbbbfdddddddbbbbbfddddb111b11bdf11
+                            1111bdddbbbbbfbddddddddbbbfbdbffdbbbffbfbdddb1dddbddbbf1
+                            11111fbbbbbbbbfffffffffffffbf11db11111fbfbddfddddbdddbf1
+                            11111fbbbbbbbbbbfdddddddbbbf111b1111dddffbbfdddddfdddbf1
+                            111111fbbbbbbbbbbffbddddbbb111df111dddbfffbfddbbfdbdbbf1
+                            1111111fbbbbbbbbbbfffffffff11dbf111ddbbbffffbbbbfbdbbbf1
+                            11111111ff11fbf11ffbbbff11f1ffffffffffbbff11fffbfbbbbf11
+                            11111111f111df111ddbff11111ffffffffffffff111111ffffff111
+                            11111111f11df111ddff11111111111fffffffff1111111111111111
+                            111111111fffffffff11111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 113:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111133ffffd111111111111111
+                            1111111111111111111111113f1111113ff1111111111111
+                            111111111111111111111d3f1111111111d3f11111111111
+                            111111111111111d3ffffff1111111111111df1111111111
+                            1111111d3fffffffdddd3f111111111111111df111111111
+                            111111111dfddddddd3f31111ff111111111113111111111
+                            111111111113fff333f11111f1111111111111df11111111
+                            1111111111111111ff111d31ff11111ff11111d3f1111111
+                            11111111111111ff11111113ff1111f111111113f1111111
+                            1111111111111f31111111f1111111ff111111133f111111
+                            11111111111f3111111111dff31113ff111111133ff11111
+                            1111111111f1111d3f31111fffff113d11111111f3fffff1
+                            111111111f1113311113111fff3111113311d111f3f3333f
+                            11111111f111111111df13311d11111111d13111f33f3ff1
+                            1111111fd1111111113fffd331111111111df1111f33f111
+                            111111fd11111111d3fd11f1133d1111111ddf111f3ddf11
+                            11111fd1111111df3fd1111f111111111111df1111ffddf1
+                            11111d11111111fddfd11111311111111111ddfdddf1fff1
+                            111131111111f3ddd1f1111113d111111111dddfdddf1111
+                            1113d111111ddd11113111111113d1111111ddd3f33df111
+                            111f111111111111111f11111111111111111ddd3ff33f11
+                            113d111111111111111311111111111111111ddd3f1fff11
+                            11f11111111111111111f1111111111111111ddd3f1111f1
+                            11f11111111111111111df111111111111111dddd3f11f1f
+                            131111111111111111111dfd1111111111111dddd3f11f1f
+                            1f111111111111113ff311d33111111111111dddd3f1f11f
+                            1f1111111111113f1111f1111111111111111dddd3f3f11f
+                            1f11111111111d1111111f11111111111111ddddd33fd1df
+                            1f11111111111f1111111df1111111111111ddddd33fddf1
+                            1f1111111111d1111111ddd1111111111111ddddd33fddf1
+                            1f1111111111f1111111dddf111111111111ddddd33fddf1
+                            1f111111111f1111111dddd3f11111111111dddd333fdf11
+                            13111111111f11111ddddd3fff111111111dddd3ffffff11
+                            11f11111111fffddddddfff33f111111111ddddfd11d3f11
+                            11f11111113dddffffffddd33331111111ddddfd1111d3f1
+                            11fd111111fd11ddddddddd333f1111111dddfd111111df1
+                            113d111111fd11ddddddddd333f1111111ddfd1111111df1
+                            111f111111fddddddddddd3333f111111ddfd1111111ddf1
+                            1113d111113dddddddddd3333f3111111dfd1111111ddf11
+                            1111fd11111fdddddddd33333f111111dfd1111111ddf111
+                            11111fd11113dddddd333333f311111df11111111ddf1111
+                            111111fd1111ff333333333fd11111ddfd111111ddf11111
+                            111111fffd1113ff33333ff11111dd3fdd11111d3f111111
+                            1111ff333ffd1113ffffd11111ddd33f3dd11dd3f1111111
+                            11ffdddd33fffddd11111111dd3333ff33ddd33f11111111
+                            1fd111ddd33ffffffddddd33ffffffff333333f111111111
+                            1f11111dffffff133fffffff3331133df333ff1111111111
+                            1fffffffff11111111111111111111111fff311111111111
+                        `, SpriteKind.Creature)
                     case 114:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            1111111111111111666ff111111116f11111111111111111
+                            1111111116ff166f1bbb166f1116f11f1111111111111111
+                            1111111661116111b666bbbb6ff11bbfff11111111111111
+                            1111116111b611bb6fff6666bbbbbb6f66ff1111fff11111
+                            11111611bb6f1b6ff666ffff666666f6bbbbf6ffbbbf1111
+                            1111161bb6f1b6f666666f66ffffff6bbb666fbbbbbf1111
+                            1111611b66f1b6ffffbb66f66f6666bb666ffbbbb6f11111
+                            1111f1b66fff6f6666fbbbf666fbbbb66ffbbbb6ff111111
+                            111611bff666f6bb66ffbbff6bbff66ff66bb66f6f111111
+                            111f1b611bb6f1b6ff6f11fff6bbbff666666ff666f11111
+                            111f16111b6f116f666f11f66f66bb1fff6ff6f66bf11111
+                            111f1611b6ff1bf6f66f11ff66ff666111fff66fbbbf1111
+                            111161116f6f1bf6fb6fb1fff66ffff6611bf666f6bf1111
+                            1111611b6f6f1bf6fbbf6b1ff66ff66ff66bbf6bf666f111
+                            1111f1b6f6bfbbfbfbb6fbb1ff6f66bb6ff6bbf6bf66f111
+                            1111f1b6fbbfbbfb6fbbf6bbbbfff66bbf6f6bbfbf66f111
+                            1111f6b6fbbf6bfbffbb6ff666bbbffff6fff6bf6bff1111
+                            11161fbb6fbff66ffffbb66fff666f666ffff6bbfbff1111
+                            111f1f6bb6fbfffffffffff666fff6fffff66f6bfbbf1111
+                            116116f6116fffff11fff11fbb6f6666fff66f66f6bbf111
+                            11f11f1f6116fff1111f1111fbb6f666666f66ff6fbbf111
+                            11f1bbfff611fff11f1f11f1fb11fffbbb66f6666fbbf111
+                            111fbb666f6bfff1111f1111ff11f66fffb6fbbbf6b6f111
+                            1111ffbb6f6bbfff11fff11fff111f6f66f66fbbf6bf1111
+                            111f66ffb6f6bfffffffffffff6bbfff66f66fbbf6bf1111
+                            111fb6fbfff6bbfffffffffff6fbbbf66f666fbbf6bf1111
+                            11fbbf1bb66f6bbbfffff66f66f6bbbffff6f6fbbf66f111
+                            11fbf1ff1b66ff66bbbbf66f66bf66bbbbbf66fbbf66f111
+                            111f11f6f1b666ff6666ffbbfbbbff66666f666fbbf6f111
+                            11166616ff1bbbf6ffff6f6bf66bbbffffffff6f1bbf1111
+                            116fff6ffbf1bfff6f66f6fbbf6666bbbbbbbbfff1bbf111
+                            16fffff6fbbfffff66f66ff6bbff6666666666bbbf111f11
+                            16ffffff6fbb6ff6f66fff6f6bffffffffffff666ff11f11
+                            16fffffffffbb6fffff66ff6f66ff66f66f66bfff11ff111
+                            116ffffffffffbb6ff6ff66ffff66ff6fbbfbf6111111111
+                            1116fffffffffffbb6f11ff6ffffbbbfffffff6111111111
+                            111166ffffffffffbbf111116ff6fffbbbbbff6111111111
+                            1111116fffffff66ff1111111661116fffffff6111111111
+                            111111166ffff61111111111111116fffffff61111111111
+                            111111111666611111111111111116fffffff61111111111
+                            11111111111111111111111111116fffffff611111111111
+                            11111111111111111111111111116fffffff611111111111
+                            111111111111111111111111111116fffff6111111111111
+                            111111111111111111111111111111666661111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 115:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111efff11111111111111111111111111111111111111
+                            1111111111111f133ef1111111111111111111111111111111111111
+                            111111111111f1133fef111111111111111111111111111111111111
+                            11111111111fe3effffffffe11111111111111111111111111111111
+                            11111111111fff3111333333fff11111111111111111111111111111
+                            1111111111fff11111133333333ff111111111111111111111111111
+                            111111111ff31111113333333333eff111fffffff111111111111111
+                            11111111f3333111333333333333effffe3111111f11111111111111
+                            111111ef33333333333333333333efe311111111f111111111111111
+                            11111fe33333333333333333333ef111111111fe1111111111111111
+                            1111f333333333333333333333eff11111111f111111111111111111
+                            111f3333333333333efffffeeeff31111113f1111111111111111111
+                            11e333333333333effe3331fffee331111ef11111111111111111111
+                            11f3333333333eff3331111feeee33333ff111111111111111111111
+                            11fe33333333ef1efe1111f333efe333ff1111111111111111111111
+                            1f1ffeeeeeeefe1ffe1111f3333effffeff111111111111111111111
+                            1f111ffff3efffeff111ef33333eeeeeef3ff1111111111111111111
+                            1f1113333333effffeeff333e333eeeeee3ef1111111111111111111
+                            11f33fe33333333333333333e333eeeeeeef11111111111111111111
+                            11fe3333333333333333333ef333eeeeeef111111111111111111111
+                            111ffffffe333333333333ef333eeeefeef111111111111111111111
+                            11111113f11feffffffeeefe333eeeeefeffff111111111111111111
+                            11111111f11fffffe111ffe33eeeeeeeeff1eef11111111111111111
+                            11111111f1ffffffff11f33feeeeeeffff113ef11111111111111111
+                            111ffff13feffffeeef1f33eeeeffff33ee3eef11111111111111111
+                            11ff111fef3ffeeeeef3f3feeef1111feeeef11ff111111111111111
+                            11f11111ef3feeeeeeef33feef11111ffffeef13f111111111111111
+                            111fffe13f3feeeeeee33fee3ff333ff111fee33f1111111111f1111
+                            11f1111ffee3eeeeeef3fee3f11fff11113fee3ff111111111e3e111
+                            1f111111f3f33eefff33fee3f111f113333feee3fff1111111f3f111
+                            1f1113ffe3ff3333333fee333f11ffffeffeeeeeeefff1111e13f111
+                            1e33ffee33fef333ffffff3333ffff3eeeeee3eeeeff1f111f33f111
+                            11fffff33ef3eeff33eeeeffff333f3333eee333eef331f1e133f111
+                            1f1111ffff333f333eeffff331f33ff33333e333eff331f1f3311f11
+                            1f113ff13f33f3eefff3111f111f333f33333333efe33eff133113f1
+                            11eef1f13f3f3fff311fff11ffff333fe333333eeffeeef133f33ef1
+                            111111f33f3f111111ff1ff13ef33efffffffeeefefeef1333f3eef1
+                            111111f3fe3f3111113ffff33ef33fe33333effffeeffff3333fff11
+                            1111111ffe33ffff31111333effffe33113333efeffff11ff333ef11
+                            1111111efe33ff33ff3333ffff3ff3111333333ff1113f133f33ef11
+                            11111111feff13fe33ffef13eff3f311133333f111133ef33f33e111
+                            11111111feef13efee33f1133f33f311133333f111333efeef3ef111
+                            11111111f1ef13effffff133ef3f3133333333f11133eefef3eef111
+                            1111111f11ef33ef3111f3eef33f33333333333f133eee3f3eef1111
+                            1111111f13eefff331111fff331f33fffeee3333fffeeeefeeef1111
+                            1111111f13eef33311111113311e1f111333f333333fffffeef11111
+                            111111f13ee3f331111111111133f1133333ef333333eeffefe11111
+                            111111f1ff33eff11111111133fff1333333ef333333eeeffe111111
+                            111111ff1133eeef1133333fffeef1333333ef33333eeeefe1111111
+                            111111ff133eeeeeeffffff33eeeef33333ef33333eeeeeff1111111
+                            1111ff11ffeeeeeeeefe133eeeeeeefeeeefee3efffffeeffe111111
+                            111f111133fffeeeeefffeeeeeeeeefffffeeef111113ffeff111111
+                            11f1111333333feeeeffffffffffff111ffeef111113333fffe11111
+                            11f11333333333feeffffff111111111111ff111113333333ff11111
+                            111fffffffffffffffff1111111111111111fffffffffffffff11111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 116:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            11111111f1111111111111111111111111111111
+                            1111111f9f111111111111111111111111111111
+                            1111111f9f1111111111111ff111111111111111
+                            1111111f9f111111111111f9bf11111111111111
+                            1111111f9bffffb111111f99bf11111111111111
+                            1111111ff199999fb111f99bf111111111111111
+                            111111f1119999999f1f99bf1111111111111111
+                            11111f111999999999f99bf11111111111111111
+                            11111f999999bfffb999bf111111111111111111
+                            1111f1f9999f1111f99bff111111111111111111
+                            1111fbbf999fbb11f99bffffff11111111111111
+                            1111ffbf999fffb1f999999999ff111111111111
+                            1111f1ff199f1fb1f99bbbbfff99f11111111111
+                            111ffff19999ffffb9bbbff999b99f1111111111
+                            1ff11119999999999bbfbbbffb999f1111111111
+                            f19991999bf99999bbfffbbbbf9b9f1111111111
+                            fbfffb99bf9999bbbfbb9ffff9b99f1111111111
+                            fbfffb9bfbbbbbbffbb9bbbbbb99bf1111111111
+                            fbfffb9bfbbbbffbbbb9bbbbbbbff11111111111
+                            1fbbb9bffffffffbb99bb99bbbfbfb1111111111
+                            11fffff1111111f91bff9bbbbb99bf1111111111
+                            111111111111111fff19fbbbb9bbbfb111111111
+                            111111111111111f11111fb99bbbbbf111111111
+                            11111111111111f1111111fbbbbbbbf111111111
+                            11111111111111f1199999f99bbbbbf111111111
+                            11111111111111f1999f99fbb9999fb111111111
+                            11111111111111f99199ff99bbbbbf1111111111
+                            11111111111111f9999999999bbbf11111111111
+                            11111111111111bfb99999999bbf111111111111
+                            1111111111111111fb999999bbf1111111111111
+                            11111111111111111fffbbbbff11111111111111
+                            1111111111111111111bffffb111111111111111
+                            1111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 117:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111ff11111111111f1111111
+                            111111111111111111111111111f1f1111111111f1111111
+                            111111111111111111111111111f1bf11111111f1f111111
+                            111111111111111111111111111f1bbf1111111f1f111111
+                            111111f11111111f111111111111f1bf1111111f1f111111
+                            11111f1f111111f9f11111111111f1bbf11111f91f111111
+                            11111f19f11111f9f111111111111f1bf11111f1bf111111
+                            111111f19f1111f9f111111111111f1bf1111f91bf111111
+                            111111f19f1111f9f111111111111f1b9f111f91bf111111
+                            1111111f19f111f9f1111111111111f19f111f1bf1111111
+                            1111111f19f111f9f111111111fffff1bf11f91bf1111111
+                            1111111f19f11f19f111111fff1111f1b9f1f91bf1111111
+                            11111111f19f1f19f1111ff11111999fb9f1f1bf111f1111
+                            11111111f19f1f1bf111f1f111999fffb9f1f1bf11f1f111
+                            11111111f19f1ffbf11f1f1f1999f1ff1b9f91bf1f11f111
+                            ffff11111f19f9fff1f1f19f999f1bff1b9f1bf1f119f111
+                            f111ff111f19f9f1f1fff9bf99f19fbf1b9f1bff119f1111
+                            1ff111ff1f19f9f1ffff1bf99f11bfbf1b991bf1199f1111
+                            111ff911ff1999f1bff1bbf9f119fbbf11b1b11199f11111
+                            11111f991f1999f1bf19bf99f119fbbf11b1b1199f111111
+                            111111f991f199f9f11bbfff119fbbf111b1b199fbf11111
+                            1111111f999199fbf19b999f119fbbf111b1b19bfbf11111
+                            11111111f99199ff11b9999919fbbbf1111b199fbbbf1111
+                            111111111f999ff919b9999999fbbbfffff999fbbbbf1111
+                            1111111111f99f919b999999f99fff9999f99fbbbbbf1111
+                            1111111111f9f9919b999999f999999fff99ffbbbbbf1111
+                            11111111111ff919b999999bfb999ff9999fbfbbbbbf1111
+                            111111111111f919b99999bf1f99f99999fbbfb99bbf1111
+                            11111111111f9919bb99bff11b99f9999fbbfbb999bf1111
+                            11111111111ff919bbffffff1b99f999ffffbb9999bf1111
+                            111111111111ff1fb99fbfff1f9f9ffffbbbfbf999bf1111
+                            111111111111ffff9999f111f99f9fbbb999fbf999bf1111
+                            1111111111111fbff9999bff99bf9fff999fbf9999bf1111
+                            11111111111111fff99999999ffffbbbfffbbf9999bf1111
+                            111111111111111f1999fbbbf1f999fffffbf99999bf1111
+                            11111111111111f1199bfbb9111fff11111f99999bf11111
+                            11111111111fff11199bf1111111f1111111f9999bf11111
+                            11111111fff1111199bf1111111f11119b911f999bf11111
+                            1111111f1111111199bf1111111f111bfff91fb99f111111
+                            1111111f11bbb9199bf1111111f1119fbff99fb9bf111111
+                            11111111f1fffb999bf1111111f111bfb9999fb9bf111111
+                            11111111f19fffb9bf11111111f111bfb999fb99f1111111
+                            111111111f99ffb9bf11111111f1111bf99fbb9bf1111111
+                            1111111111ff9999f1111111111f1111bffbb99f11111111
+                            111111111111fffb11111111111f11111bbb99bf11111111
+                            1111111111111111111111111111f11111999bf111111111
+                            11111111111111111111111111111ff119bbbf1111111111
+                            1111111111111111111111111111111ffffff11111111111
+                        `, SpriteKind.Creature)
                     case 118:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            1111111111111111111111111111fff11111111111111111
+                            11111111111111111111111111ff4f111111111111111111
+                            111111111111111111111111ff11f1111111111111111111
+                            1111111111111111111111ff444f11111111111111111111
+                            11111111111111111111ff1111f111111111111111111111
+                            111111111111111111ff44444f1111111111111111111111
+                            11111111111111114f111111f11111111111111111111111
+                            111111111111114ffffff41f111111111111111111111111
+                            111111111ff11ff411444ff114fff4111111111111111111
+                            11111111f44ff444114444f44111114f1111111111111111
+                            11111111fff4444114fffff4f1114111f111111111111111
+                            1111111f4f1144ff44f1fff4441411111f11111111111111
+                            1111111ff1111141111fff4444f111111141111111111111
+                            111111f44ff1111f1111f444444f111411f1111111111111
+                            11111f11444f11114fff44444444f14111f1111111111111
+                            11111f1f4444f1111111144444444f111141111111111111
+                            111111f144f411111111144444444f111114111111111111
+                            1111111fff11111111114444444444f4441f111111111111
+                            1111111f44144111111144f4444444f1111f111111111111
+                            1111111f4111144411444444f444444f144f111111111111
+                            1111111f41111144444411144ff4444f4444111111111111
+                            1111111f11111111444f111f444f4444f441111111111111
+                            111111441111111144411411f4444f44f4f1111111111111
+                            11111f144111111114f11f111f444444ff11111111111111
+                            1111f11ff111111111f11f1111f144f4f111111111111111
+                            111f1144f111111111f11f1111414f44f111111111111111
+                            111411f44111111111f11f111111f444f111111111111111
+                            1111f1f44f11111111f1141114ff444f1111111111111111
+                            111114f44441111111411111f444444f1111111111111111
+                            11111114fff41111111f111f444444f11111111111111111
+                            111111111111f41111114f44444444f11111111111111111
+                            11111111111111f41111114444444f111111111111111111
+                            11111111111111114ffff44444444ff11111111111111111
+                            11111111114fff411111114ff444444f1111111111111111
+                            111111111f11144f4111f44444444444f111111111111111
+                            11111111f111111444f44411444444444ff1111111111111
+                            11111114111111111144411144444444444f111111111111
+                            1111111f1111111114441111144444444444f11111111111
+                            1111111f41111144444111111444444444444f1111111111
+                            1111111444444444441111111144444444444f1111111111
+                            11111111f444444f41111111114444144444444111111111
+                            1111111114fffff44111111111444111444444f111111111
+                            11111111111111f41111111111444111444444f111111111
+                            111111111111111f11111111144fffff4444444111111111
+                            11111111111111141111111144f111111f444f1111111111
+                            1111111111111111f1111114f4111111114f411111111111
+                            111111111111111114ffff41111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 119:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            1111111111111114f411111111111111111111111111111111111111
+                            11111111111111f111f1111111111111111111111111111111111111
+                            1111111ff1111f111114111111111111111111111111111111111111
+                            11111f4414f1f111111f111111111111111111111111111111111111
+                            1111f41111444111111f111111111111111111111111111111111111
+                            111f4111144f41114414111114f41111111111111111111111111111
+                            11144111144441114411f11f4111f111111111111111111111111111
+                            11f4411144f4111144111f4111111411111111111111111111111111
+                            114411114444111441111111111111411114ff411111111111111111
+                            144411414f44411441111111444111f114f4111f4111111111111111
+                            1f4411414f44411441111114444111fff44411111f11111111111111
+                            1f4411444f4441114411114411111ff4441f111111f1111111111111
+                            1f4411444f44441144111441114f4444111141111414111111111111
+                            1444111444444441441144114444111f1111f111141f111111111111
+                            4444111441f444441441444ff444411f11414111141f111111111111
+                            f4444114441f4444444ffffffff44444144f1111f11f111111111111
+                            f444441144414f444fffffffffffff4444444141411f111111111111
+                            f4444441144444fffff44fffffffffff44f4444f1144111111111111
+                            4444444444444ffff444444444fffffffff444f444f1111111111111
+                            1f4444444444ffff4ff11444ffffffffffffff4444f1111111111111
+                            14444444444ffff4f4444fff4ffffffffffff4444f11111111111111
+                            11f4444444fffffff14444f4fffff444ffffff444f111111111114f4
+                            111f4444fffffff4ff144444ff4444ffffffff44f4111111114ff44f
+                            11114f4114ff4f4f44f4444f4444fffffffffff4ff411114ff4444f1
+                            111111111ff4f4f4444f44f4444444fffffffffffffffff444411f11
+                            111111111ff444444444f4444444f44444ffffffffff44444111f111
+                            111111114f44444444444f444444444fff44444ffff44441141f1111
+                            11111111ff44444444444f444444fff444444444ff44411111f11111
+                            11111111f4444444444f4444f4ff4444444444444f4414111f111111
+                            11111111f444444444f44444fff44444444444444f111141f1111111
+                            11111111f44444444f44444fff444444444444444f11111f11111111
+                            11111111f44444444444444ff44444444444444444f111f111111111
+                            11111111f44444444444444f44444444444fff444444f41111111111
+                            11111111f4444444444444f4444444444f11111f4444f11111111111
+                            1111111144444444444444f444444444411ff4114444f11111111111
+                            111111111f444444444444444f444444111fff41f444f11111111111
+                            111111111f444f44444444444f44444f1ffffff1f444f11111111111
+                            111111111444f44114444f444f44444f1fffff41f444f11111111111
+                            1111111111f4441411444f444ff4444f14fff4114444411111111111
+                            11114ffff444411411f44f4444ff4444114f411f4444111111111111
+                            114f44444444414111f44ff44444f444f11111f44444111111111111
+                            144444444444141114f4f44f4444444444fff444444ff41111111111
+                            1f4444444441141114f4f444f44444444444444444f444f111111111
+                            114f44444411411114f4f4144f444444444444444444111f11111111
+                            11114f444414111114f4f41144444444444444444f41111f11111111
+                            111111f44444111144444f414444444444444444f4f411f111111111
+                            111111441141111144444f4111444444444444444f114f1111111111
+                            1111111f111111144ff444f411144444444444f41f11111111111111
+                            1111111411111144f14f44f44111144444444ff41141111111111111
+                            111111114f11144f11114ff4444111114ffffff411f1111111111111
+                            11111111114fff411111111114fffff44444441f1141111111111111
+                            1111111111111111111111111111111f1441f1114f11111111111111
+                            11111111111111111111111111111111f11f11111111111111111111
+                            111111111111111111111111111111111f4111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 120:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111f11111111111111111111111111111
+                            11111111111111111f4ff111111111111111111111111111
+                            11111111111111114144f111111111111111111111111111
+                            1111111111111111414444f1111111111111111111111111
+                            1111111111111111f14444f1111111111111111111111111
+                            1111111111111111f144444f111111111111111111111111
+                            111111111111111f1144444f111111111111111111111111
+                            111111111111111f11444444f11111111111111111111111
+                            111111111111111f111444444ff111111fffffff11111111
+                            111111111111111f11144444f44f11fff1111114f1111111
+                            11111111111111f11114444ff44fff4411114444f1111111
+                            11111111111111f111144ff144f4444111114444f1111111
+                            1111111111111f11ffffff144ff444111114444ff1111111
+                            1111111111111f1f11114f14444f44111444444ff1111111
+                            11111111111ffff4111444144444f1114f4444f4f1111111
+                            111111fffff14444414444444444f114f4f44f4f11111111
+                            1111ff1111f14444111114444444f44f4f444f4f11111111
+                            111f11111114144114fff144444444fff4f4f4f111111111
+                            111f4111111414414fffff14444ff114ff4ff4f111111111
+                            1111f4444444f1114f11fff144111444f4ff4f1111111111
+                            11111f444444f114ff14fff14411444f4f4f4f1111111111
+                            111111f4444f4114f1fff441444444fffffff11111111111
+                            1111111f44f41114ff4ff4414444444444fff11111111111
+                            11111111ff111114ff4444414444444444444f1111111111
+                            111111111ff444114fff44f14444444444ffff1111111111
+                            1111111111fff44114ffff1444444444ffff4f1111111111
+                            11111111111f1f41114441444444ffffffff44f111111111
+                            111111111111f411141114444144fff4f4f4f4f111111111
+                            111111111111ff411444444441144f4f4f4f4f4f11111111
+                            111111111111f1f4f14444444f1114f4f4444f4f11111111
+                            111111111111f11f1144444444f111ff444444f4f1111111
+                            11111111111f141f144f44444f1ffff4444444f4f1111111
+                            11111111111f11f144f144444f1111444444444ff1111111
+                            11111111111f41f44f4ff4444f1111114444444fff111111
+                            11111111111f1144ff444ffffff1111111144444ff111111
+                            11111111111411444444f4f1111fffff11111444ff111111
+                            1111111111f11444444f4f1111111111ffff1111ff111111
+                            1111111111f1144444fff111111111111111ffff11111111
+                            1111111111f144444fff1111111111111111111111111111
+                            1111111111f14444ff111111111111111111111111111111
+                            11111111111f44ff11111111111111111111111111111111
+                            111111111111ff1111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 121:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111ff111111111111111111111111
+                            111111111111111111111ffff11111111111111111111111
+                            11111111111111111111f1dfbf1111111111111111111111
+                            1111111111fff111111f11dfbf11111111111fff11111111
+                            111111111fbfdf11111f11ddfbf11111111ffddf11111111
+                            111111111fbdfdf111f111ddfbf111111ff1dddf11111111
+                            111111111fbbdfdf11f11ddddfbf111ff11dddbf11111111
+                            111111111fbbddfdff111ddddfbf1ff11ddddbbf11111111
+                            111111111fbbbddfdf11ffbdddfbf11dddddbbff11111111
+                            111111111fbbbddbf11f1dfbddfbfbdddddbbbff11111111
+                            111111111fbbbbdf111f1dfbdddfbfbdddbbbfbf11111111
+                            111111111fbbbbdf11b11ddbbddfbfbddbbbbfbf11111111
+                            111111111fbbbbf111f11ddfbbddfbfbbbbbbfbf11111111
+                            11111bbfffffff11fff11ddfffbdfbfffbbbfbf111111111
+                            1bfff1111f111fbf111111111dfbbf111ffbfbf111111111
+                            f11111111fd111f1bffffff1111ff111dffffffbd1111111
+                            1fd111111ffd111fdddddddfd111111ddffbddddfffb1111
+                            1fdddd1111ffd1f1bbbbbff1fd1111ddffbd11111111ff11
+                            11fdddddd1ff1f1b1dddbbfd1fd111dffbd11111111dddf1
+                            111fddddddfdb11111111fdfd1fd11dfbd1111111dddff11
+                            111fdddddf1b11dbfffffdfffd1fd11dfb1111ddddfffd11
+                            1111fdddbf1b1dbfffffffdfffddbd11dfbddddddfbfd111
+                            11111fbbbfdf1bfffffffffdddfdbd111fbdddddfbfd1111
+                            111111fff1df1fff11fffffbfffdfd111fffbddfbbf11111
+                            111111f111df1f1f11bbfffbfffdfd111111fffbbf111111
+                            11111f1111df1ffffbbbbffbfffdfd11111111fbf1111111
+                            1111fffddddf1ffffbbbbffbfffdfdddddddddfff1111111
+                            111f1bfffbdfdfffffbbfffbfffdfdddddddbfffbf111111
+                            11f1dddbffdfbdffffffffbfbbbdfddddffffffbddf11111
+                            11fddddddfdbffdffffffbfffffdbdddbfbbffbddddf1111
+                            11fbbbbbbfdbfffddddbbfffffddbd1dbfbdfbfdddddf111
+                            111fbbbbf1f1f1fbfffffbfff1dfd11bfbdddfbfdddddf11
+                            1111fbbbf11f1f1fbfffffbf1dfd1d1fbddddfbfbbddddf1
+                            11111fbf1111f1f1bffffff1dfd111dfbd11dfbfbbbbbdf1
+                            111111ff111f11df1dddddddfddd111fbd11ddfbfbbbff11
+                            1111111f11b11dddbbfffffbddddd111fb111dfbfbff1111
+                            1111111f11fdddffdddddddddddffdd11fd11dbffb111111
+                            111111f111fddffffff111dddfffffdd1fb111dffb111111
+                            111111f111fffdddbbff11ddffbbbbfddfb111dfbf111111
+                            111111f11ddddddbbbbf11ddfbdddbbfffb111dfbf111111
+                            111111f1ddddddbbbffff1dffffdddddbbd1111dff111111
+                            111111fdddddfffffffff1dffffffddddddd111df1111111
+                            1111111fffff111111ffbfffbffffffdddddd11df1111111
+                            1111111111111111111fbffffbfff11ffffddd11f1111111
+                            11111111111111111111fbbbbfbf1111111fffff11111111
+                            111111111111111111111fbbfbf111111111111111111111
+                            1111111111111111111111ffff1111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 122:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111ffffff111111fffffff11111fffffff11111111
+                            1111111ffffffffffffff1111111fffffffffffff1111111
+                            111111fffffffffffff11111111111ffffffffffff111111
+                            11111fffffffffffff1111111111111fffffffffff111111
+                            11111fffffffffffff1111111111111ffffffffffff11111
+                            1111ffff1111fffff111111111111111fffff1111ff11111
+                            1111ff11111111fff1111dd1111dd111fff1111111f11111
+                            1111f1111111111ff111d11d11d11d11f111111111111111
+                            1111f1111111111ff111df1d11df1d11f1ffff1111111111
+                            1111111111ff111f1111d11d11d11d11df1d33ff11111111
+                            11111111ff11f11f11111dd1111dd111dfd33333f1111111
+                            1111ff11f1331ff1111111111111f133ddf33333f1111111
+                            111f11f1f1331ff1d3331f11111f13333df333333f111111
+                            11f1331f3f11f3fd333331f1111f13333df333333f111111
+                            11f1331f3f11f3fd33333133fff3d3333dff33ff3f111111
+                            111f1111ffddff3f33333d3111113133dfdf3fddff111111
+                            1111ff1ddddddf3ff333df11ddd11dddfdddfdd11f111111
+                            11ff11fdddddddf11ffd111dddddddffddfffdd111f11111
+                            1f11ffddddddd11331ffffdddddfffdddf11ffdd111f1111
+                            f13311ddddddd11331f111fffffdddddf1331ffdff11f111
+                            f1331fdddddddff11f1111111111ddddf1331f1f11f13ff1
+                            1f11f1fddddff33ff1111111111111dddf11f1f1331f111f
+                            11ff111ffff33ff1111111111111ffffdf11f1f1331f11df
+                            111111111ffff1111111111111ff3333ffddff1111fddff1
+                            1111111111f11111111111111f3dd3f1fdddddd1ff1ff111
+                            1111111111ffff1111111111f3d1f11fdddddddf11ff1111
+                            111111111f11d3ff11111111f3df13311dddddddff11f111
+                            111111111f11d333f1111111f33f13311ddddddd11331f11
+                            11111111f3dd3333f1111111f333f11ffdddddddf1331f11
+                            11111111f33333333f111111f3333ff33ffddddf3f11f111
+                            1111fffff33333333f1111111ff3333ffddffff33fff1111
+                            111f111ddfff333333f11111111ffffddff33333f1111111
+                            111f11dfffddff3333f11111111111dff3333333ff111111
+                            1111fffddd111df333fffffffffffffff333333fddf11111
+                            1111111ffffd11dfff11111111113ffffffffffddddff111
+                            11111111111ffd11ddff1111111113fffffddddffffddf11
+                            11111111111113ffdddd3f311111113fffffffdddfdddf11
+                            111111111ff31111ff1d3fff1111111ffff111fffffff111
+                            11111111fff113ffffffffff11111113ffff111111111111
+                            11111111f3ffffffffffffff11111111ffffff11f1111111
+                            111111111fffffffffffff31111111111fff33fff1111111
+                            111111111113fffffff311111111111111ffffff11111111
+                        `, SpriteKind.Creature)
                     case 123:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111ff11111111111111111111111
+                            11111111111111ff11111ff1111111f77f1117711111111111111111
+                            1111111111111f77f111711f11111f77f71171171111111111111111
+                            111111111111177f1f177117f1111f7f171711171111111111111111
+                            111111111111f7f111f77777f111f77f177111711111111111111111
+                            11111111111f77f111f77777f111f7f1117111711111111111111111
+                            1111111111f77f1111f777fff11f77f111711171111111111117ffff
+                            11111111ff77f1111f777f77f11f7f111171171111111117fff7777f
+                            1111117f17ff11117fffff77f1ff7f1111711711111117f7777fffff
+                            11111711ff7111171f111f777ff77f11117171111117f77fff771171
+                            11111f1f7111117111f111f77ff7f1111171711117f77f7711111171
+                            111177771111771111f111f7fff7f11117171111f71f771111111711
+                            1111f7f11117111111f111ff7f77f11117f111f711f1111111111711
+                            111f7f1117711111ff111ff77f7f11117fffff77f711111111117111
+                            111f7f11711111ff11111f1f7f7f1117f777f11f1111111111171711
+                            11f771171111ff111f111f1f7f7f117f777f77711111111111711711
+                            11f7f117111f1111f1f1f17f7f7f11f777f77f111111111177117111
+                            11f7f17111f11111f1f1f177ffff1f777f77f7111111117711117111
+                            177f11711f111111f77f1177ffff7ffff77f71111117771111171111
+                            1f7f1711f1111111f77f1177fffffffffff777117771111111711111
+                            1f7f171f11111111fff117777fffffff777f777777711111771ff111
+                            7771171f11111111f771177777fff77777fff7777711777711f77f11
+                            f7f171f1111111ff77111177777711177f7f7777777711111f1f77f1
+                            f7f171f11111ff7f711111177711117ff777fffff777fffff11f77f1
+                            f7f17f11111ff7f77111117777777fff777777fff777fff7f111f77f
+                            f7f71f1111f1f7f771111777777ff77f7777ff777ff7f17f1111f77f
+                            f7f7f11111f1ff77111171177ff777ff777f7117777f117f1111f77f
+                            f7f7f1111f117f1711771117f77777fff77f111177ff777f1111f77f
+                            f77f11111f117f71177117ff7f777f7ffff711117f1f77f1711f71f1
+                            1f7f11111f177ff117711fff1f777f777ff77117f11f77f1711f11f1
+                            1f7f1111ff777ff77771771f1777ff77fff77777f111ff11711f11f1
+                            11f11111f1777f177777f711f777f77ffff777777f17ff1171f71f11
+                            1111111f11f7f111777ffff7777f77fff77f77777ffff11711f71f11
+                            1111111fff1f111177f7777777ff7ff7777f777777ff111711f77f11
+                            1111111111ff11177f7777777fff7f7777ffff777fff111711f77f11
+                            11111111111f1177f77777ffffff7f77fffffffff77f111711777f11
+                            111111111111f77777fffffffff7f1fffffff7777ff11117111f7f11
+                            1111111111111ff77ff11ffffff7f1f7fff777777ffff111711f71f1
+                            111111111111111ff1fffffffff7f1f7777777777777f111711f71f1
+                            111111111111111111f7ffff1f7f1f7711777777777ff111711771f1
+                            1111111111111111111f7fffff7f1f711177777777f1f11171f77f11
+                            1111111111111111111f7fff77f11f71177777777f11f11711f77f11
+                            11111111111111111111ff777f1111f7777777777f11f11711f77f11
+                            1111111111111111111111fff11111f777777777f111f1171177f111
+                            111111111111111111111111111111ff7777777f1111f1171f77f111
+                            11111111111111111111111111111f77f7777ff11111f1711f7f1111
+                            11111111111111111111111111fff11777fff111111f1171177f1111
+                            1111111111111111111111111f777f111f111111111f1171f7f11111
+                            11111111111111111111111ff77777f1f1111111111f171177f11111
+                            111111111111111111111f7777777777ff111111111f171f7f111111
+                            1111111111111111111ff777777777777f11111111f171f7f1111111
+                            111111111111111111f1f77777ff7777ff11111111f1717f11111111
+                            111111111111111111f17ff77f17ffff1f11111111f717f111111111
+                            111111111111111111fff11ff177fff117f111111f717f1111111111
+                            111111111111111111111111f17f111f1ff11111177ff11111111111
+                            1111111111111111111111111ff1111ff11111111ff1111111111111
+                        `, SpriteKind.Creature)
                     case 124:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111fff1111ffff1111111111111111111
+                            1111111111111111ffdddf1fffdddff11111111111111111
+                            11111111111111ff111dddfddd11111f1111111111111111
+                            1111111111111f11dbdddfddddbd1111f111111111111111
+                            111111111111f11d111ddbdd1111dd111f11111111111111
+                            11111111111b11d11dddddddddd111d111b1111111111111
+                            11111111111f1111dbffdbddffbd111d11f1111111111111
+                            1111111111b1111dbfdbfbffbbfbd111111b111111111111
+                            1111111111f1111dfdddbfbbddbfd111111f111111111111
+                            111111111b11111bffffbdbbffffd1111111b11111111111
+                            111111111f11111bfffffdffffffd1111111f11111111111
+                            11111111b11111dffddfffffddffd11111111fbb11111111
+                            11111111f11111dfd11dfff11fbfbd1111111fffb1111111
+                            11111111f11111bf11f1fff1f11ffd1111111bffb1111111
+                            111bb11f111111bff11fffff11fffd1111111bffb1111111
+                            11bffb1f111111ffffff111ffffffb111111bfffb1111111
+                            11bffb1f111111fffff11111fffffb11111bfffb1b111111
+                            11bfffbfbb1111fffff1ffb1ffffff1111bfffffffbb1111
+                            111bffffffb111fdfffbffdbffffff111bffffffffffb111
+                            111bfffffffb11fddfffbdbff11ddf111bffffff1ffffb11
+                            11bffffffffb11fffdffffffdfffff111bffffffb1bffb11
+                            1bfffbfffffb11fbbf1ffffdfbbbbf111bfffffffb1bb111
+                            1fffb1fffffb11f1dbf1ff1f1dbbf11111bfff1fffb11111
+                            bffbfffffffb11f1dbbfd1f11dbbf111111bfff1bffb1111
+                            bb1ffffbffb111fddbbfd1fddbbbf111d111bffb1fffb111
+                            11ffffbfffb111fbbbbfd1fbbbbbf111d111bffb1bffb111
+                            1bffbddffb1111fbbbfd11dfbbbf1111d111bfffb1bb1111
+                            1bbb1fdff11111ffffd1ff1dffff111db1111bffb1111111
+                            11111fdbb1d111fddddffff1dddf111bf11111bb11111111
+                            11111fdf11b111fffff1111ffffd11dff111d11f11111111
+                            11111fdfd1b11dffbbf1d1dfbbfd11bff1d1d11f11111111
+                            11111fdfb1d11dfddbfd1d1fbfdd1dfff1d1b11f11111111
+                            11111fdfd1b11bfdddf1d1dfdfd11bfff1b1b1f111111111
+                            111111fdf1b11bfdddfddddfdfd1dfbff1b1b1f11111ff11
+                            111111fdf1d11dfddfddddddfd11bfbf11b1d1ff11ffdf11
+                            111111fdf11d1bdfdfddddddfd1dfbbf11d1dfb1ff1ddf11
+                            111111fffd1b1bdfdfddddddfddbfbdf1d1d1fbd11ddf111
+                            11111fdddf1d1ddfdfddddddf1dfbbdf1b1bfb1dddff1111
+                            11fffd1d1fddd1dffddddddf11bfbdf11b1bfbd1ff111111
+                            ffdddddd1dfdd1dffddddddf1dfbbdf1dd1fbbd11f111111
+                            11fffd1dd1fdddddfddbdbdf1bfbddfdb1dfbdd1d1f11111
+                            11111fdd11dfddddfdbdbdbfdfbbdfdd1ffbd1dddddf1111
+                            111111f11dd1fdddfbdbdbdfbfbddfdffbbdddd1ddddf111
+                            111111f1df1ddfddffbdbdbdffbddffbbdd1d1ddd1dddff1
+                            11111f1df1ddddfdffdbdbdbdfbdfbbddddddffffffdddf1
+                            1111fddffffffddffdfbbbbbfbbddddddd1df111111ffff1
+                            1111ffff11111fddffffbbbffffffffffdddf11111111111
+                            11111111111111fff111fff111111111ffff111111111111
+                        `, SpriteKind.Creature)
                     case 125:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            1111111111ffffff111111111111ff111111111111111111
+                            11111111ffddf1ddff11111f111fdf111111111111111111
+                            1111111f1111df1dfdf111f4f1fdf1111111111111111111
+                            1111111f1fd1ddfddfdf11f4f1fdf1111111ff1111111111
+                            111111ff4ffdd4f44f4f11fdffdf1111111f11f111111111
+                            11111ff444f44ffffff11ffdf4df11111fff114111111111
+                            1111ffff444ffffffffffdfd4d44f11ff1dff41111111111
+                            111fdfff44444fdd4ffdddddddd44ff114f1111111111111
+                            11ffddd44f444fdd4fddddddddfddf1d4f11111111111111
+                            1ffffdd44ffff4fffdfddddddffddfd4f111111111111111
+                            1fffffd44fff111f4ddffddfffddddff1111111111111111
+                            fdddfff44f111114dddffdfffddddddf1111111111111111
+                            fdddd4444f114f4d1fdfffffddddddd4f111111111111111
+                            fddd4f444f14dddd1dfdfffd44ff1dddf111111111111111
+                            fdd44fffff1fddd4d1fdffd4ffdd1ddddff1111111111111
+                            fdd444fff4ff4ddd44fdfd4f1f111dddd44f11111111ff11
+                            1f44f4ff444ff4dddddddddd4444dddd4444f111111ffff1
+                            1f4ff4f4444fff4dddddddddddddd4444444f111111ffff1
+                            1ff11f1f44f4ffff4ddfdfddd44ff44444ff111111ff44ff
+                            1f111f11ffffffffdffdddd44ff11ffffff1111111f444df
+                            111111111fffffff1ffffffff4fd1ffffffff11111f444df
+                            1111111111ffff44f4f4dd444fffdffff444ff1111f44ddf
+                            1111111111f4dddd4ffffffff4ffffff444444fff1f44ddf
+                            111111111f4dddd4ffffffffffff44ff44444ddd4ffffddf
+                            111111111fdddd4fffffffffff444444f44dddddf1ffffdf
+                            11111111f4ddd4fffffffff44444444ffddddddf11fffff1
+                            11111111fddd4ffffffffffffff444ff4d1ff4d4f1fffff1
+                            11111111fdddfffff4fffffff44444f4d11dffff1ffffff1
+                            11111111fddffff4dfffffffffffff4d11ddfff11f44ff11
+                            11111111fddddddd4fffff4f1d4f44f4ddddf4111f4ddf11
+                            11111111f4ddddddfffff4f11df4d4ff444f4111f4ddf111
+                            111111111fddddd4fff444f1df11d4fffff1111fffddf111
+                            111111111f4ddddfff4444fddf1ddf444fff11ffffff1111
+                            1111111111f44ddff444444ffdddfdd4ffffffffffff1111
+                            11111111111f444f44444fffffdfdddf44ff444dfff11111
+                            11111111111ff4444444ffffffffddfd4fff44ddff111111
+                            1111111111f444444444f444fdddffddffff4ddff1111111
+                            1111111111fd44ff444444444fddffff44ffdff111111111
+                            1111111111fdd44fffffffffffffff4444fffff111111111
+                            11111fffffddd4f1111114fffffffff4444ffff111111111
+                            111ffdddddddd44f1111111114fffff44dddddfff1111111
+                            11f1ffddddd4444f11111111111111f4dddddddddf111111
+                            1f1ffff44444fff1111111111111111ff4ddddffffff1111
+                            11ff111fffff111111111111111111111fffff111ff1f111
+                            1111fff1111111111111111111111111111111fff11ff111
+                        `, SpriteKind.Creature)
                     case 126:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            11111111111111111f111111111111111111111111111111
+                            111111111111111ff4f1111111111111f111111111111111
+                            11111111111111f114f11111111111ff1f11111111111111
+                            1111111111111f1444f1111111111f111f11111111111111
+                            1111111111111f14ff11111111111f1111f1111111111111
+                            11111111f11111f4f1111111111f11f11f11111f11111111
+                            111111ff1f1111f44f1111111ff1ff14f11111f1fff11111
+                            11111f1f1f111f1444ff1111f1111144f111111f111ff111
+                            1111f1f1f11ff1144444ffff1111114f11111111ff111f11
+                            111ffff1f1f1111444ff11111111144f114f111111f111f1
+                            11f11f4f4f11111444111111111144f114f4f11111f141f1
+                            11f1f4444f11114441111111111144f4f44f1111ff1441f1
+                            1f4f4444f4111444111111111111444f44f1111f44444f11
+                            1f444444f4414444111111111114444f4f11111f44444f11
+                            11f4444ff44444f4411111111444444ff11111f44444f111
+                            11ffffff1f4444f4444111144444444f111ff1f444444f11
+                            111f444f1fff44f4444444444444444f1ff14f1f44444f11
+                            111f4ff4f11fffff444444444444444ff144f11f4444f111
+                            1111f44f411f1f11fff44444444444ff444f1111ff4f1111
+                            11111fff4444f4114f14fff44444ffffff1111111f4f1111
+                            111111ff444ff1114ff11111fffffff111f11111f4f11111
+                            11111111fff1111444f1f11f4444ff41111f1111f4f11111
+                            11111111f1111444444ffff44444f4411114f11f44f11111
+                            111111111f444444ff444444444f44441144f11f44f11111
+                            1111111111fffffff44ff44444ff444444444ff44f111111
+                            11111111111ff4fff4f44444fff4444444444f444f111111
+                            111111111141f4ff44fffffffff4444444ffff4f4f111111
+                            111111114ff11f444fffffffffff44444f4f4ff1f1111111
+                            1111111f11f114fff4fffffff44f4444fff4ff11f11f1111
+                            111111f111f11444444444444444ff44ff4fff1ff1f1f111
+                            111111f111f1144444444444444444ffffff44f44f11f111
+                            11111f11111f11444444444444444444ff11f444f11f1111
+                            11111f11111f1114444444444444444f111f44444fff1111
+                            11111f111111f11144444444444444f4ffff444444ff1111
+                            111111f411111f1111444444444444f4fffff444fff11111
+                            111111f4441144ff1111444444444f44ffff1f44f1f11111
+                            111111ff44444444f4111444444ff44ffff111ffff1f1111
+                            11111f44ff4444ff11ff4444fff444ffff11111111ff1111
+                            1111f4ff4fffff1111111fff4444fff4f111111111111111
+                            1111ff11f44ff11111111111ffff44444f11111111111111
+                            1111111f14ff11111111111111f4ffff1f11111111111111
+                            1111111f4f1111111111111111f1f111f111111111111111
+                            1111111ff111111111111111111f11111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 127:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            111111111111111111111111111ff111111111111111111111111111
+                            1111111111111111111111111ff13f11111111111111111111111111
+                            111111111111111111111111f1133f11111111111111111111111111
+                            11111111111111111111111f1113f111111111111111111111111111
+                            1111111111111111111f11f1113ef111111111111111111111111111
+                            111111111111111111f1ff11113fef111111111111111111111ef111
+                            111111111111111111f113f1133ff111111111111111111111e11e11
+                            1111111111111111111f33f313ef1111111111111111111111f11f11
+                            1111111111111111111fff3313f1111111111111111111111e111f11
+                            1111111111111111111f133133f1111111111111111111111f111f11
+                            111111111111111111f111113ef111111111111111111111f1311f11
+                            11111111111111ff1ff111113ef1111111111111111111fff1311f11
+                            1111111111ff1f11f13f11113f1111111111111111111e113f31fef1
+                            111111111f11fe311f3f11113f11111111111111111111feef31ff11
+                            11111111e311ffe11ff311133ff111111111111111111f1ff311f111
+                            11111111f311ffeeee311113efef1111111111111111f11ee311e111
+                            11111111f331fffef1111113efeef111111111111f1f1113311f1111
+                            11111111fe3fefff11111113f1ff111111111111e1f11133311f1111
+                            1111111f1feffeffe1111113f111111111111111f31f133311f11111
+                            11111ff13fffef31f1111133ffffffe11111111efeef333311ff1111
+                            1111f113efffffff11fff133f111111ffe11111feffe33311feef111
+                            111f113eef11111f1f113f33ef11111333ff11feeee33331feff1111
+                            11f113eff111111f11f33f33ef1113333333ffeeeee33311ff111111
+                            11f1ffff11111111f11ff33eef1333333333efeeee33331f11111111
+                            11ff13ff11111111f111333ef33f3333333fefeeee33311f11111111
+                            111f13ef111111111f1333eef331ff333eefeefee33311f111111111
+                            1111f13ef111fff111f33eef333ff33331feeefe33311ff111111111
+                            1111f13eefff333f1ffffff3333333333ffeeefe331111f111111111
+                            11111f13ef131133fffff33333333333eeeeeeef311f331f11111111
+                            11111f13ef13113eef1f33333333ffffeeeeeeef111ffff111111111
+                            111111f3ff1333eeef1f3333333f1ffffeeeeeef11f1111111111111
+                            111111fff1133eeeef11f33333f133f13feeeeefff11111111111111
+                            111111f11133eeeeef111f333ff3ffff3feeeeff111ff11111111111
+                            1111111f133eeeeef11133ffff313f113feeeef1fff11f1ff1111111
+                            11111111ffeeeeeef3333333effffff3ffeeef311f113ef11f111111
+                            1111111111ffeeef3f3333333f1efefffeffff33ef113ff113e11111
+                            111111111111fff33f3333333f33f13feeeef33eee33eff113f11111
+                            1111111111111f33eef33333eefffffeeeeef3eeeff3fff133f11111
+                            1111111111111ffeef1feeeefffff3eeeeefeeeeefffffef3ef11111
+                            111111111111f11ff111ffff33333fffeeffeeeeffeffeffef111111
+                            11111111111f1113f11113333333eeeefff1feeffff13fefff111111
+                            1111111111f11113f111333eeeeeeeeeeef11fffffffffffff111111
+                            111111111f1111333f133eeffff3333eefef111111ffffff11111111
+                            11111111ff111333effffff3333ffff3ff3ef1111111111111111111
+                            11111111fff1333eef11113333eeeefff313f1111111111111111111
+                            1111111f111f33eeeef11333eeeeeeef333fef111111111111111111
+                            1111111f1113feeeeef3333fff3eeefee33f3f111111111111111111
+                            111111f111133feeeefffffeeef33feee3f13f111111111111111111
+                            111111f11133eeffeff1111eeeeffeeeff333f111111111111111111
+                            111111ff113eeeefff11333eeeffffffee33f1111111111111111111
+                            11111ff13ffffeffff33eeefffffffefeff3fff11111111111111111
+                            1111f1133f113ff111fffff11ffffffff33ff33ff111111111111111
+                            111f113ef1133ef111111111111fffffee311f333f11111111111111
+                            1111ffffffffff1111111111111111fffffffffff111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 128:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111fff1111111111111111111111111111111111111111111
+                            111111111f11df1111111111111ffffffff111111111111111111111
+                            11111111f11fbbf11ffffff11ffbbbfffffffff11111111111111111
+                            11111111f1f1ffbffdbbbbbffdffbbbfffbbbbbfff11111111111111
+                            11111111fdf111fdddfffbfdddf1fffbbbbbbbbbbbff111111111111
+                            1111111fffff1fddff111fddddf1fbbbbbbbbbbbbbbbff1111111111
+                            11111fb1ddbbffdfbf11fddddff11fbbbbbbbffffffbbbf111111111
+                            1111f111fffbbfdfbbffddddfbf111fbfffbfddbbd1ffbbf11111111
+                            1111b11f1fdfffdffbbd1ddfbbbf111fbddfdddddbd11fbbf1111111
+                            111f11f11fdbfddf1fd1ddfbbbbfd1ddfd1fdddddff111fbf1111111
+                            111f1f111fdfddf11b11dfbbbbbdfdddf11fddddf11f11fff111111f
+                            111fdf1111f1df11fd1ddfbbbbddfddbf11f11ddfd1fd11fdf111bff
+                            111fdf111f11f111fd1ddfbbbddbbfbbb11ff11ddffdd11f1fffb11b
+                            111fdbf1f11fffb1bdddfbbbdddbbbffddf1df1ddddddd1f1f1111f1
+                            1111fbbf11ffffffddddfbbbd1dbbbbbffffbf11dddd11ff1fddddb1
+                            11111fbf1f11ffffddddfbbbd1dbbbbbfbfffdf1dddd1fff1fddfb11
+                            111111f11f11fffbdddfbbbbd1dbbbbbbfbff1f1ddd1fffdfffb1111
+                            111111fdfb11fffbdddfbbdbd1ddbbbbbfbbbffbddd1fbffbbf11111
+                            111111fdffb1bffbdddfbdbbd11ddbbbbfbbbbbddddddbfbbbf11111
+                            1111bffbfff11ffbdddfbddbd11ddbbbbbfbbddddddddfbbbbf11111
+                            111ffffbfff11ffbbddfbddbbd11ddbbbbfbbddddddddfbbbbf11111
+                            11bfffffbff11bffbddfbddbbddd1dbbbbbfbbbfdddbdfbbbf111111
+                            11ffffffbfb111bfbbdfbddbbbdd1ddbbbbbfbbbfddfbfbbbf111111
+                            11ffffffbf11111bbbbfbbdbbbbdd1dbbbbbbfbbbbbbfbdbbf111111
+                            1bfffffffbf11111fbbbfbddbbbbdddbbbbbbbffffffbddbbf111111
+                            1ffffffffff11111ffbbfbbddbbbbdddbbbbbbbbbbbbbdbbf1111111
+                            1fffff11fff111111ffbfbbbdbfbbbddbbbbbbbbbbbddbbbf1111111
+                            1fffb11bfffb11111fffbfbbbbfbbbbdbbbbbbbbddddbbbf11111111
+                            1ff1111fffff11111ffbbffbbbfbbbbbdbbbbdddddfbbbff11111111
+                            1f1111ffffff11111ffbbbffbbfbbbbbdbbbddddbbfbbff111111111
+                            11f11fffffff11111fbbbbfffbbfbbbbdbbd1dbbbffffff111111111
+                            1111bfffffff11111fbbbbffffbffbbbbbd1ddbbbfffff1111111111
+                            1111ffffffff111111fbbdffbfbffbbbbbd1dbbbffffff1111111111
+                            111bfffffffb111111fbddfbbbffffbbbbddbbbffbfff11111111111
+                            111ffffffff1111111fbddfbbbbfffbbbddbbbffbbbff11111111111
+                            111fffffffb11111111fddfbbbbbffbbbdbbbffbbbbf111111111111
+                            111ffffffb111111111fddbfbddbbffbbdbbfbbbbbf1111111111111
+                            111bfffff1111111111fdddfdd1dbbfbbbbfbbbbbbf1111111111111
+                            1111fffff1111111111fbbddfd11dffbfffbbbdddf11111111111111
+                            1111bfff11111111111fbbbddffff11fffbbddddf111111111111111
+                            11111ffb11111111111fbbbbbf11111ffbbddddf1111111111111111
+                            11111bfb1111111111ffbbbbbf11111fbddddddf1111111111111111
+                            111111bf1111111111ffbbbbbf11111fddddddf11111111111111111
+                            11111111b111111111fffbbbf111111fddd1df111111111111111111
+                            111111111111111111bfffffb11111bddd1df1111111111111111111
+                            1111111111111111111bfffb111111fddd1f11111111111111111111
+                            11111111111111111111111111111bddd1df11111111111111111111
+                            11111111111111111111111111111fd111f111111111111111111111
+                            11111111111111111111111111111f111df111111111111111111111
+                            1111111111111111111111111111bd11df1111111111111111111111
+                            1111111111111111111111111111fdddf11111111111111111111111
+                            111111111111111111111111111bffddf11111111111111111111111
+                            111111111111111111111111111ffffff11111111111111111111111
+                            111111111111111111111111111ffffffb1111111111111111111111
+                            111111111111111111111111111bfffbff1111111111111111111111
+                            1111111111111111111111111111bfffff1111111111111111111111
+                        `, SpriteKind.Creature)
                     case 129:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111ff4111111111111111f11111111111111111111111
+                            11111f111f4111111111111f1f1111111111111111111111
+                            11111f44411f1111111111141f111114ff11111111111111
+                            111111fff441f111111111f11f1111f11f11111111111111
+                            111111f44f444f11111141411f11f4114f11111111111111
+                            111111f444f4444111141f111f1f1114f111111111111111
+                            111111f4141f44f11114111114f11144f111111111111111
+                            111111f14141f44f111f11111111144f1111111111111111
+                            111111411414f44f111f11111111444f1111111111111111
+                            11111f4441414f44f1ffff11111144f11111111111111111
+                            11111f1144141f44ff1144f1111111f11111111111111111
+                            11111f1111414f444f4444f11111111f1111111111111111
+                            11111f111114444f1144444ff1111114ff11111111111111
+                            1111141111114f11114444444f111144f4ff111111111111
+                            1111f111111411111444444444f1144f4444f11111111111
+                            1111f1111141111114444444444f44fff4444f1111111111
+                            1111f111141111114444ff44444f4f111f4444f111111111
+                            111141111f11111444f111f44444f1111f44444f11111111
+                            111f1111411111444411111444444f114444444411111111
+                            111f1111f11144444f11111f44444f4444f44444f1111111
+                            111f114f441444444f111f1144444ff444f4444441111111
+                            11f4441f4ff4444444111111f44444f444f444444f111111
+                            11f1111f4111f44444f11111f44444f444f4444444111111
+                            11411141111111f444411111f44444f44ff4444444f11111
+                            114111f111111114444f1111444444fff11f444444f11111
+                            14111ff14ff4111f4444f11f444444ff1144f4444ffffff1
+                            141f44fffffff111444444444444444f4444fffff444444f
+                            ff444f11fffff411f44444444444444f4fff44444ffffff1
+                            f44ff1114fffff11f44ff4444444444ff444ffff41111f11
+                            1ff111111fffff11f4411f44444444444ff411111111f111
+                            11111111ffff4f11f44ff11f4444444f41111111111f1111
+                            1111111f1ff44f11f4444f114444444111111144444f1111
+                            1111111f1ff44f11f44444f1f44444f11444441111f11111
+                            111111f1fff44f114444444f144444f44111111111f11111
+                            111ffff14f1ff11f4444444f1f44444f111111111f111111
+                            1ff44f11ff11111f444444441f444fff441111111f111111
+                            f44fff1f44f111f444444444f1f44f4f11444111f1111111
+                            1ff44f1f444fff4444444444f1f4f444f1111441f1111111
+                            111fff1f44444f4444444444f1f4ff444f11114f11111111
+                            111111f1f11444f444444444414f11f444f1111f11111111
+                            111111f1f111444ff44444444f1f111f44ff111f11111111
+                            11111141f11441144ff44444ff1f4111ff11f11f11111111
+                            11111f1f1f4111114f1fffff11f1f44ff1f11f1f11111111
+                            11fff11411ff1111f1111f1111f11ff1f11f1f1f11111111
+                            14111f411111ff1f11111f11111ff11f1114f1f111111111
+                            11ff4111111111f111111f114111fff1f11f111111111111
+                            111111111111111111111f11fff11f111ff1111111111111
+                            1111111111111111111111ff111ff1111111111111111111
+                        `, SpriteKind.Creature)
                     case 130:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111f1111111111fff1111111111111
+                            111111111111111166111111111161f11111fff611f1111111111111
+                            111111111111111611f11111111f11f11ff611111f11111111111111
+                            111111111111111f11f11111111611ff611111bbf111111111111111
+                            111111111111111f1bf1111111f11bb11111bbbf1111111111111111
+                            11111111111111611bf1111fff111b111bbbbbffff111111116f1111
+                            1111111116111161bbf111f11611b1bbbbbb1b1b11f111111f11f111
+                            1111111161f111f1b6111f1bf11b1bbfffbbb1b1bf111111f111f111
+                            1111111161f111f1bf1fffbb61bfff666bfb1b16f111116f111f1111
+                            11111111f16f1f1bbff111ff1ff666bbbbbfb1ff11116f111bbf1111
+                            11111111f16f1f1bbf111111ff66bbbbbbbbff6ff16f111bbbf11111
+                            ff111111fbb6f61b6f111111bbfbbbbbbbbbf6666ff111bbbbf11111
+                            f6ff111116b6fbbb6f1111bbbbbfbbbbbbb1bf6666f1bbbbbbff1111
+                            1f66ff111fb6fbb6f111bbbbbbbbfbbbbb111bf6666fbbbbb1b11ff1
+                            11f666f11fbf6bb6fbbbbbbbbbbbfbbbb11111bf666fbbbb1b1b111f
+                            11f1666f1fbf11b6fbbbbfffffffffffb111111bf666fbb1b1b111f1
+                            111f1166ff6f11b6fffff11111111111fbbbbbbbf666fb1b1b1fff11
+                            111f1116ff6611b6bbb111166666ffffbbbbbbbbf66bfbb1bff1f111
+                            1116bb1bf1f111b66666666fffffffbbbb6666ff66bb6fbff1f1f111
+                            11f11bbbfff11bb6666fffff6bbbbfbb666fff666bb6bff111f1f111
+                            11f111bffff11b66fff611ffbbbb1f66fffff666bbbb6ff11111f111
+                            111f11ffbbfbbffff11111f6bb111fffffff666bb6b6f1f1111f1111
+                            1111ff1f6bbffbbbf1ff16fbb111fff6f6ff666b6b6bf1f1111f1111
+                            1111ff111f6bbffbbffffff6bbffff6f6f6f6666b6ff1f11111f1111
+                            11116bff111fffbbbf66ff6bbbbffff6f6f666666ff11f11111f1111
+                            111f1f1bff1111ffbbfbbbbbbb1111fffff666fffff1ff11bfff1111
+                            1111ff11bffff111fbbbbbbb1111111bbbbfffffff1fffffbbff1111
+                            11111f61fffffff116bbbb11611bbbbbbb6f666ffffbbbbbffbffff1
+                            111111f1fffff61f1fbb1166bbbbbbbb666f666666fffbbb66fff11f
+                            111111ff6ffff611f161166bbbbbfffffff1111b6666bf66bff111f1
+                            11111fbb6fffff11f1f166bbb6ff1b1b1b1b111111fff66ff11111f1
+                            11111fbf1ffff61f6f1666bbbb66f1b1b1b111111ffffff1111111f1
+                            1111fbf16fffbbf66fbf6bbbffff6b1b111111111ff666ff1111111f
+                            1111fbf1fffbbbbbb6fbfbffbbbbb16611111111ff666666f111bbbb
+                            1116bff1ff6bbbbbb6fbff1fbb1b1bbb66111111ff666b16fbbb66ff
+                            111fbf1fffbbbbbbb6fbfb11ffb1b1bbbb61ffff6f66b1116fb11fff
+                            111fbf11f6bbbbbbbfbfb1f111fb1b1b1bb6f666fffff1116fff116f
+                            111f1ff1f66bfbbbfbbff1f1111fb1b1bbff6ff6f6666f1666fff66f
+                            11ff1fbff6661f66fbf1f1f1111f1b1b1f66666f666b66f66f66666f
+                            1f66fff61f661f6fbbf1f1f11161f111bfb6666f66b1b6f66f6666f1
+                            6b6ff1f611ff11ffbf11fbf111f1f111fbb666ff6b11166ffbb666f1
+                            fbf1f1f1f11ffffbbf11fbf11611f111fbb666ff6f11166f1fb66ff1
+                            f1ff1f1116f11bbff1116bf11f111f11fb666f6ff6f1666f1ffff6f1
+                            f11f1f111116fff1111fbf111ff1f1ffbbfff6ffb6f666f11fb666f1
+                            1f11f11111111111111f1f11611f1fffff6666ff1b6f66f1ffb66f11
+                            11ff111111111111111f1f11f11f1f1bb6666ff6116f6f1f6fbbf6f1
+                            1111111111111111111f1f16f11f1f11bb666ff11b6f6ff616bbf6f1
+                            1111111111111111111161f61ff1f111bb6ff66fb66ff6b116bbf16f
+                            11111111111111111111f11fff1f111bfff6666f666ffb11fbbf116f
+                            111111111111111111111ff111fbffff666f666ff6ff611161bf1116
+                            1111111111111111111111ffff111bbbbb66f6fffff6b11161bf1116
+                            111111111111111111111111f111111bbbb6f6fff1f6b11f1bf11116
+                            1111111111111111111111116111111bbbb66ff111ffbff61bff1116
+                            1111111111111111111111111f1111bbbb66ff111111f1fbfbf1ff1f
+                            111111111111111111111111116fbbbbbfff11111111111ffbf11f1f
+                            111111111111111111111111111166fff1111111111111111f1111f1
+                        `, SpriteKind.Creature)
                     case 131:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111bb11111bbb1111111111111111111111111111111111111111
+                            11111b11f11bb119ff11111bff111111111111111111111111111111
+                            11111f119ff1119999f11bf111ff1111111111111111111111111111
+                            111111f119bff9999ffff1119911f111111111111111111111111111
+                            111111f1199bbb999999911ff991f111111111111111111111111111
+                            1111111f1199bbb9999999f11f99bf11111111111111111111111111
+                            1111111fb1999b9999999f911b99bf11111111111111111111111111
+                            1111111bf999999999999f99999bbf11111111111111111111111111
+                            111111b1f999999999999fb99bbbf111111111111111111111111111
+                            11111b119199999999999bfbbbbbf111111111111111111111111111
+                            1111b11119199119999b99bfbbbf1111111111111111111111111111
+                            1111f1119199111bffbb9999bff11111111111111111111111111111
+                            111f111919991bff91ff99999f111111111111111111111111111111
+                            11f1119191999f1f11b999999f111111111111111111111111111111
+                            11f111199999bffff99999999f111111111111111111111111111111
+                            1b11199999999999999199bbf1111111111111111111111111111111
+                            1f111bb99999999999f99bbbf1111111111111111111111111111111
+                            1f119f999999999bff999bbbf1111111111111111111111111111111
+                            11f99999999bfff1111b99bf1111bb11111111111111111111111111
+                            111ffbbfffb111111ff9999f111f11f1111111111111111111111111
+                            11111ff1111111ffbbb9999b111f11f1111111111111111111111111
+                            1111111bffffffbbbb9999f111fb19bf111111111111111111111111
+                            111111111111f119999999f111f11bbf111111111111111111111111
+                            111111111111b11199999bf1bb119bbf111111111111111111111111
+                            111111111111f11119999f1f1f99bbbf111111111111111111111111
+                            11111111111b111119999ff91fbbb999f11111111111111111111111
+                            11111111111f111119999f9999fb9999bff111111111111111111111
+                            1111111111f1111119999fbb9999b999111bf1111111111111111111
+                            1111111111b1111119999bfbbb99999191111fbff111111111111111
+                            111111111f11111199999bffbbbb9999191919fbbf11111111111111
+                            111111111f1111119bb999bfffbbbb9b999191fbbf111ff111111111
+                            11111111b11111119bbb999fffffbbb9b999999fbf1ff11b11111111
+                            11111111f111111199bb9999bffffbbb9b999999fff1119f11111111
+                            1111111b11111111999999999bbfffbbb9b9b9b9111199bf11111111
+                            1111111f11111111999999bb999bbfbb9b9b9b9b11999bf111111111
+                            1111111f1111111999999bbbb9999bfbb9bbbfb9999bbbf111111111
+                            111111b111111119999999bbb99999fbbbbbf1f999bbbf1111111111
+                            111111f1111111199999999b9999999fbbff11999bbbbf1111111111
+                            111111f111111111999999999999999fbb91119bbbbbbbf111111111
+                            111111f111111111999999999999999fbbb999bbbfffbbf111111111
+                            111111b111111111999999bf9999999bfbbbbbbffb9bff1111111111
+                            1111111f1111111119999b1199999999fbbbbbfbbbb99bf111111111
+                            111111bf111111111999b111199bb999bfbbbf99bbbb99bf11111111
+                            11111b9bf11111111199f111199bbb9999fff9999bb9999bf1111111
+                            1111b99bf11111111119f1111999bb99999999bbb9999999f1111111
+                            111f1999bf11111111919b1111999999999ff9bbb99999999b111111
+                            11f19999bbf1111911191f11119999999999bf999999999bbf111111
+                            11b199999bbf1191919191f111199999999999bf9999999bbf111111
+                            1f19999999bbff191919199f111199999bbb9999f9999999bbf11111
+                            1f199999999bbfff91919199fb11119999bbb9999ff99999999f1111
+                            b19999999bbfff11ffb999999ff111119999999999bf99999999f111
+                            f9999999fff11111111bffff9bbff111119999999999b99199999f11
+                            f999ffff1111111111111111bffffffb1111999999999fb9119999f1
+                            1fff1111111111111111111111111111ffb1111199999bfff119991b
+                            11111111111111111111111111111111111ffffb1111ff111ff11ff1
+                            1111111111111111111111111111111111111111bfff111111bff111
+                        `, SpriteKind.Creature)
                     case 132:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            11111111111111111111111111111111fff11111
+                            1111111111111111111111111111111fd11f1111
+                            1111111111111111111111111fff111bd11f1111
+                            11111111111111111fff1111fd11f11fdddf1111
+                            1111111111111111fd11ffffdd11f1fbdd1f1111
+                            1111111111111111fd11dddddddddfbbdd1f1111
+                            111111111111fff1fdddddddddddddbbdd1f1111
+                            11111111111fbd1fdddddddfddddddbdddbf1111
+                            11111111111fbdd1dddddddddddfddbdddbf1111
+                            11111111111fbbddddfddddddbfddbdddbfb1111
+                            111111111111fbdddddddddffddddddddbfd1111
+                            111111111111fbddddddffbddddddddddbf11111
+                            111111111111fbdddffbddddddddddddbfb11111
+                            111111111111bfbdddddddddddddddddbfd11111
+                            1111111111111fbddddddddddddddddbbf111111
+                            1111111111111fbdddddddddddddddbbbfd11111
+                            111111111111fbdddddddddddddddbbbbfb11111
+                            111111111111fbdddddddddddddddbbbbbf11111
+                            11111111111b1ddddddddddddddddbbbbbfb1111
+                            1111111111bf1dddddddddddddddddbbbbbf1111
+                            11111111bff1ddddddddddddddddddbbffffb111
+                            111111dffb1ddddddddddddddddddffffffff111
+                            11111bfb11ddddddddddddddddddd11bffb1fb11
+                            11111fb11dddddddddddddddddddddd1111ffb11
+                            11111fbb1ddddddddddddbbbbddddddddd11bf11
+                            11111bfbbbbbdddddddbbbddddddddddbb11bff1
+                            111111ffffffffffbbbbdddddddddbbbff11bff1
+                            1111111dbffffffffbbbbddddbbbfffffffbfff1
+                            111111111111111111fff1111111111111bffb11
+                            11111111111111111111dbfffffffffffffb1111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 133:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            11111111111111111111111111111ff111111111
+                            11ffff1111111111111111111111fdfb11111111
+                            11fdddff111111111111111111ffdbff11111111
+                            11fdd11bf111111111111111ffdddfff11111111
+                            11fbdd1bbff11111111111ffddddbfff111ffff1
+                            11bfbdddbbbffffffb11ffdddddbffff1ff11ddf
+                            111ffbddbbbdddddddbfbbdddbbffffff1111df1
+                            111bffdbbd11ddddddddbbbbbbfffff111111df1
+                            1111ffbbd11ddddddddddbbbbfffffd11111df11
+                            1111bfbd11dddddd1111dbbffffffb11111ddf11
+                            11111fffb11dddd1bfbdddbfffffbdd111ddf111
+                            111111ffdb1ddddbfd1bddbbffffbddddddbf111
+                            111111ff1bddddbffb1bbdbbfffbbbddddbbf111
+                            11111bbffbddddbffffbddbbffffbbbddbbf1111
+                            11111f1bbdddddddffbdddbffffffbbbbbbf1111
+                            11111b1dddbfdddddddddbbfffffffbbbbbf1111
+                            111111b1dddddfddddddbbfbfffbbfbbbbbf1111
+                            11111fbfddbffddddddbffbfbffbbfbbbbbf1111
+                            11111f11bbdddddddbffbbbbfffbbbfbbbbf1111
+                            1111f11111bfffffbdddbbbbbfbbbbfbbbf11111
+                            1111f111111111111ddddbbbbfbbbbfbbbf11111
+                            1111f111d111111111dddbbbbfbbbbfbbf111111
+                            1111f11db1111111d1dddfbbfbbbbbfbf1111111
+                            11111fdb11111111dbdddfbfbbbbbbbf11111111
+                            11111fdb1111111ddbddfbffbbbbbbbf11111111
+                            111111ff111111ddbddbffbffbbbbbbf11111111
+                            11111111f111ddbbbfffbbffffddbbbf11111111
+                            111111111fbfbbbbfbbbbbf11fbdddbf11111111
+                            111111111bddffffbbbbbf1111fddddf11111111
+                            1111111111f1dbf1dbbbbf1111fddddf11111111
+                            1111111111f11fbdddbbf11111fddddf11111111
+                            11111111111bffdddddbf1111fdddddf11111111
+                            1111111111111b1ddddf11111f11dddf11111111
+                            111111111111f1ddddf111111fb1b1f111111111
+                            11111111111f11dddb11111111ffff1111111111
+                            11111111111b11dddf1111111111111111111111
+                            11111111111f1bdbf11111111111111111111111
+                            111111111111bffb111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 134:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111ff1111111111111111111111111111111111111111
+                            11111fbbf111111111111111111111111111111111111111
+                            1111f9bbf11111111111111111111ff11111111111111111
+                            111f999f111111111111ff1111111fbff111111111111111
+                            111f999f111111111111f9f111111ffbff11111111111111
+                            11f1999f11fff1111111f9ff11111ffb9f11111111111111
+                            11f1999fffbbff111111f99ff1111fff99f11111111111f1
+                            11f1999bfbbbf1111111f999ff111fff9bf111111111ffbf
+                            11f19999fbbf11111111f919bff111ff9b9f111111ffbb9f
+                            11f19999b9f1111111111f199fff11ffb9bf11111ffbb99f
+                            11f1199999f1111111111f199bffffff9bbfff1ffffbb91f
+                            111f19999f111111111111f19fffffffbfffffffffbb919f
+                            111f11999f111111111111f9ffffbbfffbbffffffbb911f1
+                            1111f119ff111111111111ffffbb99ffb99bffffb99111f1
+                            11111f119bf111111111ffbfffb999fb9999fbfb91111f11
+                            11111f9119bf1111111ff111f99999f9999999bbb99ff111
+                            11111f91199bf111111f111bf999999999999bbbfffff111
+                            11111f911199bff111ff119bf9fb9999119ffbbffbbbbf11
+                            111111f91119bbbfffff19bbf9ff999119fffbbfbbbbbbf1
+                            111111f911199bbbfbbf9bbbf9f1b9919f1ffbbfbb9999f1
+                            1111111f91119bbbbbf11199f99fb999bfffbbfb911199f1
+                            1111111f911119b9bbf111119f9999999999bbfb911119f1
+                            11111111f9111f999bf111111f9999999999bf99bb99bf11
+                            111111111fb99f19999f111119f99fb99fbff11199bbfb11
+                            1111111111fbf111999bf11119bf99999ffb91111199f111
+                            11111111111ff1111999bf1199bbbffffbbbf1111119b111
+                            111111111111f1111999bf9999bbf11119bbbf11111f1111
+                            111111111111f1111199bbf999bb1111199bbbb1119f1111
+                            111111111111b11111999bbfbb9111111999bbbb99f11111
+                            1111111111111f1111999bbbff1111119999bfffff911111
+                            1111111111111f111199bffffffb1111999bfffbff111111
+                            111111111111b111199bfffffffffffffffffbbbbf111111
+                            1111111111fff11199bffffffffffbbbbbbfbbb9bf111111
+                            111111111f11f11199ff1ffffff11fbbbbbbfb99f1111111
+                            11111111f91f11199f111ffffff11f99bbbbbf9f11111111
+                            11111111f19111999f1111fffff111f9999bbff111111111
+                            111111111fb11199f1111ffffff1111f119999f111111111
+                            1111111111f11199f1111ffffff11111f111999f11111111
+                            1111111111f1119f11111fffffff111f19111999f1111111
+                            1111111111f1111f111111ffffffb11f11f111199f111111
+                            1111111111f1111f11111111ffffff11ffff111119f11111
+                            1111111111b11111f11111111ffffff11111f111111f1111
+                            11111111111f1f1ff111111111bfffb111111f1f1f1f1111
+                            111111111111bffb1111111111111111111111bfffb11111
+                        `, SpriteKind.Creature)
                     case 135:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            1111111111111f1111111111111111111111111111111111
+                            111111111111ff111111111111111111111111111111ff11
+                            11111111111f4f11111111111111111111111111111fdf11
+                            1111111111ff4f1111111111111ffff4ff11111111fdf111
+                            1111111111ff4f11111111111ff4444ff11111111fddf111
+                            111111111ff44f111f111111fddd4fff41111111fddf1111
+                            111111111ff4ff11ff1111ffdddffff411111f1fdd1f1111
+                            111111111ff4ffff4f111fdddfffff411111f1fdd1f11111
+                            111111111ffffff44f11fdddffff4d11111f1fdd1f1111ff
+                            111111111ff4fdd4fd4fdd4fffffff1111f1fdd11f11ff1f
+                            111111111f4fdd44ddf4d4ffff4111111f1fdd11f1ff11f1
+                            11111111f4ddddddddfdd4fffffffff4fdfdd111ffd11f11
+                            111111114ddddddddd4dd44fff44df4ddfdd111fdd11f111
+                            1111111fddddddddddddddf44f4d44ddfdddddfdd111f111
+                            1111ff1f4ddddddddd4f4d4f4fffffffddddd4dd111f1111
+                            1111fdfff1dddddd4fff4d44f444ddd44fff4dd111f11111
+                            111141d4ffdddddf1fffdd4f44dddd1111111fdddffffff1
+                            111114d44fdddd4ffff4d44f4dd11111114ffdddddd111f1
+                            1ffff44fd4dddd44f4ddd444f11111dff44ddddd1111f411
+                            11f11d4fdddddddddddd4ffffdf44f4444dddd1114f41111
+                            111ff4df4df4ddddddd4ffddddd4f444dddd1114f4111111
+                            1111f1d4fddddddfdd4fdddddddd4f4ddddd44f411111111
+                            111f111ddf4dddff4ffd1111ddddddf4dddddff111111111
+                            11f11ddddd1ffff4111dd1111111dddfdddddddf11111111
+                            1f1ddddff41111111111ddddd111111dfdddddddf1111111
+                            f1d4fff1f11d1111dd11dddddddfff11df111ddddf111111
+                            4f41111f11dd1111dd111dddfdddfffffff1111dddf11111
+                            111111f11dd41111ddf11dddfffdfffff4fff111dddf1111
+                            11111f1dddff1111d4ff11ddffffffff44444ff11dddf111
+                            1111f1ddffff4111d4fff1ddfffffff444444ffff4dddf11
+                            111ffffffffff11ddfffffddfffffff4444444ff11f4ddf1
+                            11111111fffff41d4ffffffdffffffff444444f11111f4df
+                            1111111ff44fff1dffffff1ffffff414444444f1111111f4
+                            1111111f44df1f4df44ff111fffff111f4444f1111111111
+                            111111f1dddf11f4f444f111ffff4111fdd44f1111111111
+                            11111f111df111ff444f1114ffff1111fddd4f1111111111
+                            1111f111ddf11f4d444f111fffff11114ddddf1111111111
+                            1111414ddf111fdd44f1114ffff41114111ddf1111111111
+                            111114ff4111fd1d44f1114fff41111f1111d41111111111
+                            111111111114111d4f111111111111144141f11111111111
+                            11111111111f111d4f111111111111114ff4111111111111
+                            111111111114414df1111111111111111111111111111111
+                            1111111111114ff411111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 136:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            11111111111111111fffffff1111ffff1111111111111111
+                            111111111111111ff1111111ffff4444f111111111111111
+                            1111111111fff1f111ff11111f4444ff1111111111111111
+                            111111111f111f11fff44411fff44f111111111111f11111
+                            11111111f111f11fff44444f4444f111111111111f1ffff1
+                            11111111f111f14ff4444111f44f1f111111f1111f11111f
+                            1111111f111f11fff4444fff444f1f11111f1f1ff111111f
+                            11111ff1111f11ff444ff44444f1f4f111ff11f11114f11f
+                            1111f11111f114ff44f44444ffff44f11f11111114ff41f1
+                            1111f11111f11ff444f44fff111144f1f111114ffff441f1
+                            111f111111f11ff44f44ff1111444fff11144ffffff41f11
+                            111f111111f14ff44f4f11111444fff1144fffffff441f11
+                            11f1111111f44ff44ff111111444f1f144fffffff4411f11
+                            11f1111111f44ff4fff111111444ff114fffffff4411f111
+                            11f11111111f44f4fff11111144fff144ffffff4411f1111
+                            11f41111111f444ffff11111444ff114ffffff4411f11111
+                            11f411111114f4ff4ff11444444ff114fffff4444f111111
+                            11f411111144fff4444f444444fff14fffff4444f1111111
+                            111f41111144ff444444ff444ff4444fff4444ff11111111
+                            111f4411144f4ff4444444fff444444ff444ff1111111111
+                            11f1f44414f44fff4444441144444444444ffff111111111
+                            11f41f4444f4f1f1f44441144ffff4444ff4f44f11111111
+                            1f4411111f44f1fff444444ffffff4444f444f44ff111111
+                            1f4441111f44f14ff44444ff1fff4444f44444f411f11111
+                            1f4444411f44f144444444fffff44444f44444f1111f1111
+                            1f444444f4444f144444444fff44444f4444444f1111f111
+                            1f444444f4444f1444444444444444f44444444f1111f111
+                            11f44444f44444f14ff4444444444f444444444f1111f111
+                            11f44444f411444ff44444f4444ff4444444444f1111f111
+                            111f4444f11111444ff44f44fff44444444444f1111f1111
+                            111f4444f1111111111fffff41111144444444f111f11111
+                            1111f4444f11111111111111111111114444441111f11111
+                            11111f444f111111111111111111111114444f1111f11111
+                            111111f4f4f11111111111111111111114444f1111f11111
+                            1111111f444f111111111111111111111144f411111f1111
+                            111111f14444f1111111111111111111114ff4411111f111
+                            1111ff1114444f1111111111111111114ffff4441114f111
+                            111f1111144444f4111111111111114fffff44444444f111
+                            11f1111114444ffff41111114fffffff4fff4444444f1111
+                            1f11111111444ffffffffffff444444f44ff444444f11111
+                            1f1f1111114ffffff444fff44444444f44f44444ff111111
+                            1ff111f11fffff41111114f11444444f4f4fffff11111111
+                            11fffffff111111111111f11114444f44f11111111111111
+                            111111111111111111111f11111444f4f111111111111111
+                            11111111111111111111f11111114ff41111111111111111
+                            11111111111111111111f11f11f1f1111111111111111111
+                            111111111111111111111fffffff11111111111111111111
+                        `, SpriteKind.Creature)
                     case 137:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            1111111111111111111111111111111111fb111111111111
+                            111111111111111111111111111111111b1f111111111111
+                            111111111111dffffffbbd11111111111f1f111111111111
+                            1111111111dbbddddddddfd1111111111f1f111111111111
+                            1111111111bbbddddddddbfd11111111b1df111111111111
+                            111111111bdbdddddddddbbfd1111111f1df111111111111
+                            11111111ddbddddddddddbdbfd111111f1bf111111111111
+                            11111111bdb1111111111dddbfd1111b11bf111111111111
+                            1111111bdbbb11111111bffddbf1111f11bf111111111111
+                            111111dbb111f111111b111fddfd111f11ff111111111111
+                            111111bb11111b1111b11111fdbf11b11dff111111111111
+                            111111fb11ff1b1111f1ff11fbdf11f11dff111111111111
+                            111111fb11ff1b1111b1ff11bddf11f11bff111111111111
+                            111111fdb111b111111b111fdddf1b111bfb111111111111
+                            111111bfdffb1111111dbffddddf1f111bfb111111111111
+                            111111dfdd11111111dd111dddbfdf11dffb111111111111
+                            1111111fdd1111111ddd111dddfbffdddffb111111111111
+                            1111111bddd111dddddd11dddbfbbbffdffd111111111111
+                            1111111dfdd1ffffffff11dddfbbb11bfffd111111111111
+                            11111111fdff1111111dffddffbb11111bf1111111111111
+                            11111111ffd11111111ddbbdfbbb11111dbf111111111111
+                            11111111bfd11111111ddbbbfbdb1111dddfd11111111111
+                            1111111b1fd1111111dddbbfbdddb111dddbf11111111111
+                            111111db1fd1111111ddbbbfbdddb111ddddfd1111111111
+                            111111b11fd1111111ddbbfbdddddb1dddddbf1111111111
+                            11111bf11dbd111111ddbbfbddddbb1ddddddff111111111
+                            11111fdf11fd111111ddbfbdddbbbbbdddddfffffffbd111
+                            11111fddf1fd111111dbbfbdbbbbbbdbdddfbddffffffbd1
+                            1111bddddffb11111ddbfbbbbbbbbbddbddfbdddddffffbd
+                            1111bdddddfbd1111ddbfbbbbbbbbbdddbdfddddddd1fffd
+                            111bdddddddfd1111dbfbbbbbbbbbbddddbfddddddd1bbfd
+                            111dfdddddddfdddbbffbbbbbbbbbbdddbfbddddddd1bbfd
+                            1111fbdddddbfffffffffbbbbbbbbbdbbbfbdddddddbbbf1
+                            1111dfbdddbbbbbbbbbbbffbbbbbbdbbbbfddddddd1bbfb1
+                            1111bbfbbbddddbbbbbbddbfbbbbbbbbdbfddddddd1bbfb1
+                            111dbdbfbddddddddddddddbbfbbbbbddbfddddddd1bbfd1
+                            111bdddbfdddddddddddddbbbbfffbd1dfbddddddd1bfbd1
+                            11dbddddbfbdddddbbbbbbddddbfbd11bfbdddddddbbfb11
+                            11bdddddddfbbbbbddddddbbbbfbd111bfddddddd1bbfd11
+                            1dbdddddffffbdddbbbbbbbbbfbd1111bfddddddd1bfbd11
+                            1bfbbffffffffbbbbbbbbbbbfbd11111dffffffffbbfd111
+                            1bbbbbbbffffdfffffffffffbd1111111dbfffffffbfd111
+                            1bbbbbbbbfbd11dddddddddd1111111111dbfffffffd1111
+                            11bbbbbbbbd111111111111111111111111dbfffffbd1111
+                            1111dddddd111111111111111111111111111dddddd11111
+                            111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 138:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            111111111111111111116fffff61111111111111
+                            11111111111111116ff66611161ff11111111111
+                            111111111111111fbb11116611611ff111111111
+                            11111111111111f6666111116161116f11111111
+                            1111111111111fb11116661116161161f1111111
+                            111111111111fb1111111b6116b61b6166111111
+                            11111111111fb666666111b61b66b6116f111111
+                            11111111116b61111116611b6b66b6bb6b611111
+                            1111111111f611111111b66b6b6b6bb6b1f11111
+                            111111111161666666111bb6b66fff6bb6661111
+                            1111111116b611111166111b66fbb6f66bbf1111
+                            111111111f611111111166bbbf6b16fbb1bf1111
+                            111111111fb111111111bb6b6fb1f6bf116f1111
+                            111111111fb6666666611bb6fb166fbf66bf1111
+                            111111111f61111111166bb6fb1fbb1fbb661111
+                            111111111fb11111111bb66ffb1f16f6b1f11111
+                            111111111fb111111bbbbbb6fb16ff6b66f11111
+                            111111111fb66666666bbbbb6f16bb61bb611111
+                            11111111116ffffffff6bbbb6fff6b166f111111
+                            1111111111fffffffffff6fb66f6666bf1111111
+                            1111111111fbbffffffbbf6f666f66ff11111111
+                            111111111fb161ffff161bff6666ff1111111111
+                            1111111fff11f1f66f1f11fbfffff11111111111
+                            111111f111f1616bb6161fb11111f11111111111
+                            11111f1111fff6b11b6ffbbbb1111f1111111111
+                            11111f11f1bbbb1111bbbbbffbb111f111111111
+                            11111fb1bf11111111111bbbbff11bf111111111
+                            111111fbbf111111111111bbfb11bbf111111111
+                            1111111ff1bf11bf11bf1bfbfbbbbf1111111111
+                            1111111f1bf1bff1ff1bf1bfbffff11111111111
+                            111111f1bf1bf11111f1bf1bfbbf111111111111
+                            1111111ff1ff1111111ff1ff1ff1111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 139:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111ff11111111111111111111
+                            1111111111111111111111111f11f1111111111111111111
+                            11111111111111111b6f11111fbb1f111111ff1111111111
+                            11111111111111111611f1111f6bb16f611f1bf111111111
+                            11111111111111111f111f16f6f666fbbff1bbf111111111
+                            11111111111111111fb111fbb16fff66116ffbf111111111
+                            11111111111111111ff1111fbb1661166116bff111111111
+                            11111111111111116bfb1111fb11161161116bf611111111
+                            1111111111111116b1f6b111fb11116116116b6f61111111
+                            11111111111111fb111f6b11fb66111616116b6bf1111111
+                            11111111111116b1111f666fb1116116b6bb6b6bf6111111
+                            1111166111111fb6666b6ffb111116bb66b6b6bb66111111
+                            1111611f11116b611111bbb66611116b66b6b6bb6f111111
+                            11116111f111f6111111111111611bb66b6bbbb6bf111111
+                            1111f1111f16bf11ff1111111116bbb66666bb6bbf611111
+                            1111f1111f1fb11f11f6661111116b6bffff6bbb6bf11111
+                            1111f11111ff1b6f111fb166611bb66fbbb6f666bbf11111
+                            1111f6111b61111fb111fb1116bbbbfb6bb6bfbbb6f11111
+                            11111f11b1f111bf6b111fb1116bbbfbb6f66bf66bf11111
+                            11111f1b1bfbb1bf66b11fb111b6bf666f6f6bfbb6f11111
+                            11111fb1b1fbb66f666b16611bbb6fbbfb6f6bf666f11111
+                            11111fbbbbf66bbbf666f6b66bbb6fbbf66f66f66f611111
+                            11161f6bbb6ffff66fff66b6ffff66b6f666ff666f111111
+                            11ff11fbb666fbbf6666bb6ffbbbbf666fff66666f111111
+                            1f1f11fbb66fb61bfbbbbbbfb161bbf6f6ff66666f111111
+                            611f11fbb66f1f11f6bbbb6f11f111ff6666f666f6111111
+                            f11f61f6b66f1f11ff6666ff11f111f666666f66f1111111
+                            f1bbf11fbb66f61ffffffff6f1611f66666666f6f1111111
+                            fbbbbfffbbb66ff6666666666ffff6666bbbb66f61111111
+                            fbbbbb6f6bbb6666fffffffff666666bbbbbbb6f11111111
+                            1fbbb666fbbb66fbbbffffbbbbf66bbbbbbbbbb6f1111111
+                            11ff6666fbbb66b111bffb111b6f6bbbbbbbbbb6f1111111
+                            1f11ff6ffbbb6fb111bff1111b6666bbbb6bbbbbf1111111
+                            f111f1fff6bb6ffb11bff111bb6ff6bbb6f6bbbbff111111
+                            f1bbf1ffffbb6ffffffff1bb6ffff6bbb6f6bbbbff111f11
+                            fbbbbf66ffbb6f616ffffffff666f6bb6f61b1b6ff11f6f1
+                            1fbbbb66ffbbb6b1116ffb11bb666bbb6f1b1b6f6bf1f6f1
+                            11ffbb66ffbbb6fb116ffb11bb6fbbbb6f6111f6bbfff6f1
+                            1111ffff1fbbbb6fb1bffb1bb6f6bbbbb6f611bfbbbff6f1
+                            111111111fbbbbb6fbb6f6bb6f6bbbbbbb6fffffbbbf66f1
+                            111fff11fbbbbbbb6f66ff6ff6bbbbbbbbb6fff66bb66f11
+                            11fbbbffbbbbbbbbb6fffff6666bbbbbbbbb6fff6666f6f1
+                            11f6bbbbbbbbbbbb666666666666bbbbbbbb66ffffff66f1
+                            111f6bbbbbbbbbb66666ffffffff6bbbbbbb66ff666666f1
+                            1111f666bbbbbb666fff1111111bf6bbbb6666f666666f11
+                            11111f66666666fff1111111111f666666666f1f6666f111
+                            111111f6666fff1111111111111f6666666ff1116ff61111
+                            1111111ffff11111111111111111fffffff1111111111111
+                        `, SpriteKind.Creature)
                     case 140:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            1111111111111111111111111111111111111111
+                            111111111111111111111fff11fffffff1111111
+                            111111111111111111fffeefffefefefeff11111
+                            1111111111111111ffeeeffeeefefefefeff1111
+                            11111111111111ffeeeefeeeeeeeefefefef1111
+                            111111111111ffeeeeeeee33eeeeeeeefefef111
+                            11111111111feeeeeeee33333333eeeeefeeff11
+                            1111111111feeeeeee3333333333333eeeefeef1
+                            111111111feeeeee333333333333333333efeef1
+                            11111111feeeeee3333333333333333333feeef1
+                            1111111feeeeee33333333333333333333eeee3f
+                            111111feeeeee33333333333333333333333ee3f
+                            111111feeeee333333333333333333333333ee3f
+                            11111feeeee3333333333333333333333333ee3f
+                            11111feeeffe333333333333333333333333ee3f
+                            11111feef1ff333333333333333333333333ee1f
+                            11fffeeeeffe333333333333333333333333e11f
+                            1f13feeeee3333333311333333333333333331f1
+                            1f33feeeee3333333111133333333333333331f1
+                            1f33feeee33333333111133333333333333311f1
+                            f333f3eee333333333113ee33333333333331f11
+                            f313ff3ee33333333333effe3333333333311f11
+                            f313ff3ee3333333333ef1ffe33333333331f111
+                            f313f1f3e33333333333effe333333333311f111
+                            f333f1f33e33333333333ee333333333311f1111
+                            1f13f11f13e33333333333333333333311f11111
+                            1f33f111f13ee33333333333333333311ff11111
+                            11f33f111f113e333333333333333111f31f1111
+                            11f33f1111ff111333333333331111ff313f1111
+                            111f33f11111ff11113333311111ff33113f1111
+                            1111fff1111111fff11111111ffff33113f11111
+                            11111111111111111fffffffffff33113f111111
+                            1111111111111111111111111f331133f1111111
+                            111111111111111111111111f33133ff11111111
+                            1111111111111111111111ff3113ff1111111111
+                            111111111111111111111f3311ff111111111111
+                            111111111111111111111fffff11111111111111
+                            1111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 141:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111ffe111111111111111111111111111111fff111111
+                            111111f31fe11111111111111111111111111ffe3f111111
+                            111111e1113fe1111113eefffffe3111111ffe333f111111
+                            1111113311333fe111e13333333eef111ffe3333ef111111
+                            1111111f1133333efe1133333333eefffe333333ff111111
+                            1111111f113333333e11333333333efee3333333fe111111
+                            1111111e113333333e11333333333efe33333333fe111111
+                            1111111e313333333e11333333333efe3333333ef11ff111
+                            11111113f13333333e11333333333fe33333333ff1f11f11
+                            11111111f11333333e1333333333efe33333333fe31113f1
+                            11111111e11333333e1333333333efe33333333f1f1113f1
+                            11111111e313333313e333333333ef13333333efef11113e
+                            111111113f13333e13e333333333f31e333333fff1111e3e
+                            111111111f11333e11e33333333ef31f333333ffe1111e3f
+                            111111111e31333e1ff33333333eff1f333333ff11f11e3f
+                            1111111113f1133e1ff33333333eff1f33333ffe1ef11e3f
+                            1111ff1111e31333e13e3333333f31f33333eff31ef11e3f
+                            111e11f1111f31333e1e333333ef1ee33333fff1f1f11e3e
+                            11e111f11111f11333ef333333efee3333ef33f3f1f1133e
+                            11f1111f11111ff13333e13333fee333effeeeef1e11e3f1
+                            13111e11f1111feff333e13333f333effeeefff11f11e3e1
+                            1e111ee1ef11feeeeff33e333eeefff1fffff111e1113f11
+                            1f111e3efef1feeef13fffeeeffffffffff11111e11e3e11
+                            1f11333fe11feeeff133333fffff33eff1111111f111f111
+                            1f11e33f1e1feeefff13333e13333effe111111e1113e111
+                            1f11e3e11ffeeef1ffeffff3ffffffffe311111f113f1111
+                            1f1133f11f33eef1eff13333e13333effe31111f113e1111
+                            1e1133f111f3ef1efffe333ef1333efffffe31e113f11111
+                            131133e111f3efeffffffff33fffffffe11111f113e11111
+                            11f1331e111ff1111eeffe133eeff13fffe13f133f111111
+                            11f1331f1111111eefffffe33e3fe313eeef113fe1111111
+                            11e1331f11111ef1133efff3eefffe3eeff13ff111111111
+                            111f333e111ef133eeeeeff3e3fffeeeffffeeef11111111
+                            111e3331e1f133eeeefff3ff3ff311ffeeeeeeef11111111
+                            1111f331f1feeeefff13eeffffe31111fffeeefe11111111
+                            1111e331f11ffff1111113fffffe31111feffff111111111
+                            11111f331e1f3ef31111113effeee311feeeefe111111111
+                            11111ee31f11feee1111113fff31111fffffe11111111111
+                            111111fe31f1feef1111111fff1111feee3ffe3111111111
+                            1111111ef31ffeef1111111efe1113effeeeeffffe111111
+                            111111111ff11fef11111113f3111113effeeeef31f31111
+                            11111111111ff31fe3111111e111111113efff13ffe31111
+                            1111113efffeeff11e111111311111111113ef11f1111111
+                            111111f11ef1feeffff1111111111111111111ff31111111
+                            111113eff111ffffe3111111111111111111111111111111
+                            11111111efffe31111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 142:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            111111111f1111111111111111111111111111111111111111111111
+                            11111111fdf11111111111111111111fffffffff1111111111111111
+                            1111111fddf111111111111111111111fdddddbb1111111111111111
+                            1111111fddbf111111111111111111111fddbdddffff111111111111
+                            111111fbdddf1111111111111111111111fddbffbbbbff1111111111
+                            111111fddddbf1111111111111111111111fdf11fffbbbff11111111
+                            11111fbdddddf11111111111111111111111f111111ffbbbf1111111
+                            11111fddddddbf1111111111111111111111111111111fdbbf111111
+                            11111fdddddddbf111111111111111111111111111111fdbbf111111
+                            1111fbddddddddf111111111111111111111f111111ffddbf1111111
+                            1111fbdddddddddf1111111111111111111f1f11fffdddbbf1111111
+                            1111fddddd1bddddf11111111111111111f11fffdddddbbf11111111
+                            111fdddd1dbddddddff1111111111fffffdddfbbddddbbf111111111
+                            111ffd11dbdddddddddfffffff1ff111fdddbbbddddbbf1111111111
+                            11ffd11dbdddddddddddbbbf11f11ddddddddddddbbbf11111111111
+                            1fddf1dbdddddddddddbbbff11dfbbdddddddddbbbff111111111111
+                            fdbfdfbfddbffddddbbbff1f1ddbfbddddddddbbff11111111111111
+                            fbfdffdffbf1dfddbbbf11dfddbbbddddddddddf1111111111111111
+                            1fdf1fdf1ff1ddfbbbf1111ddddddddddddddddf1111111111111111
+                            1ff111f111f1ddbfbf11ddddddffdddddddddddbf111111111111111
+                            11111111111f1dfbff1ddddbff11fddddddddddbf111111111111111
+                            11111111111f1ddfd1dddbf11ddbfddddddddddbf111111111111111
+                            11111111111ff1111bfff11dddbfddddddddddbbf111111111111111
+                            1111111111f111ddddddddddbffdddddddddddbf1111111111111111
+                            111111111f1111dddddddddbfbdddddddddddbbf1111111111111111
+                            111111111f11ddddddfdddbfbdddddddddddbbbf1111111111111111
+                            1111bff11fdddd1ddffddbfbddddddddddbbbbf11ff1111111111111
+                            111b111ff1ddb111f11fdfbbdddddddfffbbbbf1fbbf111111111111
+                            111f111111ddb11ff11fdfbbbdddddddddffbfffbbbf111111111111
+                            11b1111bfbdddff1f11ddfbbbbdddddddddbfffbbfbf111111111111
+                            11fd111fbddddddbbbbdddfbfbdddddddddddbfffbbbf11111111111
+                            1bdddddddddddddddddddddf1fbdddddddddddddbffffffff1111111
+                            1fddddddbbbbbdddddbddddf11fbddddddddddddddddbfbf11111111
+                            1fdddbbbfffffffdddfddddf111fbddddddddddddddddff111111111
+                            11fbbffffffffbbfffddddbf1111fbdddddddddddddddbf111111111
+                            11fbf111f1fbbbbbfddddbbf1111fbbdddddddddddddddf111111111
+                            111f111fffbbbfffddddbbf11111fbbdddddddddddddddf111111111
+                            111111f1fbbbbf1fddddbf111111fbbddddddddddd1bddbf11111111
+                            11111fffbbbbbbfdddbff1111111fbddddddddddd1bddddf11111111
+                            1111f1fbbbbfffdddff111111111fddddddddddd1bdddddbf1111111
+                            1f1fffbbbbbf1fddf11111ff111fddddddbdddd1bbddddddbf111111
+                            f1f1ffbbbbbbfddf11111fdbfffbddddbbddd11bbddddddddbf11111
+                            f11ffbbbbffffdf11111fdffffdbbbbbdd111bbbdddddddddbbf1111
+                            1f1ffbbbbf1fddb11111ff1fdbfbbb1111bbbbbddddddddddbbbf111
+                            1ffffbbbbffddf11111111fdffbfffbbbbbbbbdddddddddbbbbbbf11
+                            1bddfbbbf1fddb1111111fdfdbf111ffbbbbbbbbbdddbbbbbbbbbbf1
+                            11fddfff1fddf11111111ffdff111111fffbbbbbbbbbbbbbbbbbbbbf
+                            111bfddffdddb1111111111f11111111111fffbbbbbbbbbbbbbbbff1
+                            11111bfdddfb11111111111111111111111111ffffbbbbbbbbbff111
+                            1111111bff11111111111111111111111111111111fffffffff11111
+                        `, SpriteKind.Creature)
                     case 143:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111131111111111111111111111111
+                            11111111111111111111111111111ff3111111111111111111111111
+                            111111111111f1111111111111113ffff11111111111111111111111
+                            11111111111f1311111111111111ffff3f1111111111111111111111
+                            1111111111f11f11f3111111111ffff333f111111111111111111111
+                            111111111fd11f1f1f111111113ffff3333f11111111111111111111
+                            11111111fd11dff11f11111111ffff333333fd111111111111111111
+                            1111111f333dff111f111fd113fffffffffff33d1111111111111111
+                            111113f111111333df13f1f11ffff3dddd3fffff3d11111111111111
+                            1111fd111111111dfff11df1ff3d11111111dfffff31111111111111
+                            1113d11111111111d31113ffddd1111f3d1111ffffffd11111111111
+                            111f1111111111111df11ffff3d111111f31113ffffffd1111111111
+                            11fd111d333d11111131dffffffd1111111f11dffffff3d111111111
+                            13f111333333d11111113fffffff31111111f1dffffffff333ddd111
+                            1f311d3333dd3d111113ffffffffff111fd111dff333fffffffffff1
+                            1fd1133333dd331111dffffffffffff1f1f1113d111d3ffffffff3f1
+                            1fd113333333331111dffffffffff1df33f111111f1111ffffff3f31
+                            1fd11d3333333d1111df33ffffffff1f11dfd11111f1113ffff33f11
+                            1fd111d33333d111ddffff3fffff1df3d11dfd3ff11311dfff33f311
+                            1f3d11dd333d11ddd3fff3dd311ff1f11311dff1f11f11dff333f111
+                            1dfddddddddddddddffffddddf1fdf11111d1d3f31113113f33f3111
+                            11f3dddddddddddd3ffff3ddddfd1d111111d1131111f11df33f1111
+                            111f3ddddddddd3fffffff3d1ddd11111111131d1111311df3f31111
+                            1113ff3dddd3fffffffffffd11d11111111111311111111df3f11111
+                            11df3ffffffffffffffffffd1111111111111113111111ddff311111
+                            113ff33ffffffffffffffff11111111111111113d11111d3ff111111
+                            11fffff3333ffffffffffff1111111111111111131111dd3fd111111
+                            11ffffffffffffffffffff311111111111111111fd11dddf3d111111
+                            11ffffffffffffffffffff3111111111111111113fdddd3ff3111111
+                            11ffffffffffffffffffffd11111111111111111df3dddfdff311111
+                            11ffffffffffffffffffffd11111111111111111df3dd3f111311111
+                            11fffffffffffffffffff3d11111111111111111d3f33f1fff111111
+                            11fffffffffffffffffffdd11111111111111111d3f3ffd1ff111111
+                            113fffffffffffffffff3ddd1111111111111111d3ffdffd1f111111
+                            11dffffffffffffff3113ddd1111111111111111d3ff3fffff111111
+                            111ffffffffffff11111fdddd11111111111111ddfffffffff111111
+                            111fffffffff3d33111dfddddd1111111111111d3ffffffff3111111
+                            111fffffff3d111d3113ffff3d1111111111111d3ffffffffd111111
+                            1113ffff3d11111113dff3d1fdd11111111111ddffffffff31111111
+                            111d3f3d111111111133d11df3ddd11111111dddffffff3d11111111
+                            111133dd11111111111d111fffddddd1111dddd3fff3d11111111111
+                            11113dd1111d33d11111d13ffff3dddddddddddf3111111111111111
+                            1111fdd11133333311113dffffffff3dddddd3ffd111111111111111
+                            1113dd111d333dd3d111dfffffffffff33333ff31111111111111111
+                            111fdd1113333dd33111d311111ffffffffffffd1111111111111111
+                            111fdd11133333333111dd311dffffffffffff311111111111111111
+                            111fddd11d333333d11ddd313ffffffffffff3111111111111111111
+                            111fddd111333333111dd3ffffffffffffff31111111111111111111
+                            1113ddd1111d33d111dddfffffffffffff3d11111111111111111111
+                            111dfddd11dddd11ddddffffffffffff3d1111111111111111111111
+                            1111fddddddddddddd3ffffffffff3d1111111111111111111111111
+                            1111dfdddddddddddffffffff33d1111111111111111111111111111
+                            11111d3fdddddddff33333dd11111111111111111111111111111111
+                            1111111d3ffffff3d111111111111111111111111111111111111111
+                            111111111dddddd11111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 144:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            ffff11111111111111111111111111111111111111111111116fffff
+                            fb11f1111111111111111111111111111111111111111111ff11111f
+                            fbb1f11111111111111111111111111111111111111111ff1111111f
+                            fbbb1f11111111111111111111111111111111111111ff111111111f
+                            1fbb1f111111111111111111111111111111111111ff111111111116
+                            1fbbb1f111111111111111111111111111111111ff11111111111f61
+                            11fbb1f1111111111111111111111111111111ff11bb1111111f6111
+                            ffffbb1f1111111111111111116fff661111ff11bb11111116f11111
+                            f116bb1f1111111111111111ff11111611ff116b11111116ffff6111
+                            f11b6bb1f11fff611111116f111111611f11b6b1111116ffb1111f11
+                            f11bb6b1f11f111f6116ffb11111f611f1bf6b111bbff111111111f1
+                            1fbbb6bb1f1f6b111ffff11116ff111f1bf6b1111111111111111f11
+                            11fbbbb11f11ffb11166bb6fffff111f1f66b1bb111111111111f111
+                            1fffbbb61f11fffb1116fffb1111fff11f6bbb66b111111ffff61111
+                            f11ffbbf11f11fff611f1116fb111bf1bf6bb6bbb1116ffff1111111
+                            f11116b6b1f11ffff61fff1116fffff1f6666bbb116611111f111111
+                            fbb111bbf11f6ff6f16f61f1f6f111f1f666bbb11111111111f11111
+                            1ffbbb1b6b11f66611fbffffbf1111f1f66bbb1111111111111f1111
+                            111ffbbbbfbf66111b61111b6111161bf6bb61111111111111f11111
+                            11f11fbbbbff111bffb111bbf1111f1f666611111166ffffff111111
+                            1fb1111bbb6ffffff6bbbbf611111f1f666bbbb111116f1111111111
+                            11fbbb1b66b6666ff6666f111111611f66bbb111111111f111111111
+                            111fff11b66bb66f6bbb66111111f1bf6bb111111111111611111111
+                            1111f1111b66b6f661bbf111111611bf6bbbb111fbb1111f11111111
+                            111f11111b6666fb111bf111111f11f6666bb1111f6bbbbf11111111
+                            111fbbf1bbb6ffb1111bf11111f11bf666bb111111f6ffff11111111
+                            1111ff11b66fb6611111bff61f11bf66bbb11111111f111111111111
+                            11111f1666f6611bb1111bb6f111fbbbb1111f6bb111611111111111
+                            111111ffbf6b111bbb111bbf111bb1b11111bbf6bbbbff6111111111
+                            1111111fbf6b111bb611116111bb11111bbbbbbf6bbbf66ff6111111
+                            1111111ff6b1111bb6111611111111111fbbbbbfffff666666f11111
+                            1111111f6bb111bbf611111111111b11b1fbbbbf1111ff66b66f1111
+                            1111111f6b1111bbf6111111111bbbfbbbbfbbbf111111fbbb666111
+                            1116f11f6b111bbf6111111111b6bbbfbbbfffff1111111fb1b6f111
+                            11f11f11fbb1bbf61111111111b6bbbbffff111111111111fb1b6611
+                            1f1111f1f6bbbf6111111111bbb66bbbf1111111111111116bbb6f11
+                            1f11111fff6bbf6b11111bbbbb6666fff1111111111111111f1bb661
+                            61111111ffffb6f6b6fffff66666666111111111111111111f1bbbf1
+                            f11111111f66fffffbbbbbbb6ff66f1111111111111111111f161bf1
+                            fb11111116f66ffbb1111111111fff1111111111111111111f161b66
+                            fb111111116ffbbb11111111111111f611111111111111111f1616bf
+                            fbb1111111116fbb1116fffff6111111f6111111111111111f1f16bf
+                            f6bbb1111111116fff61111111fff61111f111111111111166bf16bf
+                            1fbbbbbbbbbbbb11111bbbbb111111fff11f611111111111fbbf1fbf
+                            1f6bbbbbbbbbbbbbbbbbbbbbbbbb11111ff11f611111111f6b6b1f6f
+                            11f6666bbbbbb666ffffffff666bbbb1111ff11ff61116f6bbfbf666
+                            1116ff6666666fffb111111bfffff66bbb111ff111fff1bbbbfbf6f1
+                            1111116ffffffb1111111111111bbfff66bbb11ffb11bbb66fbbf661
+                            111111111ffb1111111111111111111bff66bbb11ff6666ffbbf6f11
+                            111111116b1111111111bffffffbb1111bff666bbbb6fffbbbf66611
+                            11111111f111111111bff111111fffbb1111ffff6bbbbbbbf666f111
+                            11111116111111111bf11111111111ffbbbb11fff6fffff6666f1111
+                            1111111f1111111bff11111111111111ff6bbb111bbbbbbb6f611111
+                            11111161111111bf11111111111111111116ff6bbbbbbfff61111111
+                            111111f111bfff6111111111111111111111116ffff6611111111111
+                            111111ffff6111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 145:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            1111111111111111111f111111111111111111111111111111111111
+                            111111111111111111fdf11111111111111111111111111111111111
+                            111111111111111111fdf11111111111111111111111111111111111
+                            1111111ff11111111fddf11111111111114f11111111111111111111
+                            1111111fdf1111f11fddf111111111111f1411111111111111111111
+                            1111111fddf11f1f1fddf11111111111f14111111111111111111111
+                            11111111fddf1411fdddf1111111111f1f11111111111111114ff111
+                            11111111fdddfff1fdddf111111111f1f1111111111111114fddf111
+                            11111111fdd11f411fddf11111111f11411111111111114fdddf1111
+                            111111111f11111f11fdf1111111f11f1111111111114f111df11111
+                            111111111f11111411fdf111111f11d411111111114f1111df111111
+                            1111111111f11111f11ff11111f11df1111111114f11111df1111111
+                            1111114411f11111f111f1111f111d41111114ff111111df11111111
+                            1111114ff4f111ff1411f111f111df1114fff11111111df111111111
+                            11111114ffff1f11ff11df1f111d4ffff11111111111df1111111111
+                            1111ffffffff4f11df11ddf111dd4111dfffff41111df11111111111
+                            1111fdddffff44fdddf114111111dd4ffdddd41111df1144fff41111
+                            11111fddddddffffddf114111dd4ffddd11f41111dfffffff4111111
+                            111111f11ddddfd4fddf111d4ffdddd11f411111dffffff411111111
+                            1111111f1111ddf4ffdfdddff4ddd11f4111111dfffff41111111111
+                            11111111f1111ddf4ffddd4fffdddff1111111dffff4111111111111
+                            111111111f1111ddffffd411ffd1111f11111dffffffffffff411111
+                            1111111111f111ddfffdfff1fdd11111f4111111dddddddddddf4111
+                            1111111114ff111f4f11dfffddfff11111f11111111ddddd4ff11111
+                            11111114fffff11ff4111dfddddffff4111f11111111d4ff11111111
+                            111111114ffff41df111d44fffddfddd4ff441111d4fff11fffff111
+                            111111111ff4111d41114f4fddffdfddddddddd4fffffffffff11111
+                            1111111ff11111df1114f44fddddf4dd111d4ffffffffffff1111111
+                            11111ff1111dddd411dff4fddddddd111111ddddd4fffff111111111
+                            1111ff1fddddddf11dfff4fddddd4111111111111dddd4ffff411111
+                            11111f11fddfff4114ffdf111dddd4111111111111111dddddd44111
+                            111111f114f11f11dff1df1f11dddf41111111111111d4ffff411111
+                            1111111f1f11f41df1f1f1fdf1ddfdf4111111ffffffff1111111111
+                            1111111fddf1f11f114df1f1dfddf1ff411111dffffff11111111111
+                            11111111fdf14141141df11f1fddf1fff4111114ffff111111111111
+                            1ff11111fddf1df11f1f111f1fddf1f11f41111dfffff11111111111
+                            f11ff1111fdfdf114fdff111f1fdf1f111f4111df14fff1111111111
+                            1ff1dff111fdf111ffffff11f1ff1df1111f4d1df1114ff111111111
+                            1114fddff1fdf11fddfff4fd4f1414f11111f4dddf11111111111111
+                            11111ffddfdfdff1dfff41fd4f14df1111111f4ddf11111111111111
+                            1111111fdddfdf11f1111ffddf1ddf11111111f4df11111111111111
+                            111111114fdddd1f1111f14dddf1fff11111111f44f1111111111111
+                            1111111111fddff1111f1fddddf1ffdf11111111f4f1111111111111
+                            11111111111fdf4111f11fd4ddf1ffddf11111111ff1111111111111
+                            111111111114ddf11f11f4dfdf11f4fd1f1111111141111111111111
+                            111111111111fdf1f11ffddfdf1fddff1f1111111111111111111111
+                            111111111111f1ff11fffdfff11ffdff11f111111111111111111111
+                            111111111111f1f11fff4dffd1fffd41f1f111111111111111111111
+                            1111111111141f1f41ff1fffd4ffff1f1f1f11111111111111111111
+                            11111111111f1ff114141fffffffff141f1f11111111111111111111
+                            111111111111ff111141f1fdfdf1f1f1f1f1f1111111111111111111
+                            111111111111111111f141fdfdf1f1f1f11ff1111111111111111111
+                            11111111111111111f1f114d4d41411f1f1111111111111111111111
+                            11111111111111111414111f1f111114141111111111111111111111
+                            11111111111111111141111111111111411111111111111111111111
+                        `, SpriteKind.Creature)
                     case 146:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111114411111111111111111111111111fff111111111
+                            1111111111111f1411411114f411111111111114111f1f4ff1111111
+                            111411111111f14111111ff111f1111114f41114414111f44ff11111
+                            111444111111f1f11111f111111f1114f144f1114411111f444f1111
+                            11114444111f114111114ff411414f4111114f4114411111f444f111
+                            111114441114111f111f111141f1f1111111111f4111111f4444f111
+                            111111444111f111f1141111f1f141111111111444ffff444444f111
+                            11111114411141111f11111f4441111111111111144444444444f111
+                            1111111441111f1111f411444f111111f4111111114444444444f111
+                            11111fff111111f111144ff44411111f1111111111444444444f1141
+                            1111f44f11111114ff444444f1111f4111114fff444444444ff11441
+                            1111f444f1111111111f44444411f1114fffffff1f444444f1114411
+                            111f4444fff111111111f44f441f11ff111fffffff1f44444f111111
+                            11f44444ff4f111111111f4444f11f11f411ffff44ff14f444f11111
+                            11f41444f444ffff1111144444f14f4111411f444444f111f4111111
+                            1f41444f4444ff4ff11111444f1f114ffffff4f444444f1111f11111
+                            4441444f4444f444f11111f44f4fffffff444444f44444f11f441111
+                            f41144444444f444fff111f44f4ffffff4ff44444f44444ff44f1111
+                            141144f4444f4444ff4f111f4444ffffff44ff4444f44444f4441111
+                            1f1444f4444f444fff44f1fff44fffff44f4444f444f444444f11111
+                            1f1444f144f4444ff444ffff44444ffff44f4444f444f44444f11111
+                            1f1144f114f4444f4444f4ff4444444fff44f4444f444f44444f1f11
+                            1f1144111144444f444f44f444444444fff44444444414414444f4f1
+                            1f1144111444444f444f444f444444444fff44441144414414444f11
+                            1411441114444444444f444f4444444444fff4441114441444444f11
+                            411144111444444444f4444f44444444444ff444411444444444f111
+                            f11144111444444444f444f4444444444444f4444411444444444f11
+                            4111144114441444444444f44444444444444f444444444444444f11
+                            1411144111441144444444444444444444444f444444444444444f11
+                            1f111144111441144444444444444444444444f444ff44f4444444f1
+                            14111144111444114444444444444444444444ff4f11ff4f444444f1
+                            114141144111444414444444f4441444444444fffff11111f44444f1
+                            11f141144111144444144444ff414444444444fff41111111f444f11
+                            11f114114444411144444444ff41144444f444ff41111114f4444f11
+                            11141141144444444144444ff4411144444f4fff44ff44444ff4f111
+                            111f1144114444444444444f444111444444ffff44444f44444f4111
+                            111f111441114444444444ff44411111444444f11144444444fff111
+                            1411411444441144444444ff44441111114444411111144f44ffff11
+                            11f1f1114444444444444f11f4444111144444111fff444444fff111
+                            111f1111444444444444f1111ff44444444f441114fff444f4f41111
+                            1111f11114444444444f11111f4f4fff441ff41111f1f444ff111111
+                            11111f411444444444f111111f4f11111111ff11111ff444f1111111
+                            1111111f1144444444f11111114f111111111ff11114f44441111111
+                            11111111f4144444f441114111f44111111111ff114444f411111111
+                            1111111111f444ff1f1144414ff4f11ff11111f4f4444f4f11111111
+                            111141f1f4144f111f144411f4f44ff44f11111f4ffff44441111111
+                            11414f1f11114111414441111f4f41f411f1111f4f14ff44f1111111
+                            111441111114111111111111f4f1f41fff1f11141f114ff14f111111
+                            11111111111111111111111f1f111f1f11f11111f111114f14f11111
+                            11111111144441111111111414111411f111111111111114f1141111
+                            111111114441111111111111f11111f141111111111111114f1f1111
+                            1111144444111111111111111111111f111111111111111114f1f111
+                            111111111111111111111111111111111111111111111111114f1f11
+                            1111111111111111111111111111111111111111111111111114ff41
+                            11111111111111111111111111111111111111111111111111114ff1
+                            111111111111111111111111111111111111111111111111111114f1
+                        `, SpriteKind.Creature)
                     case 147:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111111111111
+                            111111111111111111bfffb11111111111111111
+                            1111111111111111bf11111f1111111111111111
+                            111111111111111fd11111f11111111111111111
+                            11111111111111fdddb11f111111111111111111
+                            111111111111bffffbddf1111111111111111111
+                            1111111111bfbbbbbbff1111111bfffb11111111
+                            111111111fbbb1fbbbbbf1111bf1111f11111111
+                            11111111ffbbbffbbbbbbf11f11111f111111111
+                            11111111ffbbbbbbbbbbbbbf11111b1111111111
+                            11111111fbbbbbbbbf11bbfdd1111f1111111111
+                            111111bfbbbbbbbbffd1bfddddddb11111111111
+                            11111f11dbbbbbbfffbfbfbdbfddf11111111111
+                            1111b111ddbbbbbfffffbbfbddbfdb1111111111
+                            1111f11ddddbbbbbfffbbbffbbddff1111111111
+                            1111fddddddbbbbbbbbbbff1fbbbbf1111111111
+                            1111bddddddbbbbbbfbbbf111fbbbf1111111111
+                            11111fdddddbbbbbfbbbf11111fbbb1111111111
+                            111111bfddbbbbffbbbf1111111fb11111111111
+                            11111111bfffffbbbbbf11111111111111111111
+                            11111111111ffdbbbbf111111111111111111111
+                            11111111111fdddbbbf111bfb111111111111111
+                            1111111111f11dddbbf1bfbbbfb11111b1111111
+                            111111111fdd11ddbbffbbbbbbbf11111b111111
+                            11111111f111d11ddffbbbbbbbbbb1111fb11111
+                            11111111f1111d1ddfbbbbbbbbbbbf111ff11111
+                            1111111fd1111ddddfbbbbbbbbbbbbb11ffb1111
+                            1111111f1dd111ddfbbbbbbbbbbbbbf1bfff1111
+                            111111b1111dd1ddfbbbbbbbbbbbbbbfffff1111
+                            111111f111111dddfbbbbbbbdfbbbbbffffb1111
+                            111111fd111111dddbbbbbbddfbbbbbbfff11111
+                            111111f1dddddddddfbbbddddfbbbbbfbfb11111
+                            111111b11111111ddddddddddbdbbbbbff111111
+                            1111111f1111111d1d1d11ddbdddbbbfbb111111
+                            1111111b111111d11d11d11dfddddbddf1111111
+                            11111111f111dd111d11dd1bffdddddbf1111111
+                            111111111fdd11111d111df111fdddfb11111111
+                            1111111111f11111d1111b11111bfb1111111111
+                            11111111111fb11d11bfb1111111111111111111
+                            1111111111111bfffb1111111111111111111111
+                        `, SpriteKind.Creature)
                     case 148:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                            111161111111111111ff1111111111111111111111111111
+                            11161f11111111111f11f111111111111111111111111111
+                            111f116111111111f111f111111111116fffff6111111111
+                            111ff1f11111111f1111f111111116f6bbbbbbbff1111111
+                            111f11ff1111116111bf1111111f6bbbbbbbbbbbbf111111
+                            111f116fff6111f11b6f111111f11111111bbbbbbbf11111
+                            111f1fbbb66ff6b166b1f1111f11111111111bbbbbbf1111
+                            111f61111bb66fb111bbf111f1111111111111bbbbbbf111
+                            11f6111111b66f11111f111f1111111111111111bbbb6111
+                            11f116f6111b6611b6ff11f111111111111111111bbbb611
+                            16f161bb611bb6b111bf1f1111111111111111111bbbbf11
+                            1f11f11bf11bb66b11bf1f11111111111111111111bbb611
+                            1f611f11611ff6fb11f1f111111111111111111111bbbb61
+                            16f611f6111f166fbbf1f11111111bbb1111111111bbbbf1
+                            116f111111f1bf66ff1fb11111bbbbbbbb11111111bbbbf1
+                            11ff1111bfbf6f6ff11fbbbbbbbbbbb6f6b11111111bbbf1
+                            11fb111bbf66ff66f1fbbbbbbbbbbf61116b1111111bbbf1
+                            1161111bbffff66bf1fbbbbbbbb6f11111fb1111111bbbf1
+                            16111111bbff666bbf66bbbbb66f1111116b1111111bbbf1
+                            1f11111111bb6fbbbbf66666666f111116b11111111bbbf1
+                            1f11111111b6fffffbbff66666f111111fb1111111bbbb61
+                            11f111111b6f66666fbbbff666f111111611111111bbb611
+                            111f1111b6f666ff66fbbbbfff111111f11111111bbbbf11
+                            11116fff61f11ffff6fbbbbbb6ff11f61111111bbbbb6f11
+                            1111111111f11ffff6fb11111111ff111111111bbbbbf111
+                            1111111111f666ff66f1111111111111111111bbbbb6f111
+                            11111111111f66666fb11111111111111111bbbbbb6f1111
+                            111111111111fffffbbb11111111111111bbbbbbb6f11111
+                            111111111111111f6fbbbbb1111111bbbbbbbbbb6f111111
+                            111111111111111f66ffbbbbbbbbbbbbbbbbbb66f1111111
+                            111111111111111f6666ffbbbbbbbbbbbbbb66f611111111
+                            1111111111111111f66666ffbbbbbbbbb666f6b111111111
+                            1111111111111111f6666666fff666666ff6b11111111111
+                            11111111111111111fb666666f16ffff6b11111111111f11
+                            11111111111111111fbb666666f111111111111111111f11
+                            111111111111111111fbb66666f11111111111111111ff11
+                            1111111111111111111fbbb6666f11111111111111ffff11
+                            11111111111111111111f6bbbb66ff1111111fff1f16f111
+                            111111111111111111111ff6bbb666ff1111f611ff66f111
+                            11111111111111111111111ff6bb6666ff1f66116fff1111
+                            1111111111111111111111111ffff66666ff6ff66f111111
+                            11111111111111111111111111111fffffff6ff66f111111
+                            111111111111111111111111111111111111f666f1111111
+                            1111111111111111111111111111111111111fff11111111
+                            111111111111111111111111111111111111111111111111
+                            111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 149:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            11111111111111111111111111111111111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                            111f1111111fff11ff11111111111111111111111111111111111111
+                            11f3e11111f11eff31f1111111111111ffff11111111111111111111
+                            11f1f1111f1133f1ff1111111111111f1113f1111111111111111111
+                            11f1f111f333ef1ff11111111111111f11113f111111111111111111
+                            11f1f111f3eef1fe3f111111111111f1133333f11111111f11111111
+                            11f3e111f3eef3fe3f11111111111f313fff333f111111e3e1111111
+                            111f3e11ffff13fe33f1111111111f33fff3f333f11111f3f1111111
+                            111f3ffe333f1fefe3f111111111f333fff3ef333f1111f33e111111
+                            1111f3f3333f3feefe3f11111111f33ff3ef1ef333f111f33f111111
+                            1111f3ef133f3f33ef3f1111111f33fef3ef1eef333f11f133e11111
+                            1111ff3f1133f3333fef1111111f3feef1ef1eeef333f1f133f11111
+                            111f1ff1111331133efef11111f3feef1eef1eeeef33f1f133e11111
+                            111f11111113113ffefef1111f3feeef1eeef1eeeef33ff1133e1111
+                            111f1111113311e13f3ff111f3feeeef1eeef1eeeeef33f1133f1111
+                            111f1111113313ff3f3fff1fffeeeef1eeeef1ffffffffe1133e1111
+                            111ffe1111333eff3f3efffffeeeeef1eeefff1111111f111333e111
+                            1111f1e11333eff1ff3eeffffeeeeef1eff1111111111f111333f111
+                            1111ffffe333eefff33eeeffffeeeef1f111111111111e111333f111
+                            11111fff1333333333eeeeeefffeef1f111111111111f1111333f111
+                            111111fff3333333e3feeeeeeeeffff1111111111111e1111333f111
+                            1111111f13333333f3feeeeee33333effff11ff1111f11113333f111
+                            1111111f133333333feeeeeee33113333eeff13f111e11113333f111
+                            11111111f1333f333feeeeeeef331111133efffff1f111133333e111
+                            11111111f1f33333fe33eeeeeefe33111113eef1ff311333333e1111
+                            111111111f3333efe33333eeeeefe33111113efff3333333333f1111
+                            111111111ffffffe311333eeeeeefe3331113ef1f333333333ef1111
+                            1111111ffeefffee3111113eeeeeffee3333ef1fe3333333eeef1111
+                            11111ffeeeefffe111111133eeeeefffeeeefffeee3333eeeeef1111
+                            11fff1133eefff11111133113eeeefffffffeffeeeeeeeeeeef11111
+                            1f1f1133eeeff3333333111333eefffe333efffeeeeeeeeeeef11111
+                            1eff33eeeefff1111111111313eefe3111333effeeeeeeeeeff11111
+                            1f1feeeeeefff1111111133113eee311111333efffeeeeefff111111
+                            1f3ffeeeeffff111111331111eeee3111113333effffffffff111111
+                            11f33ffff111f33333311111e33e311111133333effffffff1111111
+                            111ff1111111f111111111ee333e311111133333effffffff1111111
+                            111111111111f333333eee3333ee311111333333eeffffff11111111
+                            111111111111ffeeeee33333ee3e311111333333eeffffff11111111
+                            111111111111ff33333333ee333ee31113333333eefffff111111111
+                            11111111111ffffeeeeeee3333eef3311333333eeeffff1111111111
+                            11111111111ffef3333333333e33ef33333333eeeeeff11111111111
+                            11111111111f3efe3333333ee333eefe3333eeeeeeef111111111111
+                            11111111111f33efeeeeeee3333eeeefeeeeeeeeeeeeff1111111111
+                            11111111111f133efeee33333eeeeeeefffeeeeeeeeeeef111111111
+                            111111111111f133effeeeeeeeeeeeeefffffffe33eeeeef11111111
+                            111111111111f113eeefffeeeeeeeeefffffffe3333eeeef11111111
+                            1111111111111f13eeeefffffeeeeffffffe11f31133eeeef1111111
+                            11111111111111ffeeeffffffffffffffe1111f31133eeeef1111111
+                            1111111111111111fffffffffffffff11111111f3113eeeff1111111
+                            1111111111111111111111fffffffff11111111fe333efff3f111111
+                            111111111111111111111111fffffff111111111ffeff133ff111111
+                            111111111111111111111111fffffff1111111111ff13f11f1111111
+                            1111111111111111111111111fffffe111111111111ff1ff11111111
+                            11111111111111111111111111fffe11111111111111111111111111
+                            11111111111111111111111111111111111111111111111111111111
+                        `, SpriteKind.Creature)
                     case 150:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            111111ff111111111111bff111111111111111111111111111111111
+                            11111b11f1111111111b111f11111111111111111111111111111111
+                            11111f111f111111111f111df1111111111111111111111111111111
+                            11111f1111f11bffb1f111ddf1111111111111111111111111111111
+                            11111f11ddfbf111fff111ddb1111111111111111111111111111111
+                            11111f11ddd1111111b11ddb11111111111111111111111111111111
+                            11111b1dddd11111df111ddf11111111111111111111111111111111
+                            1111b11ddd11111ddb111ddb11111111111111111111111111111111
+                            1111f111d111111db1111dddf1111111111111111111111111111111
+                            111d11111111111111111dddb1111111111111111111111111111111
+                            111b11111111111111111dddbfb11111111111111111dbff11111111
+                            11f111111111111111111dddbddff1111111111111db1111ff111111
+                            1f1111111111111111111ddddbdddf11111111111b11111111ff1111
+                            b11111111dd1111111111ddddbdd1ff111111111b111111111ddf111
+                            f1111111d11111bbd111dddddbd111ff1111111b1111111ffddddf11
+                            f111111d1111bfbddddddddddff1111f1111111f111111f11fdddf11
+                            ff11111b111fd1bddddddddddf1f1111b11111b111111b1111fdddf1
+                            bf1d11b11dff111dd1ddddddf111f111f11111f111111f11111fddf1
+                            1f1b11d1dfbf111d111dddddf111f11ddf1111f111111f11111fddf1
+                            1bbd111dbfbf11b111ddddddf11fffdddf111b1111111f111111bddf
+                            11f111ddf1f1db1111dddddbdffddfffff111f11111111f11111fddf
+                            11f111ddfd1d11111ddddddbdddddd111df11f11111111b11111fddf
+                            11f1111d1111111ddfffbdddbdddd1111fff1f11111111df1111fddf
+                            11b11111111fb1dff1ffffdddddbd1111f11f1f1111111db1111bddf
+                            111b11111bf11ff11fb1fdf1ddbbddd1f111b1f111111d1df11fddbf
+                            1111ff1bf11ffd11b1f1f1b111bdddd1f1111ff1111111ddb11bddbf
+                            111111ffffb11111b1f1f11b1111dd11f1111ff111111d1db1fdddbf
+                            11111111111111b11df1111111dd1111df11df1f1111d1ddbfddddb1
+                            11111111111111f1ddff111dffbdd11dff11df1f11111d1ddfdddbf1
+                            1111111111111b1ddff1fddbdddfbddff1f11dff11d1d1dddfdddbf1
+                            1111111111111f1df1111ff111dddffdfff11dff1d1d1ddddbddbf11
+                            1111111111111fddf11111f11111dddddfff11fdffd1ddddddfbbf11
+                            111111111111bddf111111b111111dddddbdf1dfddfdddddddfff111
+                            111111111111fbdf11111b11111111dddbddf11dfddfddddddf11111
+                            11111111111bddf111111f11bbd1111ddb1ddf1dfdd1fdddddf11111
+                            11111111111fddf111111f1ddddb111db111dfbdfdd1bdddddf11111
+                            1111111111b11dd11111bfbdddddb111b111df1dfdd11fddddf11111
+                            1111111111b11ddf1111f1b11dddbb11b11ddb111b111bddddf11111
+                            1111111111f111df111b11f11dddbb11b11df1111f1111fddbf11111
+                            1111111111f111df111b11fddddbbbb1bdddb111df1111fddbf11111
+                            1111111111f111dfff1f111bdddbdbbddbdf111ddf111dfddbf11111
+                            1111111111f111f111ff111fddbdbdbbdbbb111ddf11ddfdbb111111
+                            1111111111b111f11df1f111fbdbdbbbbdf1111dbdddddfbbf111111
+                            11111111111b11f1ddf1f111dfbbbbffffb111ddfddddbbbbf111111
+                            11111111111f11dfffdf1f1d1dfbbf1ddf1111ddfddddfbbf1111111
+                            11111111111fbbdddddf11f1dddbffddb1111dddfdddbbbbf1111111
+                            11111111111ff1bdddbbf11fddddd1fb11111ddfddddfbbf11111111
+                            11111111111b111fdb111f111fddf1ff1111dddf1ddddff111111111
+                            11111111111b11dffb111f111ffbbffb111dddfbf1ddd1f111111111
+                            111111111111fddfffddff11ffbbbf1db1ddddfbf111111bf1111111
+                            1111111111111bffbfffffff1ddbbfdddfbbdfbbf11111111bf11111
+                            1111111111111111ffbbbb1111ddbbffff1dfbbff1bbf111111f1111
+                            111111111111111f11b1111111ddddbbbfff1ff1fb11df111111f111
+                            111111111111111f11f11111ddddbffff11111111f11dfdd111df111
+                            1111111111111111fffddddbffff1111111111111fdddfffdddf1111
+                            1111111111111111111ffff1111111111111111111fff111fff11111
+                        `, SpriteKind.Creature)
                     case 151:
-                        creatureDex[i] = sprites.create(img`
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                            . . . . . . . . . . . . . . . .
-                        `, SpriteKind.Player)
+                        creatureImageDex[i] = sprites.create(img`
+                            1111111111111111111111111111111bfb111111
+                            11111111111111111111111111111bf111fb1111
+                            1111111111111111111111111111b1111111f111
+                            111111111111111111111111111f11111111db11
+                            111111111111111111111111111b11111111df11
+                            1111111111111111111111111111bff1111dddb1
+                            1111111111111111111111111111111bfffdddf1
+                            11111111111111111111111111111111111bddf1
+                            111111111bffb111ffffffb1111fff111111bdf1
+                            111111111fd11ffbd11111ddbff11f111111f1f1
+                            111111111fbd111111111111df11df111111f1f1
+                            1111111111fbd11111111111111dbf111111f1b1
+                            1111111111fb111111111111111dbb11111b1db1
+                            1111111111b1111111111111111df111111f1f11
+                            111111111bd11fbd111111dbf111db1111f1db11
+                            111111111f11bddbd1111dbddb111f11fb1df111
+                            111111111f11bdffbd111bffdb11dffbdddf1111
+                            111111111bd1b1f1f1111f1f1b11dfdddfb11111
+                            1111111111f111fff1111fff1111dbbfb1111111
+                            1111111111f1111fbddddbf1111df11111111111
+                            1111111bffbd11ddddddddd111df111111111111
+                            11111bfddddfbd111111111d1fb1111111111111
+                            1111b11ddffffbb11111111bf111111111111111
+                            1111f11fb11111fb11111bff1111111111111111
+                            111b11f111111111ffffffbbf111111111111111
+                            111fd1f11111111ffbbbbddddfb1111111111111
+                            111bd11b1111bfffbbbbd111dddff11111111111
+                            1111f11f111b11dfbbdd1111bddddf1111111111
+                            1111b11b111f11dfdd111111dbddddf111111111
+                            11111fddf111bffd11111111dffddf1111111111
+                            11111bdddf111ffd1111111ddf1ff11111111111
+                            111111fdbbfbfffd111111b1ddb1111111111111
+                            1111111bfbbfbffbd1111f111df1111111111111
+                            111111111fffbfffbd111f111df1111111111111
+                            11111111111fbbfffbdddb11ddf1111111111111
+                            111111111111fbffffffb1fddfbf111111111111
+                            11111111bfffffffffb1111fbdddff1111111111
+                            111111bffffbbffff111111fbdd111ffb1111111
+                            11111bffffffffff11111111ff11d11ddf111111
+                            11111111111111111111111111bfffffb1111111
+                        `, SpriteKind.Creature)
                 }
-                
-            } 
-        } else{
-
+                creatureImageDex[i].setFlag(SpriteFlag.Invisible, true);
+            }
+        } else {
+            //already exists
         }
+    }
+
+    //% blockId=makeCreatureFromID 
+    //% block="make creature from id $id || with\n xp $xp hp $hp attackValue $attackValue"
+    //% expandableArgumentMode=toggle
+    //% blockSetVariable=myCreature
+    //% group="Create"
+    //% weight=99
+    export function makeCreatureFromID(id: number, xp: number = 0, hp: number = 20, attackValue: number = 5): Creature{
+        //return null;
+        if(id > 151) {
+            return null;
+        }
+        if(creatureImageDex.length == 1) {
+            makeCreatureImageDex();
+        } 
+        switch(id){
+            case 0:
+                return new Creature(new Sprite(creatureImageDex[0].image), CreatureType.None, CreatureType.None, "Missingno", xp, hp, attackValue);
+                break;
+            case 1:
+                return new Creature(new Sprite(creatureImageDex[1].image), CreatureType.Grass, CreatureType.Poison, "Bulbasaur", xp, hp, attackValue);
+                break;
+            case 2:
+                return new Creature(new Sprite(creatureImageDex[2].image), CreatureType.Grass, CreatureType.Poison, "Ivysaur", xp, hp, attackValue);
+                break;
+            case 3:
+                return new Creature(new Sprite(creatureImageDex[3].image), CreatureType.Grass, CreatureType.Poison, "Venosaur", xp, hp, attackValue);
+                break;
+            case 4: 
+                return new Creature(new Sprite(creatureImageDex[4].image), CreatureType.Fire, CreatureType.None, "Charmander", xp, hp, attackValue);
+                break;
+            case 5: 
+                return new Creature(new Sprite(creatureImageDex[5].image), CreatureType.Fire, CreatureType.None, "Charmeleon", xp, hp, attackValue);
+                break;
+            case 6:
+                return new Creature(new Sprite(creatureImageDex[6].image), CreatureType.Fire, CreatureType.Flying, "Charizard", xp, hp, attackValue);
+                break;
+            case 7:
+                return new Creature(new Sprite(creatureImageDex[7].image), CreatureType.Water, CreatureType.None, "Squirtle", xp, hp, attackValue);
+                break;
+            case 8:
+                return new Creature(new Sprite(creatureImageDex[8].image), CreatureType.Water, CreatureType.None, "Wartortle", xp, hp, attackValue);
+                break;
+            case 9:
+                return new Creature(new Sprite(creatureImageDex[9].image), CreatureType.Water, CreatureType.None, "Blastoise", xp, hp, attackValue);
+                break;
+            case 10:
+                return new Creature(new Sprite(creatureImageDex[10].image), CreatureType.Bug, CreatureType.None, "Caterpie", xp, hp, attackValue);
+                break;
+            case 11:
+                return new Creature(new Sprite(creatureImageDex[11].image), CreatureType.Bug, CreatureType.None, "Metapod", xp, hp, attackValue);
+                break;
+            case 12:
+                return new Creature(new Sprite(creatureImageDex[12].image), CreatureType.Bug, CreatureType.Flying, "Butterfree", xp, hp, attackValue);
+                break;
+            case 13:
+                return new Creature(new Sprite(creatureImageDex[13].image), CreatureType.Bug, CreatureType.None, "Weedle", xp, hp, attackValue);
+                break;
+            case 14:
+                return new Creature(new Sprite(creatureImageDex[14].image), CreatureType.Bug, CreatureType.None, "Kakuna", xp, hp, attackValue);
+                break;
+            case 15:
+                return new Creature(new Sprite(creatureImageDex[15].image), CreatureType.Bug, CreatureType.None, "Beedrill", xp, hp, attackValue);
+                break;
+            case 16:
+                return new Creature(new Sprite(creatureImageDex[16].image), CreatureType.Normal, CreatureType.Flying, "Pidgey", xp, hp, attackValue);
+                break;
+            case 17:
+                return new Creature(new Sprite(creatureImageDex[17].image), CreatureType.Normal, CreatureType.Flying, "Pidgeotto", xp, hp, attackValue);
+                break;
+            case 18:
+                return new Creature(new Sprite(creatureImageDex[18].image), CreatureType.Normal, CreatureType.Flying, "Pidgeot", xp, hp, attackValue);
+                break;
+            case 19:
+                return new Creature(new Sprite(creatureImageDex[19].image), CreatureType.Normal, CreatureType.None, "Rattata", xp, hp, attackValue);
+                break;
+            case 20:
+                return new Creature(new Sprite(creatureImageDex[20].image), CreatureType.Normal, CreatureType.None, "Raticate", xp, hp, attackValue);
+                break;
+            case 21:
+                return new Creature(new Sprite(creatureImageDex[21].image), CreatureType.Normal, CreatureType.Flying, "Spearow", xp, hp, attackValue);
+
+                break;
+            case 22:
+                return new Creature(new Sprite(creatureImageDex[22].image), CreatureType.Normal, CreatureType.Flying, "Fearow", xp, hp, attackValue);
+
+                break;
+            case 23:
+                return new Creature(new Sprite(creatureImageDex[23].image), CreatureType.Poison, CreatureType.None, "Ekans", xp, hp, attackValue);
+
+                break;
+            case 24:
+                return new Creature(new Sprite(creatureImageDex[24].image), CreatureType.Poison, CreatureType.None, "Arbok", xp, hp, attackValue);
+
+                break;
+            case 25:
+                return new Creature(new Sprite(creatureImageDex[25].image), CreatureType.Electric, CreatureType.None, "Pikachu", xp, hp, attackValue);
+
+                break;
+            case 26:
+                return new Creature(new Sprite(creatureImageDex[26].image), CreatureType.Electric, CreatureType.None, "Raichu", xp, hp, attackValue);
+
+                break;
+            case 27:
+                return new Creature(new Sprite(creatureImageDex[27].image), CreatureType.Ground, CreatureType.None, "Sandshrew", xp, hp, attackValue);
+
+                break;
+            case 28:
+                return new Creature(new Sprite(creatureImageDex[28].image), CreatureType.Ground, CreatureType.None, "Sandslash", xp, hp, attackValue);
+
+                break;
+            case 29:
+                return new Creature(new Sprite(creatureImageDex[29].image), CreatureType.Poison, CreatureType.None, "Nidoran (f)", xp, hp, attackValue);
+
+                break;
+            case 30:
+                return new Creature(new Sprite(creatureImageDex[30].image), CreatureType.Poison, CreatureType.None, "Nidorina", xp, hp, attackValue);
+
+                break;
+            case 31:
+                return new Creature(new Sprite(creatureImageDex[31].image), CreatureType.Poison, CreatureType.Ground, "Nidoqueen", xp, hp, attackValue);
+
+                break;
+            case 32:
+                return new Creature(new Sprite(creatureImageDex[32].image), CreatureType.Poison, CreatureType.None, "Nidoran (m)", xp, hp, attackValue);
+
+                break;
+            case 33:
+                return new Creature(new Sprite(creatureImageDex[33].image), CreatureType.Poison, CreatureType.None, "Nidorino", xp, hp, attackValue);
+
+                break;
+            case 34:
+                return new Creature(new Sprite(creatureImageDex[34].image), CreatureType.Poison, CreatureType.Ground, "Nidoking", xp, hp, attackValue);
+
+                break;
+            case 35:
+                return new Creature(new Sprite(creatureImageDex[35].image), CreatureType.Fairy, CreatureType.None, "Clefairy", xp, hp, attackValue);
+
+                break;
+            case 36:
+                return new Creature(new Sprite(creatureImageDex[36].image), CreatureType.Fairy, CreatureType.None, "Clefable", xp, hp, attackValue);
+
+                break;
+            case 37:
+                return new Creature(new Sprite(creatureImageDex[37].image), CreatureType.Fire, CreatureType.None, "Vulpix", xp, hp, attackValue);
+
+                break;
+            case 38:
+                return new Creature(new Sprite(creatureImageDex[38].image), CreatureType.Fire, CreatureType.None, "Ninetales", xp, hp, attackValue);
+
+                break;
+            case 39:
+                return new Creature(new Sprite(creatureImageDex[39].image), CreatureType.Normal, CreatureType.Fairy, "Jigglypuff", xp, hp, attackValue);
+
+                break;
+            case 40:
+                return new Creature(new Sprite(creatureImageDex[40].image), CreatureType.Normal, CreatureType.Fairy, "Wigglytuff", xp, hp, attackValue);
+
+                break;
+            case 41:
+                return new Creature(new Sprite(creatureImageDex[41].image), CreatureType.Poison, CreatureType.Flying, "Zubat", xp, hp, attackValue);
+
+                break;
+            case 42:
+                return new Creature(new Sprite(creatureImageDex[42].image), CreatureType.Poison, CreatureType.Flying, "Golbat", xp, hp, attackValue);
+
+                break;
+            case 43:
+                return new Creature(new Sprite(creatureImageDex[43].image), CreatureType.Grass, CreatureType.Poison, "Oddish", xp, hp, attackValue);
+
+                break;
+            case 44:
+                return new Creature(new Sprite(creatureImageDex[44].image), CreatureType.Grass, CreatureType.Poison, "Gloom", xp, hp, attackValue);
+
+                break;
+            case 45:
+                return new Creature(new Sprite(creatureImageDex[45].image), CreatureType.Grass, CreatureType.Poison, "Vileplume", xp, hp, attackValue);
+
+                break;
+            case 46:
+                return new Creature(new Sprite(creatureImageDex[46].image), CreatureType.Bug, CreatureType.Grass, "Paras", xp, hp, attackValue);
+
+                break;
+            case 47:
+                return new Creature(new Sprite(creatureImageDex[47].image), CreatureType.Bug, CreatureType.Grass, "Parasect", xp, hp, attackValue);
+
+                break;
+            case 48:
+                return new Creature(new Sprite(creatureImageDex[48].image), CreatureType.Bug, CreatureType.Poison, "Venonat", xp, hp, attackValue);
+
+                break;
+            case 49:
+                return new Creature(new Sprite(creatureImageDex[49].image), CreatureType.Bug, CreatureType.Poison, "Venomoth", xp, hp, attackValue);
+
+                break;
+            case 50:
+                return new Creature(new Sprite(creatureImageDex[50].image), CreatureType.Ground, CreatureType.None, "Diglett", xp, hp, attackValue);
+
+                break;
+            case 51:
+                return new Creature(new Sprite(creatureImageDex[51].image), CreatureType.Ground, CreatureType.None, "Dugtrio", xp, hp, attackValue);
+
+                break;
+            case 52:
+                return new Creature(new Sprite(creatureImageDex[52].image), CreatureType.Normal, CreatureType.None, "Meowth", xp, hp, attackValue);
+
+                break;
+            case 53:
+                return new Creature(new Sprite(creatureImageDex[53].image), CreatureType.Normal, CreatureType.None, "Persian", xp, hp, attackValue);
+
+                break;
+            case 54:
+                return new Creature(new Sprite(creatureImageDex[54].image), CreatureType.Water, CreatureType.None, "Psyduck", xp, hp, attackValue);
+
+                break;
+            case 55:
+                return new Creature(new Sprite(creatureImageDex[55].image), CreatureType.Water, CreatureType.None, "Golduck", xp, hp, attackValue);
+
+                break;
+            case 56:
+                return new Creature(new Sprite(creatureImageDex[56].image), CreatureType.Fighting, CreatureType.None, "Mankey", xp, hp, attackValue);
+
+                break;
+            case 57:
+                return new Creature(new Sprite(creatureImageDex[57].image), CreatureType.Fighting, CreatureType.None, "Primeape", xp, hp, attackValue);
+
+                break;
+            case 58:
+                return new Creature(new Sprite(creatureImageDex[58].image), CreatureType.Fire, CreatureType.None, "Growlithe", xp, hp, attackValue);
+
+                break;
+            case 59:
+                return new Creature(new Sprite(creatureImageDex[59].image), CreatureType.Fire, CreatureType.None, "Arcanine", xp, hp, attackValue);
+
+                break;
+            case 60:
+                return new Creature(new Sprite(creatureImageDex[60].image), CreatureType.Water, CreatureType.None, "Poliwag", xp, hp, attackValue);
+
+                break;
+            case 61:
+                return new Creature(new Sprite(creatureImageDex[61].image), CreatureType.Water, CreatureType.None, "Poliwhirl", xp, hp, attackValue);
+
+                break;
+            case 62:
+                return new Creature(new Sprite(creatureImageDex[62].image), CreatureType.Water, CreatureType.Fighting, "Poliwrath", xp, hp, attackValue);
+
+                break;
+            case 63:
+                return new Creature(new Sprite(creatureImageDex[63].image), CreatureType.Psychic, CreatureType.None, "Abra", xp, hp, attackValue);
+
+                break;
+            case 64:
+                return new Creature(new Sprite(creatureImageDex[64].image), CreatureType.Psychic, CreatureType.None, "Kadabra", xp, hp, attackValue);
+
+                break;
+            case 65:
+                return new Creature(new Sprite(creatureImageDex[65].image), CreatureType.Psychic, CreatureType.None, "Alakazam", xp, hp, attackValue);
+
+                break;
+            case 66:
+                return new Creature(new Sprite(creatureImageDex[66].image), CreatureType.Fighting, CreatureType.None, "Machop", xp, hp, attackValue);
+
+                break;
+            case 67:
+                return new Creature(new Sprite(creatureImageDex[67].image), CreatureType.Fighting, CreatureType.None, "Machoke", xp, hp, attackValue);
+
+                break;
+            case 68:
+                return new Creature(new Sprite(creatureImageDex[68].image), CreatureType.Fighting, CreatureType.None, "Machamp", xp, hp, attackValue);
+
+                break;
+            case 69:
+                return new Creature(new Sprite(creatureImageDex[69].image), CreatureType.Grass, CreatureType.Poison, "Bellsprout", xp, hp, attackValue);
+
+                break;
+            case 70:
+                return new Creature(new Sprite(creatureImageDex[70].image), CreatureType.Grass, CreatureType.Poison, "Weepinbell", xp, hp, attackValue);
+
+                break;
+            case 71:
+                return new Creature(new Sprite(creatureImageDex[71].image), CreatureType.Grass, CreatureType.Poison, "Victreebel", xp, hp, attackValue);
+
+                break;
+            case 72:
+                return new Creature(new Sprite(creatureImageDex[72].image), CreatureType.Water, CreatureType.Poison, "Tentacool", xp, hp, attackValue);
+
+                break;
+            case 73:
+                return new Creature(new Sprite(creatureImageDex[73].image), CreatureType.Water, CreatureType.Poison, "Tentacruel", xp, hp, attackValue);
+
+                break;
+            case 74:
+                return new Creature(new Sprite(creatureImageDex[74].image), CreatureType.Rock, CreatureType.Ground, "Geodude", xp, hp, attackValue);
+
+                break;
+            case 75:
+                return new Creature(new Sprite(creatureImageDex[75].image), CreatureType.Rock, CreatureType.Ground, "Graveler", xp, hp, attackValue);
+
+                break;
+            case 76:
+                return new Creature(new Sprite(creatureImageDex[76].image), CreatureType.Rock, CreatureType.Ground, "Golem", xp, hp, attackValue);
+
+                break;
+            case 77:
+                return new Creature(new Sprite(creatureImageDex[77].image), CreatureType.Fire, CreatureType.None, "Ponyta", xp, hp, attackValue);
+
+                break;
+            case 78:
+                return new Creature(new Sprite(creatureImageDex[78].image), CreatureType.Fire, CreatureType.None, "Rapidash", xp, hp, attackValue);
+
+                break;
+            case 79:
+                return new Creature(new Sprite(creatureImageDex[79].image), CreatureType.Water, CreatureType.Psychic, "Slowpoke", xp, hp, attackValue);
+
+                break;
+            case 80:
+                return new Creature(new Sprite(creatureImageDex[80].image), CreatureType.Water, CreatureType.Psychic, "Slowbro", xp, hp, attackValue);
+
+                break;
+            case 81:
+                return new Creature(new Sprite(creatureImageDex[81].image), CreatureType.Electric, CreatureType.Steel, "Magnemite", xp, hp, attackValue);
+
+                break;
+            case 82:
+                return new Creature(new Sprite(creatureImageDex[82].image), CreatureType.Electric, CreatureType.Steel, "Magneton", xp, hp, attackValue);
+
+                break;
+            case 83:
+                return new Creature(new Sprite(creatureImageDex[83].image), CreatureType.Normal, CreatureType.Flying, "Farfetchd", xp, hp, attackValue);
+
+                break;
+            case 84:
+                return new Creature(new Sprite(creatureImageDex[84].image), CreatureType.Normal, CreatureType.Flying, "Doduo", xp, hp, attackValue);
+
+                break;
+            case 85:
+                return new Creature(new Sprite(creatureImageDex[85].image), CreatureType.Normal, CreatureType.Flying, "Dodrio", xp, hp, attackValue);
+
+                break;
+            case 86:
+                return new Creature(new Sprite(creatureImageDex[86].image), CreatureType.Water, CreatureType.None, "Seel", xp, hp, attackValue);
+
+                break;
+            case 87:
+                return new Creature(new Sprite(creatureImageDex[87].image), CreatureType.Water, CreatureType.Ice, "Dewgong", xp, hp, attackValue);
+
+                break;
+            case 88:
+                return new Creature(new Sprite(creatureImageDex[88].image), CreatureType.Poison, CreatureType.None, "Grimer", xp, hp, attackValue);
+
+                break;
+            case 89:
+                return new Creature(new Sprite(creatureImageDex[89].image), CreatureType.Poison, CreatureType.None, "Muk", xp, hp, attackValue);
+
+                break;
+            case 90:
+                return new Creature(new Sprite(creatureImageDex[90].image), CreatureType.Water, CreatureType.None, "Shelder", xp, hp, attackValue);
+
+                break;
+            case 91:
+                return new Creature(new Sprite(creatureImageDex[91].image), CreatureType.Water, CreatureType.Ice, "Cloyster", xp, hp, attackValue);
+
+                break;
+            case 92:
+                return new Creature(new Sprite(creatureImageDex[92].image), CreatureType.Ghost, CreatureType.Poison, "Gastly", xp, hp, attackValue);
+
+                break;
+            case 93:
+                return new Creature(new Sprite(creatureImageDex[93].image), CreatureType.Ghost, CreatureType.Poison, "Haunter", xp, hp, attackValue);
+
+                break;
+            case 94:
+                return new Creature(new Sprite(creatureImageDex[94].image), CreatureType.Ghost, CreatureType.Poison, "Gengar", xp, hp, attackValue);
+
+                break;
+            case 95:
+                return new Creature(new Sprite(creatureImageDex[95].image), CreatureType.Rock, CreatureType.Ground, "Onix", xp, hp, attackValue);
+
+                break;
+            case 96:
+                return new Creature(new Sprite(creatureImageDex[96].image), CreatureType.Psychic, CreatureType.None, "Drowsee", xp, hp, attackValue);
+
+                break;
+            case 97:
+                return new Creature(new Sprite(creatureImageDex[97].image), CreatureType.Psychic, CreatureType.None, "Hypno", xp, hp, attackValue);
+
+                break;
+            case 98:
+                return new Creature(new Sprite(creatureImageDex[98].image), CreatureType.Water, CreatureType.None, "Krabby", xp, hp, attackValue);
+
+                break;
+            case 99:
+                return new Creature(new Sprite(creatureImageDex[99].image), CreatureType.Water, CreatureType.None, "Kingler", xp, hp, attackValue);
+
+                break;
+            case 100:
+                return new Creature(new Sprite(creatureImageDex[100].image), CreatureType.Electric, CreatureType.None, "Voltorb", xp, hp, attackValue);
+
+                break;
+            case 101:
+                return new Creature(new Sprite(creatureImageDex[101].image), CreatureType.Electric, CreatureType.None, "Electrode", xp, hp, attackValue);
+
+                break;
+            case 102:
+                return new Creature(new Sprite(creatureImageDex[102].image), CreatureType.Grass, CreatureType.Psychic, "Exeggcute", xp, hp, attackValue);
+
+                break;
+            case 103:
+                return new Creature(new Sprite(creatureImageDex[103].image), CreatureType.Grass, CreatureType.Psychic, "Exeggutor", xp, hp, attackValue);
+
+                break;
+            case 104:
+                return new Creature(new Sprite(creatureImageDex[104].image), CreatureType.Ground, CreatureType.None, "Cubone", xp, hp, attackValue);
+
+                break;
+            case 105:
+                return new Creature(new Sprite(creatureImageDex[105].image), CreatureType.Ground, CreatureType.None, "Marowak", xp, hp, attackValue);
+
+                break;
+            case 106:
+                return new Creature(new Sprite(creatureImageDex[106].image), CreatureType.Fighting, CreatureType.None, "Hitmonlee", xp, hp, attackValue);
+
+                break;
+            case 107:
+                return new Creature(new Sprite(creatureImageDex[107].image), CreatureType.Fighting, CreatureType.None, "Hitmonchan", xp, hp, attackValue);
+
+                break;
+            case 108:
+                return new Creature(new Sprite(creatureImageDex[108].image), CreatureType.Normal, CreatureType.None, "Lickitung", xp, hp, attackValue);
+
+                break;
+            case 109:
+                return new Creature(new Sprite(creatureImageDex[109].image), CreatureType.Poison, CreatureType.None, "Koffing", xp, hp, attackValue);
+
+                break;
+            case 110:
+                return new Creature(new Sprite(creatureImageDex[110].image), CreatureType.Poison, CreatureType.None, "Weezing", xp, hp, attackValue);
+
+                break;
+            case 111:
+                return new Creature(new Sprite(creatureImageDex[111].image), CreatureType.Ground, CreatureType.Rock, "Rhyhorn", xp, hp, attackValue);
+
+                break;
+            case 112:
+                return new Creature(new Sprite(creatureImageDex[112].image), CreatureType.Ground, CreatureType.Rock, "Rhydon", xp, hp, attackValue);
+
+                break;
+            case 113:
+                return new Creature(new Sprite(creatureImageDex[113].image), CreatureType.Normal, CreatureType.None, "Chansey", xp, hp, attackValue);
+
+                break;
+            case 114:
+                return new Creature(new Sprite(creatureImageDex[114].image), CreatureType.Grass, CreatureType.None, "Tangela", xp, hp, attackValue);
+
+                break;
+            case 115:
+                return new Creature(new Sprite(creatureImageDex[115].image), CreatureType.Normal, CreatureType.None, "Kangaskhan", xp, hp, attackValue);
+
+                break;
+            case 116:
+                return new Creature(new Sprite(creatureImageDex[116].image), CreatureType.Water, CreatureType.None, "Horsea", xp, hp, attackValue);
+
+                break;
+            case 117:
+                return new Creature(new Sprite(creatureImageDex[117].image), CreatureType.Water, CreatureType.None, "Seadra", xp, hp, attackValue);
+
+                break;
+            case 118:
+                return new Creature(new Sprite(creatureImageDex[118].image), CreatureType.Water, CreatureType.None, "Goldeen", xp, hp, attackValue);
+
+                break;
+            case 119:
+                return new Creature(new Sprite(creatureImageDex[119].image), CreatureType.Water, CreatureType.None, "Seaking", xp, hp, attackValue);
+
+                break;
+            case 120:
+                return new Creature(new Sprite(creatureImageDex[120].image), CreatureType.Water, CreatureType.None, "Staryu", xp, hp, attackValue);
+
+                break;
+            case 121:
+                return new Creature(new Sprite(creatureImageDex[121].image), CreatureType.Water, CreatureType.Psychic, "Starmie", xp, hp, attackValue);
+
+                break;
+            case 122:
+                return new Creature(new Sprite(creatureImageDex[122].image), CreatureType.Psychic, CreatureType.Fairy, "Mr. Mime", xp, hp, attackValue);
+
+                break;
+            case 123:
+                return new Creature(new Sprite(creatureImageDex[123].image), CreatureType.Bug, CreatureType.Flying, "Scyther", xp, hp, attackValue);
+
+                break;
+            case 124:
+                return new Creature(new Sprite(creatureImageDex[124].image), CreatureType.Ice, CreatureType.Psychic, "Jynx", xp, hp, attackValue);
+
+                break;
+            case 125:
+                return new Creature(new Sprite(creatureImageDex[125].image), CreatureType.Electric, CreatureType.None, "Electabuzz", xp, hp, attackValue);
+
+                break;
+            case 126:
+                return new Creature(new Sprite(creatureImageDex[126].image), CreatureType.Fire, CreatureType.None, "Magmar", xp, hp, attackValue);
+
+                break;
+            case 127:
+                return new Creature(new Sprite(creatureImageDex[127].image), CreatureType.Bug, CreatureType.None, "Pinsir", xp, hp, attackValue);
+
+                break;
+            case 128:
+                return new Creature(new Sprite(creatureImageDex[128].image), CreatureType.Normal, CreatureType.None, "Tauros", xp, hp, attackValue);
+
+                break;
+            case 129:
+                return new Creature(new Sprite(creatureImageDex[129].image), CreatureType.Water, CreatureType.None, "Magikarp", xp, hp, attackValue);
+
+                break;
+            case 130:
+                return new Creature(new Sprite(creatureImageDex[130].image), CreatureType.Water, CreatureType.Flying, "Gyarados", xp, hp, attackValue);
+
+                break;
+            case 131:
+                return new Creature(new Sprite(creatureImageDex[131].image), CreatureType.Water, CreatureType.Ice, "Lapras", xp, hp, attackValue);
+
+                break;
+            case 132:
+                return new Creature(new Sprite(creatureImageDex[132].image), CreatureType.Normal, CreatureType.None, "Ditto", xp, hp, attackValue);
+
+                break;
+            case 133:
+                return new Creature(new Sprite(creatureImageDex[133].image), CreatureType.Normal, CreatureType.None, "Eevee", xp, hp, attackValue);
+
+                break;
+            case 134:
+                return new Creature(new Sprite(creatureImageDex[134].image), CreatureType.Water, CreatureType.None, "Vaporeon", xp, hp, attackValue);
+
+                break;
+            case 135:
+                return new Creature(new Sprite(creatureImageDex[135].image), CreatureType.Electric, CreatureType.None, "Jolteon", xp, hp, attackValue);
+
+                break;
+            case 136:
+                return new Creature(new Sprite(creatureImageDex[136].image), CreatureType.Fire, CreatureType.None, "Flareon", xp, hp, attackValue);
+
+                break;
+            case 137:
+                return new Creature(new Sprite(creatureImageDex[137].image), CreatureType.Normal, CreatureType.None, "Porygon", xp, hp, attackValue);
+
+                break;
+            case 138:
+                return new Creature(new Sprite(creatureImageDex[138].image), CreatureType.Rock, CreatureType.Water, "Omanyte", xp, hp, attackValue);
+
+                break;
+            case 139:
+                return new Creature(new Sprite(creatureImageDex[139].image), CreatureType.Rock, CreatureType.Water, "Omastar", xp, hp, attackValue);
+
+                break;
+            case 140:
+                return new Creature(new Sprite(creatureImageDex[140].image), CreatureType.Rock, CreatureType.Water, "Kabuto", xp, hp, attackValue);
+
+                break;
+            case 141:
+                return new Creature(new Sprite(creatureImageDex[141].image), CreatureType.Rock, CreatureType.Water, "Kabutops", xp, hp, attackValue);
+
+                break;
+            case 142:
+                return new Creature(new Sprite(creatureImageDex[142].image), CreatureType.Rock, CreatureType.Flying, "Aerodactyl", xp, hp, attackValue);
+
+                break;
+            case 143:
+                return new Creature(new Sprite(creatureImageDex[143].image), CreatureType.Normal, CreatureType.None, "Snorlax", xp, hp, attackValue);
+
+                break;
+            case 144:
+                return new Creature(new Sprite(creatureImageDex[144].image), CreatureType.Ice, CreatureType.Flying, "Articuno", xp, hp, attackValue);
+
+                break;
+            case 145:
+                return new Creature(new Sprite(creatureImageDex[145].image), CreatureType.Electric, CreatureType.Flying, "Zapdos", xp, hp, attackValue);
+
+                break;
+            case 146:
+                return new Creature(new Sprite(creatureImageDex[146].image), CreatureType.Fire, CreatureType.Flying, "Moltres", xp, hp, attackValue);
+
+                break;
+            case 147:
+                return new Creature(new Sprite(creatureImageDex[147].image), CreatureType.Dragon, CreatureType.None, "Dratini", xp, hp, attackValue);
+
+                break;
+            case 148:
+                return new Creature(new Sprite(creatureImageDex[148].image), CreatureType.Dragon, CreatureType.None, "Dragonair", xp, hp, attackValue);
+
+                break;
+            case 149:
+                return new Creature(new Sprite(creatureImageDex[149].image), CreatureType.Dragon, CreatureType.Flying, "Dragonite", xp, hp, attackValue);
+
+                break;
+            case 150:
+                return new Creature(new Sprite(creatureImageDex[150].image), CreatureType.Psychic, CreatureType.None, "Mewtwo", xp, hp, attackValue);
+
+                break;
+            case 151:
+                return new Creature(new Sprite(creatureImageDex[151].image), CreatureType.Psychic, CreatureType.None, "Mew", xp, hp, attackValue);
+
+                break;
+            default:
+                return null;
+                break;
+       }
     }
 
 
 
 
     //% blockId=makeCreatureFromSprite 
-    //% block="make creature from $sprite=variables_get of type %creatureType with name $name || xp $xp hp $hp attackValue $attackValue"
+    //% block="make creature from $sprite=variables_get of type %creatureType1 %creatureType2 with name $name || with\n xp $xp hp $hp attackValue $attackValue"
     //% expandableArgumentMode=toggle
     //% blockSetVariable=myCreature
     //% group="Create"
     //% weight=100
-    export function makeCreatureFromSprite(sprite: Sprite, creatureType: CreatureType, name: string, xp: number = 0, hp: number = 20, attackValue: number = 5, xpReward: number = 10): Creature {
-        return new Creature(sprite, creatureType, name);
+    export function makeCreatureFromSprite(sprite: Sprite, creatureType1: CreatureType, creatureType2: CreatureType, name: string, xp: number = 0, hp: number = 20, attackValue: number = 5, xpReward: number = 10): Creature {
+        return new Creature(sprite, creatureType1, creatureType2, name);
     }
 
     //% group="Value"
     //% blockId="creatures_getCreatureType"
     //% expandableArgumentMode=toggle
-    //% block="$creature=variables_get(myCreature) CreatureType" callInDebugger
-    export function getCreatureType(creature: Creature): CreatureType {
-        return creature.creatureType;
+    //% block="$creature=variables_get(myCreature) CreatureType1" callInDebugger
+    export function getCreatureType1(creature: Creature): CreatureType {
+        return creature.creatureType1;
     }
 
 
     //% group="Value"
     //% blockId="creatures_setCreatureType"
     //% expandableArgumentMode=toggle
-    //% block="set $creature=variables_get(myCreature) CreatureType to %creatureType" callInDebugger
-    export function setCreatureType(creature: Creature, creatureType: CreatureType) {
-        creature.creatureType = creatureType;
+    //% block="set $creature=variables_get(myCreature) CreatureType1 to %creatureType1" callInDebugger
+    export function setCreatureType1(creature: Creature, creatureType1: CreatureType) {
+        creature.creatureType1 = creatureType1;
+    }
+
+    //% group="Value"
+    //% blockId="creatures_getCreatureType"
+    //% expandableArgumentMode=toggle
+    //% block="$creature=variables_get(myCreature) CreatureType2" callInDebugger
+    export function getCreatureType2(creature: Creature): CreatureType {
+        return creature.creatureType2;
+    }
+
+
+    //% group="Value"
+    //% blockId="creatures_setCreatureType2"
+    //% expandableArgumentMode=toggle
+    //% block="set $creature=variables_get(myCreature) CreatureType2 to %creatureType2" callInDebugger
+    export function setCreatureType2(creature: Creature, creatureType2: CreatureType) {
+        creature.creatureType2 = creatureType2;
     }
 
 
@@ -5681,7 +8871,7 @@ namespace creatures {
                 animation.runMovementAnimation(creature1.sprite, animation.animationPresets(animation.easeLeft), 2000, false)
                 pause(200)
                 animation.stopAnimation(animation.AnimationTypes.All, creature1.sprite)
-                if (Math.percentChance(25)) {
+                if (Math.percentChance(6.25)) {                    
                     creature2.hp -= Math.round(creature1.attackValue * 1.5);
                     pause(50)
                     game.showLongText("Critical Hit", DialogLayout.Bottom)
@@ -5697,7 +8887,7 @@ namespace creatures {
                 animation.runMovementAnimation(creature2.sprite, animation.animationPresets(animation.easeRight), 2000, false)
                 pause(200)
                 animation.stopAnimation(animation.AnimationTypes.All, creature2.sprite)
-                if (Math.percentChance(25)) {
+                if (Math.percentChance(6.25)) {
                     creature1.hp -= Math.round(creature2.attackValue * 1.5);
                     pause(50)
                     game.showLongText("Critical Hit", DialogLayout.Bottom)
@@ -5847,11 +9037,58 @@ namespace creatures {
 
     }
 
-}
 
-
-class CreatureSprite extends Sprite {
-    constructor(public _creature: creatures.Creature) {
-        super(_creature.sprite.image)
+    interface TypeChart {
+        [attackingType: number]: {
+            [defendingType: number]: number;
+        };
     }
+
+    const typeChart: TypeChart = {
+        12: { 15: 0.5, 8: 0 },
+        6: { 15: 2, 17: 0.5, 9: 2, 11: 2, 0: 2 },
+        17: { 10: 2, 9: 0.5, 6: 2 },
+        9: { 10: 2, 15: 2, 17: 0.5, 6: 0.5, 11: 2 },
+        3: { 10: 0, 17: 2, 7: 2 },
+        11: { 9: 2, 10: 2, 16: 0.5, 6: 2, 2: 2 },
+        5: { 12: 2, 15: 2, 16: 2, 8: 0, 14: 0.5, 7: 0.5, 0: 0.5 },
+        13: { 9: 2, 10: 0.5, 16: 0.5, 14: 2 },
+        10: { 15: 0.5, 3: 2, 9: 0.5, 11: 2, 13: 2, 0: 0.5 },
+        7: { 15: 0.5, 3: 0.5, 16: 0.5, 9: 2, 0: 2 },
+        14: { 5: 2, 13: 2, 16: 0.5 },
+        0: { 9: 2, 14: 2, 1: 2, 6: 0.5, 7: 0.5, 16: 0.5 },
+        15: { 5: 0.5, 10: 0.5, 6: 2, 9: 2, 17: 2 },
+        8: { 12: 0, 5: 0, 8: 2, 16: 0.5, 14: 2, 1: 0.5 },
+        2: { 2: 2, 16: 0.5, 11: 2 },
+        1: { 8: 2, 14: 2, 5: 0.5 },
+    };
+    
+
+    //% group="Value"
+    //% blockId="creatures_getAttackMultiplier"
+    //% expandableArgumentMode=toggle
+    //% block="Calculate Attack Multiplier %attackType vs %defenseTypes" callInDebugger
+    export function calculateAttackMult(attackType: CreatureType, defenseTypes: CreatureType[]) : number {
+        let multiplier : number = 1.0;
+        //game.splash(attackType);
+        defenseTypes.forEach((defenseType) => {
+            //game.splash("Starting defenseType " + defenseType);
+            if (typeChart[attackType]) {
+                //game.splash("attack type exists in chart");
+                // Check if defense type exists in attack type's chart
+                if (typeChart[attackType][defenseType]) {
+                    //game.splash("defense type exists in chart of " + attackType);
+                    // Get effectiveness multiplier
+                    const effectiveness = typeChart[attackType][defenseType];
+                    
+                    // Update multiplier
+                    multiplier *= effectiveness;
+                }
+            }
+        });
+        //game.splash(multiplier);
+        return multiplier;
+
+    }
+
 }
