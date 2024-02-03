@@ -430,12 +430,12 @@ let charmander = sprites.create(img`
     `, SpriteKind.Creature)
 pikachuCreature = creatures.makeCreatureFromSprite(
 pikachu,
-CreatureType.Bug,
+CreatureType.Electric,
 "Pikachu"
 )
 charmanderCreature = creatures.makeCreatureFromSprite(
 charmander,
-CreatureType.Bug,
+CreatureType.Fire,
 "Charmander"
 )
 makePlayer()
