@@ -11,8 +11,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Grass, function (sprite, otherSp
     19,
     19,
     1,
-    4,
-    151
+    4
     ], sprite, otherSprite)
 })
 creatures.setCreatureMap(
