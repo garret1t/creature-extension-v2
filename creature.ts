@@ -57,6 +57,8 @@ namespace creatures {
         public _creatureType2: CreatureType;
         public _name: string;
 
+        public _healthbar : StatusBarSprite;
+
         public _xp: number;
         public _hp: number;
         public _attackValue: number;
@@ -64,10 +66,10 @@ namespace creatures {
         public _sayHP: boolean;
         public _sayXP: boolean;
 
-        constructor(spr: Sprite, cType: CreatureType, cType2: CreatureType = CreatureType.None, name: string, xp: number = 0, hp: number = 20, attackValue: number = 5, xpReward: number = 10) {
+        constructor(spr: Sprite, cType: CreatureType, cType2: CreatureType, name: string, xp: number = 0, hp: number = 20, attackValue: number = 5, xpReward: number = 10) {
             this._sprite = spr;
             this._creatureType1 = cType;
-            this._creatureType2 = cType;
+            this._creatureType2 = cType2;
             this._name = name;
             this._xp = xp;
             this._hp = hp;
@@ -76,6 +78,9 @@ namespace creatures {
             this._sayHP = false;
             this._sayXP = false;
             this._sprite.setFlag(SpriteFlag.Invisible, true);
+            this._healthbar = statusbars.create(20, 4, StatusBarKind.Health)
+            this._healthbar.attachToSprite(spr)
+            this._healthbar.max = hp;
 
             game.onUpdate(function () {
                 this.update()
@@ -154,6 +159,7 @@ namespace creatures {
 
         set hp(hp: number) {
             this._hp = hp;
+            this._healthbar.value = hp;
         }
 
         //% group="Value" blockSetVariable="myCreature"
@@ -190,71 +196,70 @@ namespace creatures {
 
     }
 
-    let creatureImageDex = [sprites.create(img`
-        111111111111b1111ddd1dd1dd111ddd11111111
-        111111111111f1111bbb1bb1bb111bbb11111111
-        11111111111111111bbbb111b1bbb111b1111111
-        11111111111111111ddbbdd1d1dd1dbbb1111111
-        111111111111111111dbb111b1bd1bbbb1111111
-        111111111111d1111111bbbb1bddb1dbb1111111
-        111111111111fd3fdfebfddb11bbbbbb11111111
-        111111111111cddbdbbdbddb1bbbbbbb11111111
-        111111111111d1111111111b1bbbbbb111111111
-        111111111111fd33fbefdff111bbdfc3f1111111
-        111111111111cbb1d1dd1dd111d11cb1c1111111
-        111111111111fbbb1bddb111b1bd1bbb11111111
-        111111111111b111bddb1bbdffffffcdf1111111
-        111111111111111bdbddbbbbcdbccddbc1111111
-        11111111111113dffffcddd1bbffffff31111111
-        111111111111bddddddddffdffcbb111b1111111
-        111111111111b11b1bddbccbcddbbbb111111111
-        111111111111dddddceddddffdcffdbfd1111111
-        111111111111f1111bd11bb111bbbbbb11111111
-        111111111111fbb1bd1dbbbb1bbbb11111111111
-        111111111111dffdffeddff111111bbbb1111111
-        111111111111111bb111bbb1111db111b1111111
-        111111111111dbbbbddbbbbffffeddbff1111111
-        11111111111111111bddbbb1b1bbb111b1111111
-        11bbbbbbbbbb1bbbbddb1bbbb1bd1bb111111111
-        1111111111bb1ffdbbbbbbb1bbddb1dbb1111111
-        11f1111111bbfdddbbbbbddb11bd1bb1b1111111
-        1111111111b1fffddbbbdffb11bd1bb1b1111111
-        1111111111cf111bbd111111bbddb1db11111111
-        113cbbbbbbbbbbb1bbd1111c11bd1bb1b1111111
-        11f1111111db1fffdddbfffb1bbbbbb111111111
-        111fffffffbf1111bddb1bb111bd1bbb11111111
-        11f11111db111ffffffffff1bbbbbbb1f1111111
-        11fdeccfedbfbbbdb111b11111bd1bb1b1111111
-        1111111111bbfffddcedddd1bb11111b11111111
-        11fbd111dbb1bbbbb1dbb111b1bd111111111111
-        11bbbbbbbbdbbbbbbbd11bbbbbbbb11bf1111111
-        113bbbbbbbb1dddbbbd11bb111111bcf31111111
-        1113eccfedc3fffffb3bfdddddddddbf11111111
-        11d1dbbbd1b1bbbdbd111bbdfdcedffbf1111111
-        11d1dbbbd1b13bb13decddd1b1bd1bcfd1111111
-        111cd111dc1b111bb111bbbdddddddddb1111111
-        111111111111f111b1111bbbbbbbbbbbd1111111
-        111111111111111111dbb111b1bd1bb1b1111111
-        1111111111111111bbbbbbb1b1bd111111111111
-        11bbbbbbbbbbbbb1bd11111bbbbbd11b11111111
-        111111111111bbb1bbddb11ddffffbb1b1111111
-        111111111111bbb11bbbbbbdfdcff111b1111111
-        111111bbbbbb111bbd11111bbbbbbbbb11111111
-        11bbbbd1dbdb111bbddb1bbfddddddddf1111111
-        11bbbbbbd1b1bbb1bd111bbbb1bbbbbbb1111111
-        1111111111b1bbbb1bbbb1111bbbb1db11111111
-        11bbbbbbbbdbbbbbb111111ddffff3bfd1111111
-        11bbbbd1dbb111111bd1b11bb111111bb1111111
-        11bbbbbbd11b111111dbb11bb1bd1bbb11111111
-    `, SpriteKind.Creature)]
-    creatureImageDex[0].setFlag(SpriteFlag.Invisible, true);
-    
-    function makeCreatureImageDex(){
-        if (creatureImageDex.length == 1) {
-            for (let i = 1; i <= 151; i++) {
-                switch (i) {
-                    case 1:
-                        creatureImageDex[i] = sprites.create(img`
+    function makeCreatureImageDex(id: number): Sprite {
+        switch (id) {
+            default:
+                return null;
+            case 0:
+                return sprites.create(img`
+                    111111111111b1111ddd1dd1dd111ddd11111111
+                    111111111111f1111bbb1bb1bb111bbb11111111
+                    11111111111111111bbbb111b1bbb111b1111111
+                    11111111111111111ddbbdd1d1dd1dbbb1111111
+                    111111111111111111dbb111b1bd1bbbb1111111
+                    111111111111d1111111bbbb1bddb1dbb1111111
+                    111111111111fd3fdfebfddb11bbbbbb11111111
+                    111111111111cddbdbbdbddb1bbbbbbb11111111
+                    111111111111d1111111111b1bbbbbb111111111
+                    111111111111fd33fbefdff111bbdfc3f1111111
+                    111111111111cbb1d1dd1dd111d11cb1c1111111
+                    111111111111fbbb1bddb111b1bd1bbb11111111
+                    111111111111b111bddb1bbdffffffcdf1111111
+                    111111111111111bdbddbbbbcdbccddbc1111111
+                    11111111111113dffffcddd1bbffffff31111111
+                    111111111111bddddddddffdffcbb111b1111111
+                    111111111111b11b1bddbccbcddbbbb111111111
+                    111111111111dddddceddddffdcffdbfd1111111
+                    111111111111f1111bd11bb111bbbbbb11111111
+                    111111111111fbb1bd1dbbbb1bbbb11111111111
+                    111111111111dffdffeddff111111bbbb1111111
+                    111111111111111bb111bbb1111db111b1111111
+                    111111111111dbbbbddbbbbffffeddbff1111111
+                    11111111111111111bddbbb1b1bbb111b1111111
+                    11bbbbbbbbbb1bbbbddb1bbbb1bd1bb111111111
+                    1111111111bb1ffdbbbbbbb1bbddb1dbb1111111
+                    11f1111111bbfdddbbbbbddb11bd1bb1b1111111
+                    1111111111b1fffddbbbdffb11bd1bb1b1111111
+                    1111111111cf111bbd111111bbddb1db11111111
+                    113cbbbbbbbbbbb1bbd1111c11bd1bb1b1111111
+                    11f1111111db1fffdddbfffb1bbbbbb111111111
+                    111fffffffbf1111bddb1bb111bd1bbb11111111
+                    11f11111db111ffffffffff1bbbbbbb1f1111111
+                    11fdeccfedbfbbbdb111b11111bd1bb1b1111111
+                    1111111111bbfffddcedddd1bb11111b11111111
+                    11fbd111dbb1bbbbb1dbb111b1bd111111111111
+                    11bbbbbbbbdbbbbbbbd11bbbbbbbb11bf1111111
+                    113bbbbbbbb1dddbbbd11bb111111bcf31111111
+                    1113eccfedc3fffffb3bfdddddddddbf11111111
+                    11d1dbbbd1b1bbbdbd111bbdfdcedffbf1111111
+                    11d1dbbbd1b13bb13decddd1b1bd1bcfd1111111
+                    111cd111dc1b111bb111bbbdddddddddb1111111
+                    111111111111f111b1111bbbbbbbbbbbd1111111
+                    111111111111111111dbb111b1bd1bb1b1111111
+                    1111111111111111bbbbbbb1b1bd111111111111
+                    11bbbbbbbbbbbbb1bd11111bbbbbd11b11111111
+                    111111111111bbb1bbddb11ddffffbb1b1111111
+                    111111111111bbb11bbbbbbdfdcff111b1111111
+                    111111bbbbbb111bbd11111bbbbbbbbb11111111
+                    11bbbbd1dbdb111bbddb1bbfddddddddf1111111
+                    11bbbbbbd1b1bbb1bd111bbbb1bbbbbbb1111111
+                    1111111111b1bbbb1bbbb1111bbbb1db11111111
+                    11bbbbbbbbdbbbbbb111111ddffff3bfd1111111
+                    11bbbbd1dbb111111bd1b11bb111111bb1111111
+                    11bbbbbbd11b111111dbb11bb1bd1bbb11111111
+                `, SpriteKind.Creature);
+            case 1:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -296,8 +301,8 @@ namespace creatures {
                             111111111111111111f77f11111f777f11111111
                             1111111111111111111ff1111111fff111111111
                         `, SpriteKind.Creature)
-                    case 2:
-                        creatureImageDex[i] = sprites.create(img`
+            case 2:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -347,8 +352,8 @@ namespace creatures {
                             11111111111111f1ff1f111111ff1fff1ff1111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 3:
-                        creatureImageDex[i] = sprites.create(img`
+            case 3:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
@@ -406,8 +411,8 @@ namespace creatures {
                             11111111111111111111111111fff1ff111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 4:
-                        creatureImageDex[i] = sprites.create(img`
+            case 4:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111144ff4411111111411111111111111111
                             1111111f1111114f111111141111114411111111
@@ -449,8 +454,8 @@ namespace creatures {
                             111111111f4f44f44ff11111f44f44f4f1111111
                             11111111114fffff411111111fffffff11111111
                         `, SpriteKind.Creature)
-                    case 5:
-                        creatureImageDex[i] = sprites.create(img`
+            case 5:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -500,8 +505,8 @@ namespace creatures {
                             111111111111111111fff1fff11111111fff144f14f11111
                             111111111111111111111111111111111111fff1ff111111
                         `, SpriteKind.Creature)
-                    case 6:
-                        creatureImageDex[i] = sprites.create(img`
+            case 6:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111144111111111111
                             111111111111111111fff11111111111111111111144111111111111
@@ -559,8 +564,8 @@ namespace creatures {
                             1111111f1f1444f4444ff111111111111111f1144f1144f114411111
                             111111114fffffffffff111111111111111114ff414ff414f4111111
                         `, SpriteKind.Creature)
-                    case 7:
-                        creatureImageDex[i] = sprites.create(img`
+            case 7:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -602,8 +607,8 @@ namespace creatures {
                             11111111111111111bffb1111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 8:
-                        creatureImageDex[i] = sprites.create(img`
+            case 8:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             11111111111111fff1111111111111111111111111111111
@@ -653,8 +658,8 @@ namespace creatures {
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 9:
-                        creatureImageDex[i] = sprites.create(img`
+            case 9:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             1111111111111111ff11111111111111111111111111111111111111
@@ -712,8 +717,8 @@ namespace creatures {
                             11111111111111111111111111111111f1119f11ffff111111111111
                             111111111111111111111111111111111ffff1111111111111111111
                         `, SpriteKind.Creature)
-                    case 10:
-                        creatureImageDex[i] = sprites.create(img`
+            case 10:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -755,8 +760,8 @@ namespace creatures {
                             1111111111111111117ffff111f77ff111111111
                             11111111111111111111117fff1ff11111111111
                         `, SpriteKind.Creature)
-                    case 11:
-                        creatureImageDex[i] = sprites.create(img`
+            case 11:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -798,8 +803,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 12:
-                        creatureImageDex[i] = sprites.create(img`
+            case 12:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111bfb111111111111111111111111111111111111
@@ -857,8 +862,8 @@ namespace creatures {
                             11111111111111111111111111111fffffff11111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 13:
-                        creatureImageDex[i] = sprites.create(img`
+            case 13:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             111111111111111f111111111111111111111111
@@ -900,8 +905,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 14:
-                        creatureImageDex[i] = sprites.create(img`
+            case 14:
+                return sprites.create(img`
                             11111111111111111114fff41111111111111111
                             11111111111111111f411dddff11111111111111
                             1111111111111111f11111ddddf1111111111111
@@ -943,8 +948,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 15:
-                        creatureImageDex[i] = sprites.create(img`
+            case 15:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111114fff4111111111
                             11111111fff11111111111111111111111111114ffffffff41111111
                             1111111f4d4ff1111111111111111111111114fffff4dddddf411111
@@ -1002,8 +1007,8 @@ namespace creatures {
                             11111111111111111111111111111fff1111111111111111111f1111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 16:
-                        creatureImageDex[i] = sprites.create(img`
+            case 16:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1045,8 +1050,8 @@ namespace creatures {
                             1111111111ff1111111f1ff11f11111111111111
                             1111111111111111111ff1efe111111111111111
                         `, SpriteKind.Creature)
-                    case 17:
-                        creatureImageDex[i] = sprites.create(img`
+            case 17:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -1096,8 +1101,8 @@ namespace creatures {
                             1111111f11111111111f3fffe1fff11111111f1111111111
                             11111111111111111111f1111f1111111111111111111111
                         `, SpriteKind.Creature)
-                    case 18:
-                        creatureImageDex[i] = sprites.create(img`
+            case 18:
+                return sprites.create(img`
                             111111111111111111111111fff111111111f1111111111111111111
                             11111111111111111111111111fff11111111ff11111111111111111
                             111111111111111111111111111f1f1111111f1f1111111111111111
@@ -1155,8 +1160,8 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 19:
-                        creatureImageDex[i] = sprites.create(img`
+            case 19:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1198,8 +1203,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 20:
-                        creatureImageDex[i] = sprites.create(img`
+            case 20:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111bf1111111
                             111111111111111111111111111111111111111f1f111111
@@ -1249,8 +1254,8 @@ namespace creatures {
                             11111111ff1f1ff1111111111111111f1ff1ffdffdf11111
                             111111111111f1111111111111111111f1111ff1ff111111
                         `, SpriteKind.Creature)
-                    case 21:
-                        creatureImageDex[i] = sprites.create(img`
+            case 21:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1292,8 +1297,8 @@ namespace creatures {
                             1111111111111111ffff1111111ffff111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 22:
-                        creatureImageDex[i] = sprites.create(img`
+            case 22:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
@@ -1351,8 +1356,8 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 23:
-                        creatureImageDex[i] = sprites.create(img`
+            case 23:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1394,8 +1399,8 @@ namespace creatures {
                             1111111111fbddb111dddbdddbbff11111111111
                             111111111111bfffffffffffff11111111111111
                         `, SpriteKind.Creature)
-                    case 24:
-                        creatureImageDex[i] = sprites.create(img`
+            case 24:
+                return sprites.create(img`
                             1111111111111111bfffffffb1111111111111111111111111111111
                             11111111111111bffdddddddffd11111111111111111111111111111
                             1111111111111ffd11111dddddffbd11111111111111111111111111
@@ -1453,8 +1458,8 @@ namespace creatures {
                             111111111fffffbbbbbfffff1111111111111111111dbffbd1111111
                             111111111111fffffffff11111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 25:
-                        creatureImageDex[i] = sprites.create(img`
+            case 25:
+                return sprites.create(img`
                             1111111111111111111111111111111111111411
                             111111111111dd1111111111111111111111ff11
                             14ff41111111ddd1111111114ffff111111f1f11
@@ -1496,8 +1501,8 @@ namespace creatures {
                             11111111111111111111111f44f1111111dd1111
                             111111111111111111111111ff11111111111111
                         `, SpriteKind.Creature)
-                    case 26:
-                        creatureImageDex[i] = sprites.create(img`
+            case 26:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             1111111111111111111111111111114ffffff4111111111111111111
                             1111111111111111111111111114ffffffffffff1111111111111111
@@ -1555,8 +1560,8 @@ namespace creatures {
                             111111111111111111111111111111111ff411111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 27:
-                        creatureImageDex[i] = sprites.create(img`
+            case 27:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1598,8 +1603,8 @@ namespace creatures {
                             1111111111111111111effffff11111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 28:
-                        creatureImageDex[i] = sprites.create(img`
+            case 28:
+                return sprites.create(img`
                             1111111111111111111f1111111111111111111111111111
                             111111111111111111ff1111111111111111111111111111
                             11111111111111111e3f1111111111111111111111111111
@@ -1649,8 +1654,8 @@ namespace creatures {
                             1111111111111111111111111111111111111e3f111f3f11
                             11111111111111111111111111111111111111f11111f111
                         `, SpriteKind.Creature)
-                    case 29:
-                        creatureImageDex[i] = sprites.create(img`
+            case 29:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1692,8 +1697,8 @@ namespace creatures {
                             11111111111ffff1111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 30:
-                        creatureImageDex[i] = sprites.create(img`
+            case 30:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -1743,8 +1748,8 @@ namespace creatures {
                             11111111ff1f1111b1f1f1ffff1111111111111111111111
                             11111111111111111ffffff1111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 31:
-                        creatureImageDex[i] = sprites.create(img`
+            case 31:
+                return sprites.create(img`
                             11111111111ff111111111111111fff1111111111111111111111111
                             1111111111fbbffff111111111ff11f1111111111111111111111111
                             1111111111fbbbbbbff111116f111f11111111111111111111111111
@@ -1802,8 +1807,8 @@ namespace creatures {
                             11111111111ffff1111111111111111f11b6fff11bbf111111111111
                             11111111111111111111111111111111ffff111ffff1111111111111
                         `, SpriteKind.Creature)
-                    case 32:
-                        creatureImageDex[i] = sprites.create(img`
+            case 32:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1845,8 +1850,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 33:
-                        creatureImageDex[i] = sprites.create(img`
+            case 33:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -1896,8 +1901,8 @@ namespace creatures {
                             11111fffff111111ffffff11111111ffdfd1dffdddd11f11
                             1111111111111111111111111111111ffffff11ffffff111
                         `, SpriteKind.Creature)
-                    case 34:
-                        creatureImageDex[i] = sprites.create(img`
+            case 34:
+                return sprites.create(img`
                             111111111111bbb1111111111111111111f111111111111111111111
                             11111111111b111bb11111b1111111111f1fffff1111111111111111
                             111111111111bf111f111b1f111111111f1d111bf111111111111111
@@ -1955,8 +1960,8 @@ namespace creatures {
                             1111111fffffffb1111111111111111111bbfffffffff1111ddff111
                             111111111111111111111111111111111111111111111ffffff11111
                         `, SpriteKind.Creature)
-                    case 35:
-                        creatureImageDex[i] = sprites.create(img`
+            case 35:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -1998,8 +2003,8 @@ namespace creatures {
                             11111111111111111111111fffffff3111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 36:
-                        creatureImageDex[i] = sprites.create(img`
+            case 36:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             ffff11111111111111111111111111111111111111111111
                             ffffff111111111111111111111111111111111111111111
@@ -2049,8 +2054,8 @@ namespace creatures {
                             11111111111ffffff111111111111111ffff111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 37:
-                        creatureImageDex[i] = sprites.create(img`
+            case 37:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111114ff4111111111111111111111111111111111111
                             1111111f1111f11111111111111111111111111111111111
@@ -2100,8 +2105,8 @@ namespace creatures {
                             1111111111111144fff11111114ffff41111111111111111
                             1111111111111111111111111114ff411111111111111111
                         `, SpriteKind.Creature)
-                    case 38:
-                        creatureImageDex[i] = sprites.create(img`
+            case 38:
+                return sprites.create(img`
                             11111111111114ff4111111111111111111111111111111111111111
                             11111111114f41111f11111111111111111111111111111111111111
                             111111111f11111111f4111111111111111111111111111111111111
@@ -2159,8 +2164,8 @@ namespace creatures {
                             111111114fff4111111111111111111114fffff41111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 39:
-                        creatureImageDex[i] = sprites.create(img`
+            case 39:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2202,8 +2207,8 @@ namespace creatures {
                             11111111111fdddf3111113fddddf11111111111
                             111111111113ff31111111113ff3111111111111
                         `, SpriteKind.Creature)
-                    case 40:
-                        creatureImageDex[i] = sprites.create(img`
+            case 40:
+                return sprites.create(img`
                             1111111111111111111ffff111111111111111111111ffff
                             13ff3111111111111ff1111ff1111111111111111fffdddf
                             1f111ff111111111fd111111df1111111111111ffdddd3df
@@ -2253,8 +2258,8 @@ namespace creatures {
                             1f33333333fffff11111111111111111113fff333333333f
                             11ffffffff11111111111111111111111111111ffffffff1
                         `, SpriteKind.Creature)
-                    case 41:
-                        creatureImageDex[i] = sprites.create(img`
+            case 41:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111116611111111111
@@ -2296,8 +2301,8 @@ namespace creatures {
                             1111111111111111111111611111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 42:
-                        creatureImageDex[i] = sprites.create(img`
+            case 42:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111b6fffffffffffff
                             ffff611111111111111111111111111111111b6fff11111111111f61
                             bb11fff6111111111111111111111111111bff11111666666661f111
@@ -2355,8 +2360,8 @@ namespace creatures {
                             1111111111ff61111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 43:
-                        creatureImageDex[i] = sprites.create(img`
+            case 43:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2398,8 +2403,8 @@ namespace creatures {
                             11111111111111117f7111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 44:
-                        creatureImageDex[i] = sprites.create(img`
+            case 44:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             1111111141111111111111111f1111111111111111111111
@@ -2449,8 +2454,8 @@ namespace creatures {
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 45:
-                        creatureImageDex[i] = sprites.create(img`
+            case 45:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111144fffff4411111111111111111111111
                             1111111111111111111111fff441444ff41111111111111111111111
@@ -2508,8 +2513,8 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 46:
-                        creatureImageDex[i] = sprites.create(img`
+            case 46:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2551,8 +2556,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 47:
-                        creatureImageDex[i] = sprites.create(img`
+            case 47:
+                return sprites.create(img`
                             11111111111111111111111fffffffff111111111111111111111111
                             111111111111111111111fffff444444ff1111111111111111111111
                             1111111111111111111ffff44444444444ff11111111111111111111
@@ -2610,8 +2615,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111111ff4444f111111
                             111111111111111111111111111111111111111111111ffff1111111
                         `, SpriteKind.Creature)
-                    case 48:
-                        creatureImageDex[i] = sprites.create(img`
+            case 48:
+                return sprites.create(img`
                             11111111bff11111111111111111111111111111
                             1111111f1dbff111111111111111111111111111
                             111111f1111dbf111fb111111111111111111111
@@ -2653,8 +2658,8 @@ namespace creatures {
                             11111111111111111111f1fbbff1111111111111
                             111111111111111111111ffff111111111111111
                         `, SpriteKind.Creature)
-                    case 49:
-                        creatureImageDex[i] = sprites.create(img`
+            case 49:
+                return sprites.create(img`
                             111111111111111111111111fff1111111111111111bffffb1111111
                             11111111111111111111111fbbbf11111111111bfff11ddddfb11111
                             1111111111111111111111fbbbbbf11111111bf1111ddd11dddf1111
@@ -2712,8 +2717,8 @@ namespace creatures {
                             11111111111111111fff111111111111111111111111111ffff11111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 50:
-                        creatureImageDex[i] = sprites.create(img`
+            case 50:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2755,8 +2760,8 @@ namespace creatures {
                             1111111111111e11fff311113131113111111111
                             1111111111111111111131111111311111111111
                         `, SpriteKind.Creature)
-                    case 51:
-                        creatureImageDex[i] = sprites.create(img`
+            case 51:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -2806,8 +2811,8 @@ namespace creatures {
                             111111111111113e31f1313113131f13e311111111111111
                             111111111111e113111111f11f111111311e111111111111
                         `, SpriteKind.Creature)
-                    case 52:
-                        creatureImageDex[i] = sprites.create(img`
+            case 52:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -2849,8 +2854,8 @@ namespace creatures {
                             11fd4f44444fff111ffffd4ddf1fff44444f4f11
                             111ffffffff1111111111ffff11111fffffff111
                         `, SpriteKind.Creature)
-                    case 53:
-                        creatureImageDex[i] = sprites.create(img`
+            case 53:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111114ff41111111111
                             1ff4d111111111111111111111d41111111111114fddddf411111111
@@ -2908,8 +2913,8 @@ namespace creatures {
                             1111111df11111d1ffff1fffff1fff1fff1f1f1ffffff1fd4ff11111
                             111111111111111f111dfd111ffd11fd11ff1ffd1111dff111111111
                         `, SpriteKind.Creature)
-                    case 54:
-                        creatureImageDex[i] = sprites.create(img`
+            case 54:
+                return sprites.create(img`
                             1111f11f41111ddd111111111111111111111111
                             11f41f4f4114fff44d1111111111111111111111
                             111f4f4f4ff444444f4d11111111111111111111
@@ -2951,8 +2956,8 @@ namespace creatures {
                             111f41dfdd1fdd44ff4d11111dff4ddf4ddfd1f1
                             1111ffffffffffff4d11111111d4ffffffffff41
                         `, SpriteKind.Creature)
-                    case 55:
-                        creatureImageDex[i] = sprites.create(img`
+            case 55:
+                return sprites.create(img`
                             11111111111111111111111111111111ffb11bf11111111111111111
                             11111111111111111111f111111fff1f11fb1f1f1111111111111111
                             11111111111111111111ff1111f11bf11bbff11f1111111111111111
@@ -3010,8 +3015,8 @@ namespace creatures {
                             11111111111111111111111111ff11ff1111111111f1fffff1fff1f1
                             1111111111111111111111111111111111111111111f1111ff111f11
                         `, SpriteKind.Creature)
-                    case 56:
-                        creatureImageDex[i] = sprites.create(img`
+            case 56:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -3053,8 +3058,8 @@ namespace creatures {
                             11111fff11111ff11111111111111ff111f33eef
                             11111111111111111111111111111111111effe1
                         `, SpriteKind.Creature)
-                    case 57:
-                        creatureImageDex[i] = sprites.create(img`
+            case 57:
+                return sprites.create(img`
                             111111111111ffff111111111111111111111111111111eff1111111
                             1111111111ff3333ff111111111111111111111111111f33eff11111
                             111111111f113333eef1111111111111111111111111f1333eef1111
@@ -3112,8 +3117,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111111e11111f111111
                             11111111111111111111111111111111111111111111efffe1111111
                         `, SpriteKind.Creature)
-                    case 58:
-                        creatureImageDex[i] = sprites.create(img`
+            case 58:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             11111111111111111111113efffe311111111111
                             111111111111111111111e1133333fe111111111
@@ -3155,8 +3160,8 @@ namespace creatures {
                             1111111efffe3e3e3f3e3e3ef3ee33e3f1111111
                             11111111efffffffffffffffe13effff11111111
                         `, SpriteKind.Creature)
-                    case 59:
-                        creatureImageDex[i] = sprites.create(img`
+            case 59:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111fff111111111111111111111111111111111111111
@@ -3214,8 +3219,8 @@ namespace creatures {
                             111111f4f4f4f4f4f444f444f44f44444444ff411111111111111111
                             1111111ffffffffffff4114fffffffffffff44111111111111111111
                         `, SpriteKind.Creature)
-                    case 60:
-                        creatureImageDex[i] = sprites.create(img`
+            case 60:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -3257,8 +3262,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 61:
-                        creatureImageDex[i] = sprites.create(img`
+            case 61:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111ffff61111111111111111111111111111
                             11111111111111f1ff6f6b11111111116ffff61111111111
@@ -3308,8 +3313,8 @@ namespace creatures {
                             1111111111111111111111111111111116fffffff6111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 62:
-                        creatureImageDex[i] = sprites.create(img`
+            case 62:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             111111111111111116fffff611111111111111111111111f61111111
@@ -3367,8 +3372,8 @@ namespace creatures {
                             111116fffffff6111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 63:
-                        creatureImageDex[i] = sprites.create(img`
+            case 63:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             11111111111111ff1111111111111114f1111111
@@ -3410,8 +3415,8 @@ namespace creatures {
                             1111111111111111111111111111111ff1111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 64:
-                        creatureImageDex[i] = sprites.create(img`
+            case 64:
+                return sprites.create(img`
                             111ff1111111111111111111111111111111111111111111
                             11f11f111111111111111111111111111111111111111111
                             1f1111411111111111111111111111111111111111111111
@@ -3461,8 +3466,8 @@ namespace creatures {
                             111111111111f1f44f1f44f1f111111111ffff1111111111
                             111111111111fff11fff111ff11111111111111111111111
                         `, SpriteKind.Creature)
-                    case 65:
-                        creatureImageDex[i] = sprites.create(img`
+            case 65:
+                return sprites.create(img`
                             111111111111111111111111111114fff411111ff111111111111111
                             11111111111111111f44f1111114f1111df411411f11111111111111
                             11111111111ff111fd11df1111f111ddffddff111f11111111111111
@@ -3520,8 +3525,8 @@ namespace creatures {
                             111111f111ff11111111111111111111111111f11f11144ff1111111
                             111111111111111111111111111111111111111ff111111111111111
                         `, SpriteKind.Creature)
-                    case 66:
-                        creatureImageDex[i] = sprites.create(img`
+            case 66:
+                return sprites.create(img`
                             11111111111111111fff1ff1f111111111111111
                             1111111111111111f111fb1fbf11111111111111
                             1111111111111111fdd11fbfbf11111111111111
@@ -3563,67 +3568,67 @@ namespace creatures {
                             111111111111111ff11111111111111fffff1111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 67:
-                        creatureImageDex[i] = sprites.create(img`
-                            11111111111111111111111111111111111111111111111111111111
-                            11111111111111111111111111111111111111111111111111111111
-                            11111111111111111111111111111111111111111111111111111111
-                            11111111111111111111111111111111111111111111111111111111
-                            11111111111111111111111111111111111111111111111111111111
-                            1111111111111111111111fffff11111111111111111111111111111
-                            11111111111111111111ff1f1dbfff11111111111111111111111111
-                            1111111111111111111f1f1f1bf1dbf1111111111111111111111111
-                            111111111111111111f1ff1fdbfdbfff111111111111111111111111
-                            111111111111111111f1f1f1df1bfdbbff1111111111111111111111
-                            11111111111111111ffdfbf1f1bfddbbbbf111111111111111111111
-                            1111111111111111fddffbfdfbfdddddbbbf1bfbfffb111111111111
-                            1111111111111111fbbdfbffbfddfffbdbbfffbbbbbbfb1111111111
-                            1111111111111111ffbbdfbffddfdddfbdbbfbbbbbbbbbfb11111111
-                            111111111111111fddfbbfbfddfd111dfdbbfbbbbbb1bbbf11111111
-                            111111111111111fffdfbdffddfff111fddbfbbbbbbb1bbdf1111111
-                            111111111111111f11ffbdddddfb1f1fddfdbfbbbbbdb1bddb111111
-                            11111111111111fdf11fddddddfbbffdddfdbfbbbb1bdb11df111111
-                            11111111111fffdddffdd11d1d1ffddddffdbfbbbdb1bdb1ddb11111
-                            111111111bfbbfddddd11111d1dd1dddfffdbfbb1bdb1bdb1df11111
-                            11111111fddbbfdddd1111111d1ddddfffdbffbb1bdb1bdb1ddb1111
-                            1111111fddddbbfddd111dddfffffffffdbbffbb11bdb1bdb1df1111
-                            111111fddddd1bbfffffffffdddddddddbbfffbbb1bddb1db1ddb111
-                            11111bdd1ddd1bbbfffddddddddddbbbbfffffbbbb1ddb1db1ddf111
-                            11111fdd1ddd1bdbbfffbbbbbbbbbbbfffbbbffbbbb1ddb1dbddf111
-                            1111bbdd1bdd1bddbffffffffffffffffbddffffbbbb1db1dddddb11
-                            1111fbbddbdd1bdddbfffbbbbbbbbfffbddfdddffbbbb1b1ddddbf11
-                            1111fb1dd1bddbdddbffb11dddddbbfbddfbbddbfffbbb1d1dddbf11
-                            1111fb1bddbdd1bdddfbbddddddddbbddfdfbdddfffffddddddbf111
-                            1111fbb1bddbddbddddfbbbdddddddbdfdddddddbffddddbdddbf111
-                            1111bbb1bddbdddbddddfbffffffbbbbfddddddbbf11bd1bddbf1111
-                            11111fbb1bddbbddbdddbfbbbbbbffffdddddddbf1bdd1bddbf11111
-                            11111bfbb1bbdbbdddddb111bbbddddddddddbbf1bd11bddbf111111
-                            111111bfbb11bddbdddddbbbdddbbdd111dfbbf11d11bddbf1111111
-                            1111111bfbbbbbdddd1dddd11ddddd11dbfdddddd1bbdbbf11111111
-                            11111111bffbbbbddddd111bbbbbd11bfbdddddddbdbbff111111111
-                            1111111111bffbbbbddddbbddddd1bbbfd11ddddddbff11111111111
-                            111111111111bffbbbbbdddddbbbbfffd11dddddbff1111111111111
-                            11111111111111bffbbbbbbbbbfffbbfdddddddbffffb11111111111
-                            111111111111111bfffbbbbbffbdddbfbdddddbffdddff1111111111
-                            1111111111111111bffffffffd11111dfbbbbbffddddddf111111111
-                            1111111111111111fbbbfffdbb111111fffffffddddddddf11111111
-                            1111111111111111fdffbbbf11bbbbbbdffbbffdddddddddb1111111
-                            111111111111111bddddffbbffddddddfbbfffddddf11dddf1111111
-                            111111111111111fddddddffbbffffffbffffbbdbfd11ddddb111111
-                            11111111111111bd11ddddddffbbbbbbfffffbbbfbdddddddf111111
-                            111111111ffbb1fd11dddddddfffffffffffbbbfbdddddddbf111111
-                            11111111b11dbffd1dddddddddffffffffffffffbdddddddf1111111
-                            11111111f1ddbfddddddddddddffffffb111111fbbdddddbf1111111
-                            1111111bdddbbfdddddddddddf111111111111bfbbbbddbf11111111
-                            111111fdddbbbbddddddddddf1111111111111fbbbbbbbf111111111
-                            11111fbbbbbbbbddddddddbf111111111111bfbbbbfffff111111111
-                            1111fbbbbbbfbbbddddbbbf1111111111111fbbbbbbddddff1111111
-                            111fbbbbbbbbfbbbbbbbfbb1111111111111fbbbbbbbbbbbbf111111
-                            111bfbbbbbbfffbbbbffb111111111111111fbbbbbbbbbbbbf111111
-                            1111bffffff111ffff1111111111111111111ffffffffffffb111111
-                        `, SpriteKind.Creature)
-                    case 68:
-                        creatureImageDex[i] = sprites.create(img`
+            case 67:
+                return sprites.create(img`
+                    11111111111111111111111111111111111111111111111111111111
+                    11111111111111111111111111111111111111111111111111111111
+                    11111111111111111111111111111111111111111111111111111111
+                    11111111111111111111111111111111111111111111111111111111
+                    11111111111111111111111111111111111111111111111111111111
+                    1111111111111111111111fffff11111111111111111111111111111
+                    11111111111111111111ff1f1dbfff11111111111111111111111111
+                    1111111111111111111f1f1f1bf1dbf1111111111111111111111111
+                    111111111111111111f1ff1fdbfdbfff111111111111111111111111
+                    111111111111111111f1f1f1df1bfdbbff1111111111111111111111
+                    11111111111111111ffdfbf1f1bfddbbbbf111111111111111111111
+                    1111111111111111fddffbfdfbfdddddbbbf1bfbfffb111111111111
+                    1111111111111111fbbdfbffbfddfffbdbbfffbbbbbbfb1111111111
+                    1111111111111111ffbbdfbffddfdddfbdbbfbbbbbbbbbfb11111111
+                    111111111111111fddfbbfbfddfd111dfdbbfbbbbbb1bbbf11111111
+                    111111111111111fffdfbdffddfff111fddbfbbbbbbb1bbdf1111111
+                    111111111111111f11ffbdddddfb1f1fddfdbfbbbbbdb1bddb111111
+                    11111111111111fdf11fddddddfbbffdddfdbfbbbb1bdb11df111111
+                    11111111111fffdddffdd11d1d1ffddddffdbfbbbdb1bdb1ddb11111
+                    111111111bfbbfddddd11111d1dd1dddfffdbfbb1bdb1bdb1df11111
+                    11111111fddbbfdddd1111111d1ddddfffdbffbb1bdb1bdb1ddb1111
+                    1111111fddddbbfddd111dddfffffffffdbbffbb11bdb1bdb1df1111
+                    111111fddddd1bbfffffffffdddddddddbbfffbbb1bddb1db1ddb111
+                    11111bdd1ddd1bbbfffddddddddddbbbbfffffbbbb1ddb1db1ddf111
+                    11111fdd1ddd1bdbbfffbbbbbbbbbbbfffbbbffbbbb1ddb1dbddf111
+                    1111bbdd1bdd1bddbffffffffffffffffbddffffbbbb1db1dddddb11
+                    1111fbbddbdd1bdddbfffbbbbbbbbfffbddfdddffbbbb1b1ddddbf11
+                    1111fb1dd1bddbdddbffb11dddddbbfbddfbbddbfffbbb1d1dddbf11
+                    1111fb1bddbdd1bdddfbbddddddddbbddfdfbdddfffffddddddbf111
+                    1111fbb1bddbddbddddfbbbdddddddbdfdddddddbffddddbdddbf111
+                    1111bbb1bddbdddbddddfbffffffbbbbfddddddbbf11bd1bddbf1111
+                    11111fbb1bddbbddbdddbfbbbbbbffffdddddddbf1bdd1bddbf11111
+                    11111bfbb1bbdbbdddddb111bbbddddddddddbbf1bd11bddbf111111
+                    111111bfbb11bddbdddddbbbdddbbdd111dfbbf11d11bddbf1111111
+                    1111111bfbbbbbdddd1dddd11ddddd11dbfdddddd1bbdbbf11111111
+                    11111111bffbbbbddddd111bbbbbd11bfbdddddddbdbbff111111111
+                    1111111111bffbbbbddddbbddddd1bbbfd11ddddddbff11111111111
+                    111111111111bffbbbbbdddddbbbbfffd11dddddbff1111111111111
+                    11111111111111bffbbbbbbbbbfffbbfdddddddbffffb11111111111
+                    111111111111111bfffbbbbbffbdddbfbdddddbffdddff1111111111
+                    1111111111111111bffffffffd11111dfbbbbbffddddddf111111111
+                    1111111111111111fbbbfffdbb111111fffffffddddddddf11111111
+                    1111111111111111fdffbbbf11bbbbbbdffbbffdddddddddb1111111
+                    111111111111111bddddffbbffddddddfbbfffddddf11dddf1111111
+                    111111111111111fddddddffbbffffffbffffbbdbfd11ddddb111111
+                    11111111111111bd11ddddddffbbbbbbfffffbbbfbdddddddf111111
+                    111111111ffbb1fd11dddddddfffffffffffbbbfbdddddddbf111111
+                    11111111b11dbffd1dddddddddffffffffffffffbdddddddf1111111
+                    11111111f1ddbfddddddddddddffffffb111111fbbdddddbf1111111
+                    1111111bdddbbfdddddddddddf111111111111bfbbbbddbf11111111
+                    111111fdddbbbbddddddddddf1111111111111fbbbbbbbf111111111
+                    11111fbbbbbbbbddddddddbf111111111111bfbbbbfffff111111111
+                    1111fbbbbbbfbbbddddbbbf1111111111111fbbbbbbddddff1111111
+                    111fbbbbbbbbfbbbbbbbfbb1111111111111fbbbbbbbbbbbbf111111
+                    111bfbbbbbbfffbbbbffb111111111111111fbbbbbbbbbbbbf111111
+                    1111bffffff111ffff1111111111111111111ffffffffffffb111111
+                `, SpriteKind.Creature)
+            case 68:
+                return sprites.create(img`
                             111111111111111fbbfff11111111111111111111111111111111111
                             111111111bffbbb111dddfb111111111111111111111111111111111
                             1111111fbbd1111dbddddbfb11111111111111111111111111111111
@@ -3681,8 +3686,8 @@ namespace creatures {
                             1111111111111111111111111111111111111bbbb111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 69:
-                        creatureImageDex[i] = sprites.create(img`
+            case 69:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             111111111111111117ffff711111111111111111
                             1111111111111111f111117f1111111111111111
@@ -3724,8 +3729,8 @@ namespace creatures {
                             11111111111111111111f1111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 70:
-                        creatureImageDex[i] = sprites.create(img`
+            case 70:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             11111111111111111111117f711111111111111111111111
@@ -3775,8 +3780,8 @@ namespace creatures {
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 71:
-                        creatureImageDex[i] = sprites.create(img`
+            case 71:
+                return sprites.create(img`
                             111111111111111111111111117ffffff71111111111111111111111
                             111111111111111117f711111f11111117f11117ff71111111111111
                             1111111111111111f7777f11f1111777117f17fffff7111111111111
@@ -3834,8 +3839,8 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 72:
-                        creatureImageDex[i] = sprites.create(img`
+            case 72:
+                return sprites.create(img`
                             11111111111111111bfffffb1111111111111111
                             111111111111111bf111111ffb11111111111111
                             111111111111bffb111119bfffff111111111111
@@ -3877,8 +3882,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 73:
-                        creatureImageDex[i] = sprites.create(img`
+            case 73:
+                return sprites.create(img`
                             111111111111111111111ffffff111111111111111111111
                             1111111111111111111ff111111fff111111111111111111
                             11111111111111111ffbf11111fb1bff1111111111111111
@@ -3928,8 +3933,8 @@ namespace creatures {
                             11111111111111111111f1111111111f1111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 74:
-                        creatureImageDex[i] = sprites.create(img`
+            case 74:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -3971,8 +3976,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 75:
-                        creatureImageDex[i] = sprites.create(img`
+            case 75:
+                return sprites.create(img`
                             1111111111111111111111111111111111111bb111111111
                             1111111bf111111111111111111111111111b11f11111111
                             111111b1df11111111111111111111111111f11f111bbf11
@@ -4022,8 +4027,8 @@ namespace creatures {
                             111111111111111111111111111111111fff11111fdddf11
                             111111111111111111111111111111111111111111fff111
                         `, SpriteKind.Creature)
-                    case 76:
-                        creatureImageDex[i] = sprites.create(img`
+            case 76:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -4073,8 +4078,8 @@ namespace creatures {
                             1fbdfdbdfbbfbbbf111111111111111111fdbfbbfbbbfbbf
                             1bffbfffbff1fffb111111111111111111bffbffbfffbff1
                         `, SpriteKind.Creature)
-                    case 77:
-                        creatureImageDex[i] = sprites.create(img`
+            case 77:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -4124,8 +4129,8 @@ namespace creatures {
                             1111111ffffff11111111111111fff111111111f4ffff111
                             11111111ffff111111111111111111111111111fffff1111
                         `, SpriteKind.Creature)
-                    case 78:
-                        creatureImageDex[i] = sprites.create(img`
+            case 78:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             111111111111111144111111111114fff41111111111111111111111
                             114111111ffff111144111111111f111114f11111111111111111111
@@ -4183,8 +4188,8 @@ namespace creatures {
                             1111fffff4111111111114fffff11111111111111114fffff4111111
                             11114fffff1111111111114ffff411111111111111114fff41111111
                         `, SpriteKind.Creature)
-                    case 79:
-                        creatureImageDex[i] = sprites.create(img`
+            case 79:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -4226,8 +4231,8 @@ namespace creatures {
                             1111111111ff311111d3fffd1111111111111111
                             1111111111111ffffff1d1111111111111111111
                         `, SpriteKind.Creature)
-                    case 80:
-                        creatureImageDex[i] = sprites.create(img`
+            case 80:
+                return sprites.create(img`
                             11111111111111111111111111111fff311111111111111111111111
                             111111111111111ff11111111111f3dd1fd3fffffff3d11fffff1111
                             11111111111111f31f111111111f333d3ff33333ddddf3f33d11f111
@@ -4285,8 +4290,8 @@ namespace creatures {
                             1111111d3ffff333333fffff333dfff3d111111113fffffdd1111111
                             11111111111d3fffffffffffffff3dd111111111113333d111111111
                         `, SpriteKind.Creature)
-                    case 81:
-                        creatureImageDex[i] = sprites.create(img`
+            case 81:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -4328,8 +4333,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 82:
-                        creatureImageDex[i] = sprites.create(img`
+            case 82:
+                return sprites.create(img`
                             11111111111111111111111fff1111111111111111111111
                             111111111111111111111fbd11bf11111111111111111111
                             11111111111111111111fddbbb11f1111111111fb1111111
@@ -4379,8 +4384,8 @@ namespace creatures {
                             1111111fff11111111111111111111111111111fffb11111
                             111111111111111111111111111111111111111bfb111111
                         `, SpriteKind.Creature)
-                    case 83:
-                        creatureImageDex[i] = sprites.create(img`
+            case 83:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111fff1111111111111111111f1111111111111
                             1111111ff111f33f1111111ee111111111ff111111111111
@@ -4430,8 +4435,8 @@ namespace creatures {
                             11111effffefe1333ffe31111111111ff3333fffffefff11
                             1111111111111ffffe11111111111111efffe11111111111
                         `, SpriteKind.Creature)
-                    case 84:
-                        creatureImageDex[i] = sprites.create(img`
+            case 84:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             111111111111111111111111111ff11111111111
                             1111111111111111111111111ff11ff111111111
@@ -4473,8 +4478,8 @@ namespace creatures {
                             11111111111111ff1f11111ff111111111111111
                             111111111111111ff11111111111111111111111
                         `, SpriteKind.Creature)
-                    case 85:
-                        creatureImageDex[i] = sprites.create(img`
+            case 85:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             111111111111111111111fffff11e111111111111111111111111111
                             11111111111111111111f11311fef111111111111111111111111111
@@ -4532,8 +4537,8 @@ namespace creatures {
                             1111111111111111f1ef111111f3ee11111111111111111111111111
                             11111111111111111ff11111111fff11111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 86:
-                        creatureImageDex[i] = sprites.create(img`
+            case 86:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             11111111111111111111116fff611111111111116ff61111
                             111111111111111111111611111f11111111111fbbbbf611
@@ -4583,8 +4588,8 @@ namespace creatures {
                             1111ffff111111111111111ffbf6666f1111111111111111
                             1111111111111111111111111ffffff11111111111111111
                         `, SpriteKind.Creature)
-                    case 87:
-                        creatureImageDex[i] = sprites.create(img`
+            case 87:
+                return sprites.create(img`
                             11111111111111111fff1111111111111111111111111111
                             111111111111111ffbbbff11111111111111111111111111
                             11111111111111f111bbbbff111111111111111111111111
@@ -4634,8 +4639,8 @@ namespace creatures {
                             11111111111111111111116ff61111116f61111111111111
                             111111111111111111111111116ffff61111111111111111
                         `, SpriteKind.Creature)
-                    case 88:
-                        creatureImageDex[i] = sprites.create(img`
+            case 88:
+                return sprites.create(img`
                             11111111111111111111111111111bb111111111
                             11111bb11111111111111111bb11b11b11111111
                             1111b11b111111111111111b11bbbddbfff11111
@@ -4677,8 +4682,8 @@ namespace creatures {
                             11111111ffd1ddbffffbbfffbbbfff11fffff111
                             111111111bfffffbfffff111fff1111111111111
                         `, SpriteKind.Creature)
-                    case 89:
-                        creatureImageDex[i] = sprites.create(img`
+            case 89:
+                return sprites.create(img`
                             1111111111111111111111111111111111111bfffb11111111111111
                             11111111111111111111111111111111111ff11dddf1111111111111
                             1111111111111111111111111111111111f1111ddddfb11111111111
@@ -4736,8 +4741,8 @@ namespace creatures {
                             111111fffffffffff111fffffffffffffffffffffff1111ffffff111
                             1111111111111111111111111fffffffffffff111111111111111111
                         `, SpriteKind.Creature)
-                    case 90:
-                        creatureImageDex[i] = sprites.create(img`
+            case 90:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             11111111111fb111111111111111111111111111
@@ -4779,8 +4784,8 @@ namespace creatures {
                             111111fdd11ddf1ffffff1111111111111111111
                             1111111ffffff111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 91:
-                        creatureImageDex[i] = sprites.create(img`
+            case 91:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             111111111111111111111111111f11111111111111111111111bf111
                             11dfb11111111111111111111bf1fb1111111111111111111bf11f11
@@ -4838,8 +4843,8 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 92:
-                        creatureImageDex[i] = sprites.create(img`
+            case 92:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             111111111111111111111111d1111111111111111111111111111111
                             111111111111111111111111111d1d11111111111111111111111111
@@ -4897,8 +4902,8 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 93:
-                        creatureImageDex[i] = sprites.create(img`
+            case 93:
+                return sprites.create(img`
                             1111111111111111d1111111111111111dddd11111111111
                             111111111d1111111111111111111111dbfbd11111111111
                             d1111d111111b11d111d11d111d1111dbffbd111d1d11111
@@ -4948,8 +4953,8 @@ namespace creatures {
                             111111ddd1dbbd11111d11111111111dbfbd1111d1111111
                             11111111111dd11111111111111111111dddd11111111111
                         `, SpriteKind.Creature)
-                    case 94:
-                        creatureImageDex[i] = sprites.create(img`
+            case 94:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             1111111111bb111111111111b11111111111111111111111
                             1111111111dfb1111b1111bbfb1111bb1111111111111111
@@ -4999,8 +5004,8 @@ namespace creatures {
                             111111111111111111111111111111111111dbbbbbbbd111
                             1111111111111111111111111111111111111dbbdddd1111
                         `, SpriteKind.Creature)
-                    case 95:
-                        creatureImageDex[i] = sprites.create(img`
+            case 95:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111ff1111111111111111111111111111111111111111
                             1111111111111fdbf111111111111111111111111111111111111111
@@ -5058,8 +5063,8 @@ namespace creatures {
                             11111111111111111fff11fffdbdbddf111111111111111111111111
                             111111111111111111111111fffffff1111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 96:
-                        creatureImageDex[i] = sprites.create(img`
+            case 96:
+                return sprites.create(img`
                             111111111111111f411111111111111111ff111111111111
                             11111111111111fdd411111111111111ff14411111111111
                             11111111111114dddf111111111111ff1dddf11111111111
@@ -5109,8 +5114,8 @@ namespace creatures {
                             11111111f1f1114ffffff1111114fffff44f411d41111df1
                             11111111ffffffffffff411111111111111ffffffffffff1
                         `, SpriteKind.Creature)
-                    case 97:
-                        creatureImageDex[i] = sprites.create(img`
+            case 97:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111144f11111111111111111111111111111111
                             111111111111111111111f1f11111111111111111111111111111111
@@ -5168,8 +5173,8 @@ namespace creatures {
                             111ff44444fff1111111111111111111111111f4444444fff1111111
                             11111fffff111111111111111111111111111111ffffff1111111111
                         `, SpriteKind.Creature)
-                    case 98:
-                        creatureImageDex[i] = sprites.create(img`
+            case 98:
+                return sprites.create(img`
                             11111111111111114ff11ff41111111111111111
                             1111114ff11111fff1ffff1fff11111fff111111
                             11111ff11f11ff44f4f44f4f44ff11f14ff11111
@@ -5211,8 +5216,8 @@ namespace creatures {
                             111111111ffff4111111111111ffff4111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 99:
-                        creatureImageDex[i] = sprites.create(img`
+            case 99:
+                return sprites.create(img`
                             11111111111111111ff41111111111111111fff11111111111111111
                             111111111111111f4444f11111111111111f444ff111111111111111
                             1111111111111ff411114f111111111111f444444ff1111111111111
@@ -5270,8 +5275,8 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 100:
-                        creatureImageDex[i] = sprites.create(img`
+            case 100:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -5313,8 +5318,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 101:
-                        creatureImageDex[i] = sprites.create(img`
+            case 101:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             111111111111111fffffffff1111111111111111
@@ -5356,8 +5361,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 102:
-                        creatureImageDex[i] = sprites.create(img`
+            case 102:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
@@ -5415,8 +5420,8 @@ namespace creatures {
                             11111111111111111111111111111111111113ffffff111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 103:
-                        creatureImageDex[i] = sprites.create(img`
+            case 103:
+                return sprites.create(img`
                             1111111111fffffff711111111111111111111111111111111111111
                             111111111f7777777ff7111111111111111111111111111111111111
                             1111111111fff777777ff7111ff1ff111117ffffffffffff71111111
@@ -5474,8 +5479,8 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 104:
-                        creatureImageDex[i] = sprites.create(img`
+            case 104:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             11111ff1111111111111111111111ff111111111
@@ -5517,8 +5522,8 @@ namespace creatures {
                             1111111111111ffdddbf11111111111111111111
                             111111111111111ffff111111111111111111111
                         `, SpriteKind.Creature)
-                    case 105:
-                        creatureImageDex[i] = sprites.create(img`
+            case 105:
+                return sprites.create(img`
                             111111111111111111111111fff111111111111111111111
                             1111111111111111111111fffddf11111111111111111111
                             111111111111fff1fffffffddddf11111111111111111111
@@ -5568,8 +5573,8 @@ namespace creatures {
                             11111111111111111111fb11111111111111111bfffffb11
                             1111111111111111111111111111111111111111bbbbb111
                         `, SpriteKind.Creature)
-                    case 106:
-                        creatureImageDex[i] = sprites.create(img`
+            case 106:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111eff1111111fff111
                             111111111111111111111111111111111111111e111f11111f111f11
                             111111111111111111111111111111111111111f1111ff11f31111f1
@@ -5627,8 +5632,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111111111111f1f1111
                             11111111111111111111111111111111111111111111111111f11111
                         `, SpriteKind.Creature)
-                    case 107:
-                        creatureImageDex[i] = sprites.create(img`
+            case 107:
+                return sprites.create(img`
                             111111111111111111e11111ffe111111111111111111111
                             11111111111111111fef11ef31ee11111111111111111111
                             1111111111111111ee3f1f3313ef11111111111111111111
@@ -5678,8 +5683,8 @@ namespace creatures {
                             11111111effeeeeefe111111111111111111111111111111
                             11111111111efffe11111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 108:
-                        creatureImageDex[i] = sprites.create(img`
+            case 108:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
@@ -5737,8 +5742,8 @@ namespace creatures {
                             11111111f11dddddffff111111111111111111111111111111111111
                             111111111ffffffffff1111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 109:
-                        creatureImageDex[i] = sprites.create(img`
+            case 109:
+                return sprites.create(img`
                             1111dd11111111111111111111111111111111111ddd1111
                             111dbddd1111dd11111111111111111111111111ddddd111
                             111dbbdd111ddddd111111dd1111111111111111dbdddd11
@@ -5788,8 +5793,8 @@ namespace creatures {
                             11111111111111111111111111bdd1111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 110:
-                        creatureImageDex[i] = sprites.create(img`
+            case 110:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111ddd11111111
                             111dddd1111111111111111111111111111111111111ddddb1111111
@@ -5847,8 +5852,8 @@ namespace creatures {
                             111111111111111111bbb111111111111bbff111111111dbdb111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 111:
-                        creatureImageDex[i] = sprites.create(img`
+            case 111:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             111111111111111111111111111ff111111111111111111111111111
                             11111111111111111111111111f11b11111111111111111111111111
@@ -5906,8 +5911,8 @@ namespace creatures {
                             11111111f11fff1fff11111111111fff111111111111111111111111
                             111111111fff11111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 112:
-                        creatureImageDex[i] = sprites.create(img`
+            case 112:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
@@ -5965,8 +5970,8 @@ namespace creatures {
                             11111111f11df111ddff11111111111fffffffff1111111111111111
                             111111111fffffffff11111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 113:
-                        creatureImageDex[i] = sprites.create(img`
+            case 113:
+                return sprites.create(img`
                             1111111111111111111111111133ffffd111111111111111
                             1111111111111111111111113f1111113ff1111111111111
                             111111111111111111111d3f1111111111d3f11111111111
@@ -6016,8 +6021,8 @@ namespace creatures {
                             1f11111dffffff133fffffff3331133df333ff1111111111
                             1fffffffff11111111111111111111111fff311111111111
                         `, SpriteKind.Creature)
-                    case 114:
-                        creatureImageDex[i] = sprites.create(img`
+            case 114:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             1111111111111111666ff111111116f11111111111111111
@@ -6067,8 +6072,8 @@ namespace creatures {
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 115:
-                        creatureImageDex[i] = sprites.create(img`
+            case 115:
+                return sprites.create(img`
                             11111111111111efff11111111111111111111111111111111111111
                             1111111111111f133ef1111111111111111111111111111111111111
                             111111111111f1133fef111111111111111111111111111111111111
@@ -6126,8 +6131,8 @@ namespace creatures {
                             111fffffffffffffffff1111111111111111fffffffffffffff11111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 116:
-                        creatureImageDex[i] = sprites.create(img`
+            case 116:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -6169,8 +6174,8 @@ namespace creatures {
                             1111111111111111111bffffb111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 117:
-                        creatureImageDex[i] = sprites.create(img`
+            case 117:
+                return sprites.create(img`
                             111111111111111111111111111ff11111111111f1111111
                             111111111111111111111111111f1f1111111111f1111111
                             111111111111111111111111111f1bf11111111f1f111111
@@ -6220,8 +6225,8 @@ namespace creatures {
                             11111111111111111111111111111ff119bbbf1111111111
                             1111111111111111111111111111111ffffff11111111111
                         `, SpriteKind.Creature)
-                    case 118:
-                        creatureImageDex[i] = sprites.create(img`
+            case 118:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             1111111111111111111111111111fff11111111111111111
                             11111111111111111111111111ff4f111111111111111111
@@ -6271,8 +6276,8 @@ namespace creatures {
                             1111111111111111f1111114f4111111114f411111111111
                             111111111111111114ffff41111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 119:
-                        creatureImageDex[i] = sprites.create(img`
+            case 119:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             1111111111111114f411111111111111111111111111111111111111
                             11111111111111f111f1111111111111111111111111111111111111
@@ -6330,8 +6335,8 @@ namespace creatures {
                             111111111111111111111111111111111f4111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 120:
-                        creatureImageDex[i] = sprites.create(img`
+            case 120:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -6381,8 +6386,8 @@ namespace creatures {
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 121:
-                        creatureImageDex[i] = sprites.create(img`
+            case 121:
+                return sprites.create(img`
                             1111111111111111111111ff111111111111111111111111
                             111111111111111111111ffff11111111111111111111111
                             11111111111111111111f1dfbf1111111111111111111111
@@ -6432,8 +6437,8 @@ namespace creatures {
                             1111111111111111111111ffff1111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 122:
-                        creatureImageDex[i] = sprites.create(img`
+            case 122:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -6483,8 +6488,8 @@ namespace creatures {
                             111111111fffffffffffff31111111111fff33fff1111111
                             111111111113fffffff311111111111111ffffff11111111
                         `, SpriteKind.Creature)
-                    case 123:
-                        creatureImageDex[i] = sprites.create(img`
+            case 123:
+                return sprites.create(img`
                             1111111111111111111111111111111ff11111111111111111111111
                             11111111111111ff11111ff1111111f77f1117711111111111111111
                             1111111111111f77f111711f11111f77f71171171111111111111111
@@ -6542,8 +6547,8 @@ namespace creatures {
                             111111111111111111111111f17f111f1ff11111177ff11111111111
                             1111111111111111111111111ff1111ff11111111ff1111111111111
                         `, SpriteKind.Creature)
-                    case 124:
-                        creatureImageDex[i] = sprites.create(img`
+            case 124:
+                return sprites.create(img`
                             111111111111111111fff1111ffff1111111111111111111
                             1111111111111111ffdddf1fffdddff11111111111111111
                             11111111111111ff111dddfddd11111f1111111111111111
@@ -6593,8 +6598,8 @@ namespace creatures {
                             1111ffff11111fddffffbbbffffffffffdddf11111111111
                             11111111111111fff111fff111111111ffff111111111111
                         `, SpriteKind.Creature)
-                    case 125:
-                        creatureImageDex[i] = sprites.create(img`
+            case 125:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -6644,8 +6649,8 @@ namespace creatures {
                             11ff111fffff111111111111111111111fffff111ff1f111
                             1111fff1111111111111111111111111111111fff11ff111
                         `, SpriteKind.Creature)
-                    case 126:
-                        creatureImageDex[i] = sprites.create(img`
+            case 126:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             11111111111111111f111111111111111111111111111111
                             111111111111111ff4f1111111111111f111111111111111
@@ -6695,8 +6700,8 @@ namespace creatures {
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 127:
-                        creatureImageDex[i] = sprites.create(img`
+            case 127:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             111111111111111111111111111ff111111111111111111111111111
                             1111111111111111111111111ff13f11111111111111111111111111
@@ -6754,8 +6759,8 @@ namespace creatures {
                             1111ffffffffff1111111111111111fffffffffff111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 128:
-                        creatureImageDex[i] = sprites.create(img`
+            case 128:
+                return sprites.create(img`
                             1111111111fff1111111111111111111111111111111111111111111
                             111111111f11df1111111111111ffffffff111111111111111111111
                             11111111f11fbbf11ffffff11ffbbbfffffffff11111111111111111
@@ -6813,8 +6818,8 @@ namespace creatures {
                             111111111111111111111111111bfffbff1111111111111111111111
                             1111111111111111111111111111bfffff1111111111111111111111
                         `, SpriteKind.Creature)
-                    case 129:
-                        creatureImageDex[i] = sprites.create(img`
+            case 129:
+                return sprites.create(img`
                             111111ff4111111111111111f11111111111111111111111
                             11111f111f4111111111111f1f1111111111111111111111
                             11111f44411f1111111111141f111114ff11111111111111
@@ -6864,8 +6869,8 @@ namespace creatures {
                             111111111111111111111f11fff11f111ff1111111111111
                             1111111111111111111111ff111ff1111111111111111111
                         `, SpriteKind.Creature)
-                    case 130:
-                        creatureImageDex[i] = sprites.create(img`
+            case 130:
+                return sprites.create(img`
                             11111111111111111111111111111f1111111111fff1111111111111
                             111111111111111166111111111161f11111fff611f1111111111111
                             111111111111111611f11111111f11f11ff611111f11111111111111
@@ -6923,8 +6928,8 @@ namespace creatures {
                             111111111111111111111111116fbbbbbfff11111111111ffbf11f1f
                             111111111111111111111111111166fff1111111111111111f1111f1
                         `, SpriteKind.Creature)
-                    case 131:
-                        creatureImageDex[i] = sprites.create(img`
+            case 131:
+                return sprites.create(img`
                             111111bb11111bbb1111111111111111111111111111111111111111
                             11111b11f11bb119ff11111bff111111111111111111111111111111
                             11111f119ff1119999f11bf111ff1111111111111111111111111111
@@ -6982,8 +6987,8 @@ namespace creatures {
                             11111111111111111111111111111111111ffffb1111ff111ff11ff1
                             1111111111111111111111111111111111111111bfff111111bff111
                         `, SpriteKind.Creature)
-                    case 132:
-                        creatureImageDex[i] = sprites.create(img`
+            case 132:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             11111111111111111111111111111111fff11111
@@ -7025,8 +7030,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 133:
-                        creatureImageDex[i] = sprites.create(img`
+            case 133:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             11111111111111111111111111111ff111111111
@@ -7068,8 +7073,8 @@ namespace creatures {
                             11111111111f1bdbf11111111111111111111111
                             111111111111bffb111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 134:
-                        creatureImageDex[i] = sprites.create(img`
+            case 134:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -7119,8 +7124,8 @@ namespace creatures {
                             11111111111f1f1ff111111111bfffb111111f1f1f1f1111
                             111111111111bffb1111111111111111111111bfffb11111
                         `, SpriteKind.Creature)
-                    case 135:
-                        creatureImageDex[i] = sprites.create(img`
+            case 135:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
@@ -7170,8 +7175,8 @@ namespace creatures {
                             1111111111114ff411111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 136:
-                        creatureImageDex[i] = sprites.create(img`
+            case 136:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             11111111111111111fffffff1111ffff1111111111111111
                             111111111111111ff1111111ffff4444f111111111111111
@@ -7221,8 +7226,8 @@ namespace creatures {
                             11111111111111111111f11f11f1f1111111111111111111
                             111111111111111111111fffffff11111111111111111111
                         `, SpriteKind.Creature)
-                    case 137:
-                        creatureImageDex[i] = sprites.create(img`
+            case 137:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             1111111111111111111111111111111111fb111111111111
@@ -7272,8 +7277,8 @@ namespace creatures {
                             1111dddddd111111111111111111111111111dddddd11111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 138:
-                        creatureImageDex[i] = sprites.create(img`
+            case 138:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -7315,8 +7320,8 @@ namespace creatures {
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 139:
-                        creatureImageDex[i] = sprites.create(img`
+            case 139:
+                return sprites.create(img`
                             11111111111111111111111111ff11111111111111111111
                             1111111111111111111111111f11f1111111111111111111
                             11111111111111111b6f11111fbb1f111111ff1111111111
@@ -7366,8 +7371,8 @@ namespace creatures {
                             111111f6666fff1111111111111f6666666ff1116ff61111
                             1111111ffff11111111111111111fffffff1111111111111
                         `, SpriteKind.Creature)
-                    case 140:
-                        creatureImageDex[i] = sprites.create(img`
+            case 140:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
                             1111111111111111111111111111111111111111
@@ -7409,8 +7414,8 @@ namespace creatures {
                             111111111111111111111fffff11111111111111
                             1111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 141:
-                        creatureImageDex[i] = sprites.create(img`
+            case 141:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111ffe111111111111111111111111111111fff111111
                             111111f31fe11111111111111111111111111ffe3f111111
@@ -7460,8 +7465,8 @@ namespace creatures {
                             11111111efffe31111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 142:
-                        creatureImageDex[i] = sprites.create(img`
+            case 142:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
@@ -7519,8 +7524,8 @@ namespace creatures {
                             11111bfdddfb11111111111111111111111111ffffbbbbbbbbbff111
                             1111111bff11111111111111111111111111111111fffffffff11111
                         `, SpriteKind.Creature)
-                    case 143:
-                        creatureImageDex[i] = sprites.create(img`
+            case 143:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111131111111111111111111111111
                             11111111111111111111111111111ff3111111111111111111111111
@@ -7578,8 +7583,8 @@ namespace creatures {
                             1111111d3ffffff3d111111111111111111111111111111111111111
                             111111111dddddd11111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 144:
-                        creatureImageDex[i] = sprites.create(img`
+            case 144:
+                return sprites.create(img`
                             ffff11111111111111111111111111111111111111111111116fffff
                             fb11f1111111111111111111111111111111111111111111ff11111f
                             fbb1f11111111111111111111111111111111111111111ff1111111f
@@ -7637,8 +7642,8 @@ namespace creatures {
                             111111f111bfff6111111111111111111111116ffff6611111111111
                             111111ffff6111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 145:
-                        creatureImageDex[i] = sprites.create(img`
+            case 145:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             1111111111111111111f111111111111111111111111111111111111
                             111111111111111111fdf11111111111111111111111111111111111
@@ -7696,8 +7701,8 @@ namespace creatures {
                             11111111111111111414111f1f111114141111111111111111111111
                             11111111111111111141111111111111411111111111111111111111
                         `, SpriteKind.Creature)
-                    case 146:
-                        creatureImageDex[i] = sprites.create(img`
+            case 146:
+                return sprites.create(img`
                             11111111111111114411111111111111111111111111fff111111111
                             1111111111111f1411411114f411111111111114111f1f4ff1111111
                             111411111111f14111111ff111f1111114f41114414111f44ff11111
@@ -7755,8 +7760,8 @@ namespace creatures {
                             11111111111111111111111111111111111111111111111111114ff1
                             111111111111111111111111111111111111111111111111111114f1
                         `, SpriteKind.Creature)
-                    case 147:
-                        creatureImageDex[i] = sprites.create(img`
+            case 147:
+                return sprites.create(img`
                             1111111111111111111111111111111111111111
                             111111111111111111bfffb11111111111111111
                             1111111111111111bf11111f1111111111111111
@@ -7798,8 +7803,8 @@ namespace creatures {
                             11111111111fb11d11bfb1111111111111111111
                             1111111111111bfffb1111111111111111111111
                         `, SpriteKind.Creature)
-                    case 148:
-                        creatureImageDex[i] = sprites.create(img`
+            case 148:
+                return sprites.create(img`
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                             111161111111111111ff1111111111111111111111111111
@@ -7849,8 +7854,8 @@ namespace creatures {
                             111111111111111111111111111111111111111111111111
                             111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 149:
-                        creatureImageDex[i] = sprites.create(img`
+            case 149:
+                return sprites.create(img`
                             11111111111111111111111111111111111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                             111f1111111fff11ff11111111111111111111111111111111111111
@@ -7908,8 +7913,8 @@ namespace creatures {
                             11111111111111111111111111fffe11111111111111111111111111
                             11111111111111111111111111111111111111111111111111111111
                         `, SpriteKind.Creature)
-                    case 150:
-                        creatureImageDex[i] = sprites.create(img`
+            case 150:
+                return sprites.create(img`
                             111111ff111111111111bff111111111111111111111111111111111
                             11111b11f1111111111b111f11111111111111111111111111111111
                             11111f111f111111111f111df1111111111111111111111111111111
@@ -7967,8 +7972,8 @@ namespace creatures {
                             1111111111111111fffddddbffff1111111111111fdddfffdddf1111
                             1111111111111111111ffff1111111111111111111fff111fff11111
                         `, SpriteKind.Creature)
-                    case 151:
-                        creatureImageDex[i] = sprites.create(img`
+            case 151:
+                return sprites.create(img`
                             1111111111111111111111111111111bfb111111
                             11111111111111111111111111111bf111fb1111
                             1111111111111111111111111111b1111111f111
@@ -8010,12 +8015,134 @@ namespace creatures {
                             11111bffffffffff11111111ff11d11ddf111111
                             11111111111111111111111111bfffffb1111111
                         `, SpriteKind.Creature)
-                }
-                creatureImageDex[i].setFlag(SpriteFlag.Invisible, true);
-            }
-        } else {
-            //already exists
         }
+        
+    }
+
+    function getMoveFromType(creatureType: CreatureType): string {
+        switch (creatureType) {
+            case CreatureType.Bug:
+                return "Bug Bite";
+                break;
+            case CreatureType.Dark:
+                return "Bite";
+                break;
+            case CreatureType.Dragon:
+                return "Dragon Claw";
+                break;
+            case CreatureType.Electric:
+                return "Thunderbolt";
+                break;
+            case CreatureType.Fairy:
+                return "Moonblast";
+                break;
+            case CreatureType.Fighting:
+                return "Brick Break";
+                break;
+            case CreatureType.Fire:
+                return "Flame Thrower";
+                break;
+            case CreatureType.Flying:
+                return "Wing Attack";
+                break;
+            case CreatureType.Ghost:
+                return "Hex";
+                break;
+            case CreatureType.Grass:
+                return "Razor Leaf";
+                break;
+            case CreatureType.Ground:
+                return "Earthquake";
+                break;
+            case CreatureType.Ice:
+                return "Ice Beam";
+                break;
+            case CreatureType.Normal:
+                return "Swift";
+                break;
+            case CreatureType.Poison:
+                return "Sludge Bomb";
+                break;
+            case CreatureType.Psychic:
+                return "Psychic";
+                break;
+            case CreatureType.Rock:
+                return "Rock Tomb";
+                break;
+            case CreatureType.Steel:
+                return "Flash Cannon";
+                break;
+            case CreatureType.Water:
+                return "Surf";
+                break;
+            case CreatureType.None:
+                return "Tackle";
+                break;
+        }
+        return "";
+    }
+
+    function getTypeFromMove(move: string): CreatureType {
+        switch (move) {
+            case "Bug Bite":
+                return CreatureType.Bug;
+                break;
+            case "Bite":
+                return CreatureType.Dark;
+                break;
+            case "Dragon Claw":
+                return CreatureType.Dragon;
+                break;
+            case "Thunderbolt":
+                return CreatureType.Electric;
+                break;
+            case "Moonblast":
+                return CreatureType.Fairy;
+                break;
+            case "Brick Break":
+                return CreatureType.Fighting;
+                break;
+            case "Flame Thrower":
+                return CreatureType.Fire;
+                break;
+            case "Wing Attack":
+                return CreatureType.Flying;
+                break;
+            case "Hex":
+                return CreatureType.Ghost;
+                break;
+            case "Razor Leaf":
+                return CreatureType.Grass;
+                break;
+            case "Earthquake":
+                return CreatureType.Ground;
+                break;
+            case "Ice Beam":
+                return CreatureType.Ice;
+                break;
+            case "Swift":
+                return CreatureType.Normal;
+                break;
+            case "Sludge Bomb":
+                return CreatureType.Poison;
+                break;
+            case "Psychic":
+                return CreatureType.Psychic;
+                break;
+            case "Rock Tomb":
+                return CreatureType.Rock;
+                break;
+            case "Flash Cannon":
+                return CreatureType.Steel;
+                break;
+            case "Surf":
+                return CreatureType.Water;
+                break;
+            case "Tackle":
+                return CreatureType.Normal;
+                break;
+        }
+        return CreatureType.None;
     }
 
     //% blockId=makeCreatureFromID 
@@ -8024,606 +8151,605 @@ namespace creatures {
     //% blockSetVariable=myCreature
     //% group="Create"
     //% weight=99
-    export function makeCreatureFromID(id: number, xp: number = 0, hp: number = 20, attackValue: number = 5): Creature{
+    export function makeCreatureFromID(id: number, xp: number = 0, hp: number = 20, attackValue: number = 5): Creature {
         //return null;
-        if(id > 151) {
+        let sprite = makeCreatureImageDex(id);
+        if (id > 151) {
             return null;
         }
-        if(creatureImageDex.length == 1) {
-            makeCreatureImageDex();
-        } 
-        switch(id){
+        
+        switch (id) {
             case 0:
-                return new Creature(new Sprite(creatureImageDex[0].image), CreatureType.None, CreatureType.None, "Missingno", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.None, CreatureType.None, "Missingno", xp, hp, attackValue);
                 break;
             case 1:
-                return new Creature(new Sprite(creatureImageDex[1].image), CreatureType.Grass, CreatureType.Poison, "Bulbasaur", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Bulbasaur", xp, hp, attackValue);
                 break;
             case 2:
-                return new Creature(new Sprite(creatureImageDex[2].image), CreatureType.Grass, CreatureType.Poison, "Ivysaur", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Ivysaur", xp, hp, attackValue);
                 break;
             case 3:
-                return new Creature(new Sprite(creatureImageDex[3].image), CreatureType.Grass, CreatureType.Poison, "Venosaur", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Venosaur", xp, hp, attackValue);
                 break;
-            case 4: 
-                return new Creature(new Sprite(creatureImageDex[4].image), CreatureType.Fire, CreatureType.None, "Charmander", xp, hp, attackValue);
+            case 4:
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Charmander", xp, hp, attackValue);
                 break;
-            case 5: 
-                return new Creature(new Sprite(creatureImageDex[5].image), CreatureType.Fire, CreatureType.None, "Charmeleon", xp, hp, attackValue);
+            case 5:
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Charmeleon", xp, hp, attackValue);
                 break;
             case 6:
-                return new Creature(new Sprite(creatureImageDex[6].image), CreatureType.Fire, CreatureType.Flying, "Charizard", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.Flying, "Charizard", xp, hp, attackValue);
                 break;
             case 7:
-                return new Creature(new Sprite(creatureImageDex[7].image), CreatureType.Water, CreatureType.None, "Squirtle", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Squirtle", xp, hp, attackValue);
                 break;
             case 8:
-                return new Creature(new Sprite(creatureImageDex[8].image), CreatureType.Water, CreatureType.None, "Wartortle", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Wartortle", xp, hp, attackValue);
                 break;
             case 9:
-                return new Creature(new Sprite(creatureImageDex[9].image), CreatureType.Water, CreatureType.None, "Blastoise", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Blastoise", xp, hp, attackValue);
                 break;
             case 10:
-                return new Creature(new Sprite(creatureImageDex[10].image), CreatureType.Bug, CreatureType.None, "Caterpie", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Caterpie", xp, hp, attackValue);
                 break;
             case 11:
-                return new Creature(new Sprite(creatureImageDex[11].image), CreatureType.Bug, CreatureType.None, "Metapod", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Metapod", xp, hp, attackValue);
                 break;
             case 12:
-                return new Creature(new Sprite(creatureImageDex[12].image), CreatureType.Bug, CreatureType.Flying, "Butterfree", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.Flying, "Butterfree", xp, hp, attackValue);
                 break;
             case 13:
-                return new Creature(new Sprite(creatureImageDex[13].image), CreatureType.Bug, CreatureType.None, "Weedle", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Weedle", xp, hp, attackValue);
                 break;
             case 14:
-                return new Creature(new Sprite(creatureImageDex[14].image), CreatureType.Bug, CreatureType.None, "Kakuna", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Kakuna", xp, hp, attackValue);
                 break;
             case 15:
-                return new Creature(new Sprite(creatureImageDex[15].image), CreatureType.Bug, CreatureType.None, "Beedrill", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Beedrill", xp, hp, attackValue);
                 break;
             case 16:
-                return new Creature(new Sprite(creatureImageDex[16].image), CreatureType.Normal, CreatureType.Flying, "Pidgey", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Pidgey", xp, hp, attackValue);
                 break;
             case 17:
-                return new Creature(new Sprite(creatureImageDex[17].image), CreatureType.Normal, CreatureType.Flying, "Pidgeotto", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Pidgeotto", xp, hp, attackValue);
                 break;
             case 18:
-                return new Creature(new Sprite(creatureImageDex[18].image), CreatureType.Normal, CreatureType.Flying, "Pidgeot", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Pidgeot", xp, hp, attackValue);
                 break;
             case 19:
-                return new Creature(new Sprite(creatureImageDex[19].image), CreatureType.Normal, CreatureType.None, "Rattata", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Rattata", xp, hp, attackValue);
                 break;
             case 20:
-                return new Creature(new Sprite(creatureImageDex[20].image), CreatureType.Normal, CreatureType.None, "Raticate", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Raticate", xp, hp, attackValue);
                 break;
             case 21:
-                return new Creature(new Sprite(creatureImageDex[21].image), CreatureType.Normal, CreatureType.Flying, "Spearow", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Spearow", xp, hp, attackValue);
 
                 break;
             case 22:
-                return new Creature(new Sprite(creatureImageDex[22].image), CreatureType.Normal, CreatureType.Flying, "Fearow", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Fearow", xp, hp, attackValue);
 
                 break;
             case 23:
-                return new Creature(new Sprite(creatureImageDex[23].image), CreatureType.Poison, CreatureType.None, "Ekans", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Ekans", xp, hp, attackValue);
 
                 break;
             case 24:
-                return new Creature(new Sprite(creatureImageDex[24].image), CreatureType.Poison, CreatureType.None, "Arbok", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Arbok", xp, hp, attackValue);
 
                 break;
             case 25:
-                return new Creature(new Sprite(creatureImageDex[25].image), CreatureType.Electric, CreatureType.None, "Pikachu", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Pikachu", xp, hp, attackValue);
 
                 break;
             case 26:
-                return new Creature(new Sprite(creatureImageDex[26].image), CreatureType.Electric, CreatureType.None, "Raichu", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Raichu", xp, hp, attackValue);
 
                 break;
             case 27:
-                return new Creature(new Sprite(creatureImageDex[27].image), CreatureType.Ground, CreatureType.None, "Sandshrew", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Sandshrew", xp, hp, attackValue);
 
                 break;
             case 28:
-                return new Creature(new Sprite(creatureImageDex[28].image), CreatureType.Ground, CreatureType.None, "Sandslash", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Sandslash", xp, hp, attackValue);
 
                 break;
             case 29:
-                return new Creature(new Sprite(creatureImageDex[29].image), CreatureType.Poison, CreatureType.None, "Nidoran (f)", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidoran (f)", xp, hp, attackValue);
 
                 break;
             case 30:
-                return new Creature(new Sprite(creatureImageDex[30].image), CreatureType.Poison, CreatureType.None, "Nidorina", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidorina", xp, hp, attackValue);
 
                 break;
             case 31:
-                return new Creature(new Sprite(creatureImageDex[31].image), CreatureType.Poison, CreatureType.Ground, "Nidoqueen", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.Ground, "Nidoqueen", xp, hp, attackValue);
 
                 break;
             case 32:
-                return new Creature(new Sprite(creatureImageDex[32].image), CreatureType.Poison, CreatureType.None, "Nidoran (m)", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidoran (m)", xp, hp, attackValue);
 
                 break;
             case 33:
-                return new Creature(new Sprite(creatureImageDex[33].image), CreatureType.Poison, CreatureType.None, "Nidorino", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidorino", xp, hp, attackValue);
 
                 break;
             case 34:
-                return new Creature(new Sprite(creatureImageDex[34].image), CreatureType.Poison, CreatureType.Ground, "Nidoking", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.Ground, "Nidoking", xp, hp, attackValue);
 
                 break;
             case 35:
-                return new Creature(new Sprite(creatureImageDex[35].image), CreatureType.Fairy, CreatureType.None, "Clefairy", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fairy, CreatureType.None, "Clefairy", xp, hp, attackValue);
 
                 break;
             case 36:
-                return new Creature(new Sprite(creatureImageDex[36].image), CreatureType.Fairy, CreatureType.None, "Clefable", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fairy, CreatureType.None, "Clefable", xp, hp, attackValue);
 
                 break;
             case 37:
-                return new Creature(new Sprite(creatureImageDex[37].image), CreatureType.Fire, CreatureType.None, "Vulpix", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Vulpix", xp, hp, attackValue);
 
                 break;
             case 38:
-                return new Creature(new Sprite(creatureImageDex[38].image), CreatureType.Fire, CreatureType.None, "Ninetales", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Ninetales", xp, hp, attackValue);
 
                 break;
             case 39:
-                return new Creature(new Sprite(creatureImageDex[39].image), CreatureType.Normal, CreatureType.Fairy, "Jigglypuff", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Fairy, "Jigglypuff", xp, hp, attackValue);
 
                 break;
             case 40:
-                return new Creature(new Sprite(creatureImageDex[40].image), CreatureType.Normal, CreatureType.Fairy, "Wigglytuff", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Fairy, "Wigglytuff", xp, hp, attackValue);
 
                 break;
             case 41:
-                return new Creature(new Sprite(creatureImageDex[41].image), CreatureType.Poison, CreatureType.Flying, "Zubat", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.Flying, "Zubat", xp, hp, attackValue);
 
                 break;
             case 42:
-                return new Creature(new Sprite(creatureImageDex[42].image), CreatureType.Poison, CreatureType.Flying, "Golbat", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.Flying, "Golbat", xp, hp, attackValue);
 
                 break;
             case 43:
-                return new Creature(new Sprite(creatureImageDex[43].image), CreatureType.Grass, CreatureType.Poison, "Oddish", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Oddish", xp, hp, attackValue);
 
                 break;
             case 44:
-                return new Creature(new Sprite(creatureImageDex[44].image), CreatureType.Grass, CreatureType.Poison, "Gloom", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Gloom", xp, hp, attackValue);
 
                 break;
             case 45:
-                return new Creature(new Sprite(creatureImageDex[45].image), CreatureType.Grass, CreatureType.Poison, "Vileplume", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Vileplume", xp, hp, attackValue);
 
                 break;
             case 46:
-                return new Creature(new Sprite(creatureImageDex[46].image), CreatureType.Bug, CreatureType.Grass, "Paras", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.Grass, "Paras", xp, hp, attackValue);
 
                 break;
             case 47:
-                return new Creature(new Sprite(creatureImageDex[47].image), CreatureType.Bug, CreatureType.Grass, "Parasect", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.Grass, "Parasect", xp, hp, attackValue);
 
                 break;
             case 48:
-                return new Creature(new Sprite(creatureImageDex[48].image), CreatureType.Bug, CreatureType.Poison, "Venonat", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.Poison, "Venonat", xp, hp, attackValue);
 
                 break;
             case 49:
-                return new Creature(new Sprite(creatureImageDex[49].image), CreatureType.Bug, CreatureType.Poison, "Venomoth", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.Poison, "Venomoth", xp, hp, attackValue);
 
                 break;
             case 50:
-                return new Creature(new Sprite(creatureImageDex[50].image), CreatureType.Ground, CreatureType.None, "Diglett", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Diglett", xp, hp, attackValue);
 
                 break;
             case 51:
-                return new Creature(new Sprite(creatureImageDex[51].image), CreatureType.Ground, CreatureType.None, "Dugtrio", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Dugtrio", xp, hp, attackValue);
 
                 break;
             case 52:
-                return new Creature(new Sprite(creatureImageDex[52].image), CreatureType.Normal, CreatureType.None, "Meowth", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Meowth", xp, hp, attackValue);
 
                 break;
             case 53:
-                return new Creature(new Sprite(creatureImageDex[53].image), CreatureType.Normal, CreatureType.None, "Persian", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Persian", xp, hp, attackValue);
 
                 break;
             case 54:
-                return new Creature(new Sprite(creatureImageDex[54].image), CreatureType.Water, CreatureType.None, "Psyduck", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Psyduck", xp, hp, attackValue);
 
                 break;
             case 55:
-                return new Creature(new Sprite(creatureImageDex[55].image), CreatureType.Water, CreatureType.None, "Golduck", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Golduck", xp, hp, attackValue);
 
                 break;
             case 56:
-                return new Creature(new Sprite(creatureImageDex[56].image), CreatureType.Fighting, CreatureType.None, "Mankey", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Mankey", xp, hp, attackValue);
 
                 break;
             case 57:
-                return new Creature(new Sprite(creatureImageDex[57].image), CreatureType.Fighting, CreatureType.None, "Primeape", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Primeape", xp, hp, attackValue);
 
                 break;
             case 58:
-                return new Creature(new Sprite(creatureImageDex[58].image), CreatureType.Fire, CreatureType.None, "Growlithe", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Growlithe", xp, hp, attackValue);
 
                 break;
             case 59:
-                return new Creature(new Sprite(creatureImageDex[59].image), CreatureType.Fire, CreatureType.None, "Arcanine", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Arcanine", xp, hp, attackValue);
 
                 break;
             case 60:
-                return new Creature(new Sprite(creatureImageDex[60].image), CreatureType.Water, CreatureType.None, "Poliwag", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Poliwag", xp, hp, attackValue);
 
                 break;
             case 61:
-                return new Creature(new Sprite(creatureImageDex[61].image), CreatureType.Water, CreatureType.None, "Poliwhirl", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Poliwhirl", xp, hp, attackValue);
 
                 break;
             case 62:
-                return new Creature(new Sprite(creatureImageDex[62].image), CreatureType.Water, CreatureType.Fighting, "Poliwrath", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Fighting, "Poliwrath", xp, hp, attackValue);
 
                 break;
             case 63:
-                return new Creature(new Sprite(creatureImageDex[63].image), CreatureType.Psychic, CreatureType.None, "Abra", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Abra", xp, hp, attackValue);
 
                 break;
             case 64:
-                return new Creature(new Sprite(creatureImageDex[64].image), CreatureType.Psychic, CreatureType.None, "Kadabra", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Kadabra", xp, hp, attackValue);
 
                 break;
             case 65:
-                return new Creature(new Sprite(creatureImageDex[65].image), CreatureType.Psychic, CreatureType.None, "Alakazam", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Alakazam", xp, hp, attackValue);
 
                 break;
             case 66:
-                return new Creature(new Sprite(creatureImageDex[66].image), CreatureType.Fighting, CreatureType.None, "Machop", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Machop", xp, hp, attackValue);
 
                 break;
             case 67:
-                return new Creature(new Sprite(creatureImageDex[67].image), CreatureType.Fighting, CreatureType.None, "Machoke", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Machoke", xp, hp, attackValue);
 
                 break;
             case 68:
-                return new Creature(new Sprite(creatureImageDex[68].image), CreatureType.Fighting, CreatureType.None, "Machamp", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Machamp", xp, hp, attackValue);
 
                 break;
             case 69:
-                return new Creature(new Sprite(creatureImageDex[69].image), CreatureType.Grass, CreatureType.Poison, "Bellsprout", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Bellsprout", xp, hp, attackValue);
 
                 break;
             case 70:
-                return new Creature(new Sprite(creatureImageDex[70].image), CreatureType.Grass, CreatureType.Poison, "Weepinbell", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Weepinbell", xp, hp, attackValue);
 
                 break;
             case 71:
-                return new Creature(new Sprite(creatureImageDex[71].image), CreatureType.Grass, CreatureType.Poison, "Victreebel", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Victreebel", xp, hp, attackValue);
 
                 break;
             case 72:
-                return new Creature(new Sprite(creatureImageDex[72].image), CreatureType.Water, CreatureType.Poison, "Tentacool", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Poison, "Tentacool", xp, hp, attackValue);
 
                 break;
             case 73:
-                return new Creature(new Sprite(creatureImageDex[73].image), CreatureType.Water, CreatureType.Poison, "Tentacruel", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Poison, "Tentacruel", xp, hp, attackValue);
 
                 break;
             case 74:
-                return new Creature(new Sprite(creatureImageDex[74].image), CreatureType.Rock, CreatureType.Ground, "Geodude", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Ground, "Geodude", xp, hp, attackValue);
 
                 break;
             case 75:
-                return new Creature(new Sprite(creatureImageDex[75].image), CreatureType.Rock, CreatureType.Ground, "Graveler", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Ground, "Graveler", xp, hp, attackValue);
 
                 break;
             case 76:
-                return new Creature(new Sprite(creatureImageDex[76].image), CreatureType.Rock, CreatureType.Ground, "Golem", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Ground, "Golem", xp, hp, attackValue);
 
                 break;
             case 77:
-                return new Creature(new Sprite(creatureImageDex[77].image), CreatureType.Fire, CreatureType.None, "Ponyta", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Ponyta", xp, hp, attackValue);
 
                 break;
             case 78:
-                return new Creature(new Sprite(creatureImageDex[78].image), CreatureType.Fire, CreatureType.None, "Rapidash", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Rapidash", xp, hp, attackValue);
 
                 break;
             case 79:
-                return new Creature(new Sprite(creatureImageDex[79].image), CreatureType.Water, CreatureType.Psychic, "Slowpoke", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Psychic, "Slowpoke", xp, hp, attackValue);
 
                 break;
             case 80:
-                return new Creature(new Sprite(creatureImageDex[80].image), CreatureType.Water, CreatureType.Psychic, "Slowbro", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Psychic, "Slowbro", xp, hp, attackValue);
 
                 break;
             case 81:
-                return new Creature(new Sprite(creatureImageDex[81].image), CreatureType.Electric, CreatureType.Steel, "Magnemite", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.Steel, "Magnemite", xp, hp, attackValue);
 
                 break;
             case 82:
-                return new Creature(new Sprite(creatureImageDex[82].image), CreatureType.Electric, CreatureType.Steel, "Magneton", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.Steel, "Magneton", xp, hp, attackValue);
 
                 break;
             case 83:
-                return new Creature(new Sprite(creatureImageDex[83].image), CreatureType.Normal, CreatureType.Flying, "Farfetchd", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Farfetchd", xp, hp, attackValue);
 
                 break;
             case 84:
-                return new Creature(new Sprite(creatureImageDex[84].image), CreatureType.Normal, CreatureType.Flying, "Doduo", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Doduo", xp, hp, attackValue);
 
                 break;
             case 85:
-                return new Creature(new Sprite(creatureImageDex[85].image), CreatureType.Normal, CreatureType.Flying, "Dodrio", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Dodrio", xp, hp, attackValue);
 
                 break;
             case 86:
-                return new Creature(new Sprite(creatureImageDex[86].image), CreatureType.Water, CreatureType.None, "Seel", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Seel", xp, hp, attackValue);
 
                 break;
             case 87:
-                return new Creature(new Sprite(creatureImageDex[87].image), CreatureType.Water, CreatureType.Ice, "Dewgong", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Ice, "Dewgong", xp, hp, attackValue);
 
                 break;
             case 88:
-                return new Creature(new Sprite(creatureImageDex[88].image), CreatureType.Poison, CreatureType.None, "Grimer", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Grimer", xp, hp, attackValue);
 
                 break;
             case 89:
-                return new Creature(new Sprite(creatureImageDex[89].image), CreatureType.Poison, CreatureType.None, "Muk", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Muk", xp, hp, attackValue);
 
                 break;
             case 90:
-                return new Creature(new Sprite(creatureImageDex[90].image), CreatureType.Water, CreatureType.None, "Shelder", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Shelder", xp, hp, attackValue);
 
                 break;
             case 91:
-                return new Creature(new Sprite(creatureImageDex[91].image), CreatureType.Water, CreatureType.Ice, "Cloyster", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Ice, "Cloyster", xp, hp, attackValue);
 
                 break;
             case 92:
-                return new Creature(new Sprite(creatureImageDex[92].image), CreatureType.Ghost, CreatureType.Poison, "Gastly", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ghost, CreatureType.Poison, "Gastly", xp, hp, attackValue);
 
                 break;
             case 93:
-                return new Creature(new Sprite(creatureImageDex[93].image), CreatureType.Ghost, CreatureType.Poison, "Haunter", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ghost, CreatureType.Poison, "Haunter", xp, hp, attackValue);
 
                 break;
             case 94:
-                return new Creature(new Sprite(creatureImageDex[94].image), CreatureType.Ghost, CreatureType.Poison, "Gengar", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ghost, CreatureType.Poison, "Gengar", xp, hp, attackValue);
 
                 break;
             case 95:
-                return new Creature(new Sprite(creatureImageDex[95].image), CreatureType.Rock, CreatureType.Ground, "Onix", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Ground, "Onix", xp, hp, attackValue);
 
                 break;
             case 96:
-                return new Creature(new Sprite(creatureImageDex[96].image), CreatureType.Psychic, CreatureType.None, "Drowsee", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Drowsee", xp, hp, attackValue);
 
                 break;
             case 97:
-                return new Creature(new Sprite(creatureImageDex[97].image), CreatureType.Psychic, CreatureType.None, "Hypno", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Hypno", xp, hp, attackValue);
 
                 break;
             case 98:
-                return new Creature(new Sprite(creatureImageDex[98].image), CreatureType.Water, CreatureType.None, "Krabby", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Krabby", xp, hp, attackValue);
 
                 break;
             case 99:
-                return new Creature(new Sprite(creatureImageDex[99].image), CreatureType.Water, CreatureType.None, "Kingler", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Kingler", xp, hp, attackValue);
 
                 break;
             case 100:
-                return new Creature(new Sprite(creatureImageDex[100].image), CreatureType.Electric, CreatureType.None, "Voltorb", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Voltorb", xp, hp, attackValue);
 
                 break;
             case 101:
-                return new Creature(new Sprite(creatureImageDex[101].image), CreatureType.Electric, CreatureType.None, "Electrode", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Electrode", xp, hp, attackValue);
 
                 break;
             case 102:
-                return new Creature(new Sprite(creatureImageDex[102].image), CreatureType.Grass, CreatureType.Psychic, "Exeggcute", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Psychic, "Exeggcute", xp, hp, attackValue);
 
                 break;
             case 103:
-                return new Creature(new Sprite(creatureImageDex[103].image), CreatureType.Grass, CreatureType.Psychic, "Exeggutor", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Psychic, "Exeggutor", xp, hp, attackValue);
 
                 break;
             case 104:
-                return new Creature(new Sprite(creatureImageDex[104].image), CreatureType.Ground, CreatureType.None, "Cubone", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Cubone", xp, hp, attackValue);
 
                 break;
             case 105:
-                return new Creature(new Sprite(creatureImageDex[105].image), CreatureType.Ground, CreatureType.None, "Marowak", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Marowak", xp, hp, attackValue);
 
                 break;
             case 106:
-                return new Creature(new Sprite(creatureImageDex[106].image), CreatureType.Fighting, CreatureType.None, "Hitmonlee", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Hitmonlee", xp, hp, attackValue);
 
                 break;
             case 107:
-                return new Creature(new Sprite(creatureImageDex[107].image), CreatureType.Fighting, CreatureType.None, "Hitmonchan", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Hitmonchan", xp, hp, attackValue);
 
                 break;
             case 108:
-                return new Creature(new Sprite(creatureImageDex[108].image), CreatureType.Normal, CreatureType.None, "Lickitung", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Lickitung", xp, hp, attackValue);
 
                 break;
             case 109:
-                return new Creature(new Sprite(creatureImageDex[109].image), CreatureType.Poison, CreatureType.None, "Koffing", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Koffing", xp, hp, attackValue);
 
                 break;
             case 110:
-                return new Creature(new Sprite(creatureImageDex[110].image), CreatureType.Poison, CreatureType.None, "Weezing", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Weezing", xp, hp, attackValue);
 
                 break;
             case 111:
-                return new Creature(new Sprite(creatureImageDex[111].image), CreatureType.Ground, CreatureType.Rock, "Rhyhorn", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.Rock, "Rhyhorn", xp, hp, attackValue);
 
                 break;
             case 112:
-                return new Creature(new Sprite(creatureImageDex[112].image), CreatureType.Ground, CreatureType.Rock, "Rhydon", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.Rock, "Rhydon", xp, hp, attackValue);
 
                 break;
             case 113:
-                return new Creature(new Sprite(creatureImageDex[113].image), CreatureType.Normal, CreatureType.None, "Chansey", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Chansey", xp, hp, attackValue);
 
                 break;
             case 114:
-                return new Creature(new Sprite(creatureImageDex[114].image), CreatureType.Grass, CreatureType.None, "Tangela", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.None, "Tangela", xp, hp, attackValue);
 
                 break;
             case 115:
-                return new Creature(new Sprite(creatureImageDex[115].image), CreatureType.Normal, CreatureType.None, "Kangaskhan", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Kangaskhan", xp, hp, attackValue);
 
                 break;
             case 116:
-                return new Creature(new Sprite(creatureImageDex[116].image), CreatureType.Water, CreatureType.None, "Horsea", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Horsea", xp, hp, attackValue);
 
                 break;
             case 117:
-                return new Creature(new Sprite(creatureImageDex[117].image), CreatureType.Water, CreatureType.None, "Seadra", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Seadra", xp, hp, attackValue);
 
                 break;
             case 118:
-                return new Creature(new Sprite(creatureImageDex[118].image), CreatureType.Water, CreatureType.None, "Goldeen", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Goldeen", xp, hp, attackValue);
 
                 break;
             case 119:
-                return new Creature(new Sprite(creatureImageDex[119].image), CreatureType.Water, CreatureType.None, "Seaking", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Seaking", xp, hp, attackValue);
 
                 break;
             case 120:
-                return new Creature(new Sprite(creatureImageDex[120].image), CreatureType.Water, CreatureType.None, "Staryu", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Staryu", xp, hp, attackValue);
 
                 break;
             case 121:
-                return new Creature(new Sprite(creatureImageDex[121].image), CreatureType.Water, CreatureType.Psychic, "Starmie", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Psychic, "Starmie", xp, hp, attackValue);
 
                 break;
             case 122:
-                return new Creature(new Sprite(creatureImageDex[122].image), CreatureType.Psychic, CreatureType.Fairy, "Mr. Mime", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.Fairy, "Mr. Mime", xp, hp, attackValue);
 
                 break;
             case 123:
-                return new Creature(new Sprite(creatureImageDex[123].image), CreatureType.Bug, CreatureType.Flying, "Scyther", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.Flying, "Scyther", xp, hp, attackValue);
 
                 break;
             case 124:
-                return new Creature(new Sprite(creatureImageDex[124].image), CreatureType.Ice, CreatureType.Psychic, "Jynx", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ice, CreatureType.Psychic, "Jynx", xp, hp, attackValue);
 
                 break;
             case 125:
-                return new Creature(new Sprite(creatureImageDex[125].image), CreatureType.Electric, CreatureType.None, "Electabuzz", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Electabuzz", xp, hp, attackValue);
 
                 break;
             case 126:
-                return new Creature(new Sprite(creatureImageDex[126].image), CreatureType.Fire, CreatureType.None, "Magmar", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Magmar", xp, hp, attackValue);
 
                 break;
             case 127:
-                return new Creature(new Sprite(creatureImageDex[127].image), CreatureType.Bug, CreatureType.None, "Pinsir", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Pinsir", xp, hp, attackValue);
 
                 break;
             case 128:
-                return new Creature(new Sprite(creatureImageDex[128].image), CreatureType.Normal, CreatureType.None, "Tauros", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Tauros", xp, hp, attackValue);
 
                 break;
             case 129:
-                return new Creature(new Sprite(creatureImageDex[129].image), CreatureType.Water, CreatureType.None, "Magikarp", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Magikarp", xp, hp, attackValue);
 
                 break;
             case 130:
-                return new Creature(new Sprite(creatureImageDex[130].image), CreatureType.Water, CreatureType.Flying, "Gyarados", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Flying, "Gyarados", xp, hp, attackValue);
 
                 break;
             case 131:
-                return new Creature(new Sprite(creatureImageDex[131].image), CreatureType.Water, CreatureType.Ice, "Lapras", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Ice, "Lapras", xp, hp, attackValue);
 
                 break;
             case 132:
-                return new Creature(new Sprite(creatureImageDex[132].image), CreatureType.Normal, CreatureType.None, "Ditto", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Ditto", xp, hp, attackValue);
 
                 break;
             case 133:
-                return new Creature(new Sprite(creatureImageDex[133].image), CreatureType.Normal, CreatureType.None, "Eevee", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Eevee", xp, hp, attackValue);
 
                 break;
             case 134:
-                return new Creature(new Sprite(creatureImageDex[134].image), CreatureType.Water, CreatureType.None, "Vaporeon", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Vaporeon", xp, hp, attackValue);
 
                 break;
             case 135:
-                return new Creature(new Sprite(creatureImageDex[135].image), CreatureType.Electric, CreatureType.None, "Jolteon", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Jolteon", xp, hp, attackValue);
 
                 break;
             case 136:
-                return new Creature(new Sprite(creatureImageDex[136].image), CreatureType.Fire, CreatureType.None, "Flareon", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Flareon", xp, hp, attackValue);
 
                 break;
             case 137:
-                return new Creature(new Sprite(creatureImageDex[137].image), CreatureType.Normal, CreatureType.None, "Porygon", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Porygon", xp, hp, attackValue);
 
                 break;
             case 138:
-                return new Creature(new Sprite(creatureImageDex[138].image), CreatureType.Rock, CreatureType.Water, "Omanyte", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Water, "Omanyte", xp, hp, attackValue);
 
                 break;
             case 139:
-                return new Creature(new Sprite(creatureImageDex[139].image), CreatureType.Rock, CreatureType.Water, "Omastar", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Water, "Omastar", xp, hp, attackValue);
 
                 break;
             case 140:
-                return new Creature(new Sprite(creatureImageDex[140].image), CreatureType.Rock, CreatureType.Water, "Kabuto", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Water, "Kabuto", xp, hp, attackValue);
 
                 break;
             case 141:
-                return new Creature(new Sprite(creatureImageDex[141].image), CreatureType.Rock, CreatureType.Water, "Kabutops", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Water, "Kabutops", xp, hp, attackValue);
 
                 break;
             case 142:
-                return new Creature(new Sprite(creatureImageDex[142].image), CreatureType.Rock, CreatureType.Flying, "Aerodactyl", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Flying, "Aerodactyl", xp, hp, attackValue);
 
                 break;
             case 143:
-                return new Creature(new Sprite(creatureImageDex[143].image), CreatureType.Normal, CreatureType.None, "Snorlax", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Snorlax", xp, hp, attackValue);
 
                 break;
             case 144:
-                return new Creature(new Sprite(creatureImageDex[144].image), CreatureType.Ice, CreatureType.Flying, "Articuno", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ice, CreatureType.Flying, "Articuno", xp, hp, attackValue);
 
                 break;
             case 145:
-                return new Creature(new Sprite(creatureImageDex[145].image), CreatureType.Electric, CreatureType.Flying, "Zapdos", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.Flying, "Zapdos", xp, hp, attackValue);
 
                 break;
             case 146:
-                return new Creature(new Sprite(creatureImageDex[146].image), CreatureType.Fire, CreatureType.Flying, "Moltres", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.Flying, "Moltres", xp, hp, attackValue);
 
                 break;
             case 147:
-                return new Creature(new Sprite(creatureImageDex[147].image), CreatureType.Dragon, CreatureType.None, "Dratini", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Dragon, CreatureType.None, "Dratini", xp, hp, attackValue);
 
                 break;
             case 148:
-                return new Creature(new Sprite(creatureImageDex[148].image), CreatureType.Dragon, CreatureType.None, "Dragonair", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Dragon, CreatureType.None, "Dragonair", xp, hp, attackValue);
 
                 break;
             case 149:
-                return new Creature(new Sprite(creatureImageDex[149].image), CreatureType.Dragon, CreatureType.Flying, "Dragonite", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Dragon, CreatureType.Flying, "Dragonite", xp, hp, attackValue);
 
                 break;
             case 150:
-                return new Creature(new Sprite(creatureImageDex[150].image), CreatureType.Psychic, CreatureType.None, "Mewtwo", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Mewtwo", xp, hp, attackValue);
 
                 break;
             case 151:
-                return new Creature(new Sprite(creatureImageDex[151].image), CreatureType.Psychic, CreatureType.None, "Mew", xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Mew", xp, hp, attackValue);
 
                 break;
             default:
                 return null;
                 break;
-       }
+        }
     }
 
 
@@ -8701,126 +8827,126 @@ namespace creatures {
         let map: tiles.TileMapData = game.currentScene().tileMap.data;
         tiles.setCurrentTilemap(tilemap` `)
         scene.setBackgroundImage(img`
-    ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777ceeebec7777cecccebbbbbbbe77777cee77b77b7cebbbebeeec777cee77777777cbbbeebebe
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777ceebbbeb7777cecceebebbbbbe777777bebcee7b77ebbbebeeeec77cee77777777beebeebbbe
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777cebbbbeb7777ebcceebebbbbbe7777777ee7ee777bebbbebeeeec7ceee77777777bebbeebbbe
-    777777777777777777c77777777777777777777777777777777777777777777777777777777777777777eebbbe777777ebeeeebebbbbbb77777777ebee77777bbbbeebeee7eeec777777777ceeeebbbe
-    777777777777777777c77777777777777777777777777777777777777777777777777777777777777777eebbbe777777ebeeeebebbbbb7777777777ebbe7777bbbbebbeeeebee77777777777eeeebbee
-    777777777777777777c777777cc777777777777777777777777777777777777777777777777777777777eebbbe777777eebbeebebbbbb77777777b77eebbbb7ebbbebbeeebbee77777777777ebeebbee
-    77777777777777777cc7777ccc777777777777777777777777777777777777777777777777c777777777eebbbe7777777ebbeebebbbbe7777777777777ebb77ebbbebbbeeebe7777777777777beebbee
-    777777777777cc77cccc77cccc7777777b77777777777777777777777777777777777c7777c77777777cebbbbe7777777eebeebbbbbbe7777777777777ebbe7ebbbbbbbbeeec7777777777777bbebbbe
-    777777777777cc77cccc77ccc777c77777cc77777777c77777777777777777777777cc777cc7777777bcebebbb7777777eeeeeebbbbbeb777777777777bebbeeebbbbbebeee77777777777777ebebbbe
-    7777777cc777cc77cccc7cccc77cc7777cc777777777c77c77777b77777777777c77cc7777c7777777beebbbe77777777ceeeeebbbbbe777777777777777ebbbebbbbbeeeeec777777777c77cceebbbe
-    777c7777c7777cc7cccccccccb7cc7c77cc77777777cc7cc77777777777777777c77cc77cc777c77777eebebe77b77777ceeeeebbbbe7777777777777777bbbbbbbbbbebeeec7777777777c7ccbebbbb
-    7777cc77cc7777c7ccccccccc7ccc7c7ccc77777c77cc7cc7c77c777c77777777cc7ccc7ccc77cc7c7cebeebe77b77b77ceeeeebbbbe7777777777777777cbebbeebbbebeeee777b7c77c7ccc7debbbb
-    7c77ccc7ccc77ccccccccccccccc7cc7cc77cc77c7cccccccc7cc777c77cc7777cccccccccccccccccceeeeec77777b77ceeeebbbbbeb777777777777777777beeebbbebbeeecc7b7ccbcccccbbebbbb
-    77c7ccc7ccc77cccccccccccccccccccccc7cc7cccccccccccccc777c7cc77cc7cccccc7ccccccccccceeeee77cb77777eeeeebbbbbe777777777777777777bbeeebbbebbeeec7c77c77cccccbbebebb
-    7cc7ccc7ccc7ccccccccccccccccccccccc7cc7cccccc77ccccccc7cccccc7cccccccccccccccccccceeeeee77cb77777eeeeebbbbb777777777777777777777bebbbbebbeeeebccbcccccc77b7eebbb
-    cccccc7cccc7cccccccccccccccccccccc77cc7cccccccccc77ccc7cccccc7cccccccccc77777ccccc77ccee7c777777ceeeeebbbbb777777777777777777777bebbbbbbbeeeeccc7ccccccc777ebbbb
-    ccccccccccccccccccccccccccccccccccccccccccccc7ccccccccccccccccccccccccc7bdb7b7bbe77777cccc777777ceeeeebbbbbb777777777777777777777ebbbbbbebeeeccc7ccccb77777ebbbb
-    ccccc7777cccccccccccccccccccccccccc7cc777ccc77cccccccccccc777ccccccccccdbbbbbbbbb7bb7777cc77c7ccceeeeebbbbbb7777777777777777777777bbbbbbeeeeeecccccbdb77777ebbbb
-    77c777777cccccccccccccccccccccccc7c7c7777ccccc77cccccc777777777777cccc7bbdbbdddbbbbdb777ccc7c7cceeeeeebbbbe7c77777777777777777777bbbbbebeeeeeecccccddb77777ebbbe
-    7777777777ccccccccc7cc7c7cccccc7cc7c77ccc7cc77777777c777777777777bccb7c7dbdbdbddbb7bdb77ccccccceeeceeebebbccc777777777777c77777ccbbbbbb7ccceeecccccbdbb7777ebbbe
-    7777777777777ccccccccccccccccc77ccccccccccc77777777777777777777777bddb77bbdbbbbb77bbbdb77cccccccccceec7ebbccc777c77777777cc7777cc7bbbec7bbbceecccc7bbbb7777ebbee
-    777777777777777cccccccccccc7cc777ccccccccc77777777777777777777777ddddd7bbdbbbbb777dbbdb777c7ccc77ceeccccbbccccc7c77777777cc7777ccccbbc777bbbeccccc777b77777ebbee
-    777777777777777c7ccbccccc777c777cccc7ccc7777777777777777777777777bdddddbbddbbbbbbbdbbb7777777c777ccc77cbbccc7c7777777c7777ccccc7cccbc7777bbddccccc777b77777ebbeb
-    777777777777777ccc77cccc777cc777ccc77cc77777777777777777777777db77dddbdbbbbb77bdbbb77777777776777cc777cccc77cc7cc777ccc777ccccccccccc777bbb777c7777bbbb7777ebbeb
-    777777777777777ccc777cc7777c7777c777ccc77777777777777777777777ddb7bdb7bddbb777bdbb77777777777c777777cccc777ccc7cc7c777c77ccccccc7bddb777bb77777bb7bdbbb7777ebbeb
-    7777777777777777c777cc77777c77777777cc77777777777777777777777bddbdddb7bdddbb7bbbbb77777777c77c7c77777cc7777ccccccc7c77777ccc7ccc77dbd777bb7777db77bbbb77777ebbeb
-    77777777777777777777ccc7777c777777777777777777777777777777777dddddddddddddbb7bbbbb77777777cc777777c7cc7777cccccccccc777c77ccc7c777b7777777777777777b7777777ebbbb
-    777777777777777777777777777777c77777c7777777777777777777777cbdddddbbddddddbb77777777777777cc77777cc777777ccccccccc7ccccc7cccc77c777777777777777777777777777ebebb
-    777777777777777777c77777777777c7777c77777777777777777777777cdbdbddddddddddb777777777777777c777c77d7c777777ccccccccc7cccc7cccc77777777c777777777777777777777eebbb
-    777777777777777777777777777777777ccc7777777777777777777777777bb7bddbbbddddb777777777777777cc777bbdb7777777c7ccccccccccccccccc777777777777777777777777777777ebbbb
-    77777777777777777c7777cc777c77777ccc777777777777777777777bbbbb77bbbb77bddb777777777777777777777bbddbb7777777ccc77ccc7cccccccc777777777777777777777777777777eeebb
-    77777777777777777cccc777777cc7c77ccc777777777777777777777dddddb777777777b777777777777777bbb7777777bbbbc77777cc77cc77ccccccccc777b77777b77777777777777777777eebbb
-    7777777777777777777777777777c77c7c7777777777777777777777bddbbdb777777777777777777777777bb777777777bb777777777cc76777ccccccccc77777777777c77777777c77777777cebbeb
-    77777777777777777777777777777777c7777777777777777777777bddd7bbb7777777777777777777777777b77777777777777777777cccc777cccccc7cc777777c7777777777777c777777777ebbeb
-    7777777777777777777777cc77777777777777777777777777777c7bbbb7777777777777777777777777777777777777777777777c777777777cc7ccc777c777777cc7777c7777777c777777777ebeeb
-    777777777777777777c7777777777777777777777777777777777c777b777777777777777777777bb77777777777777777777777777777777777777cc777c7777777c7777c7777777c77c777777ebeeb
-    77777777777777777777777c77777777777777777777777777777777777777777777777bbb77777777777777777777777777777bb777cc7777777777c7777c777777c777767777777c777777777ebeee
-    777777777777777777c7777c77c7c777777777777777777777777c777777777777777bddb777777777777777777777777777777b77777c77777777ccc777bc77777777777777777c7c777777777ebeee
-    c77777777777777777c77c7c777cc777777777777777777bb777777777777777777bbddddb77777777777777777777777777777777777cc777777777c77777777777777767777c77cc7777777ccebebe
-    cc7777777777777777c777cc777cc7777c77777777cbbdbddbb7cc777777777777777dbbdb7777777777777777777777777777777777777777777777777777777777777ccc777777cc77777777cebebe
-    c7c7777777777777777cb7cc7777c7777c777777777ddbddddbb77777777777777777b77b77777777777777777777777777777777777777777777c777c7777777777777777c77777cc7777c7c7cebbbe
-    77c7c77777777777777c777c7777c7777777777777ddddddddb77c777777777777777777777777777777777777777777777777777777777c777777c77777777777777777c777c7777c7777c7c7cebbbe
-    7777c77777777777777c777777777777777c777c7bbbdddbbbb777777777777777777777777777777777c77777777777777777777777777cc777cccc7777777777777777c77cc77c777777c777cebbbe
-    777cc77777777777777c77777ccc777777777777bdbdbb77bdb777777777777777cc7777777777777777777777777777777777777c777777777c7ccc77c77777777777777c77c7c7c777777c77cbbbbe
-    7777777777777777c777777777d7777777cc777bdbd777777bb77777777777777777777777777777777777777777c7777777777777c7c7c777777c7c7c77c777c777777c77c77c77cc7cc77c77cbbbee
-    7777777777777777c7777777bdb77bbddd77c77bbbb7777777777777777777c77cc7777777777777777c77777777c777777c7ccc7777c7777cc777cc7c777cc7c77c7ccc77c77777c77c77777cebbbee
-    777c77777777777cc7777777b77777b77b77777bb7b7777777777777777777777777777c777777777777c7777777c7c7777777777777777777777777777777777777777c777c777777777c777cbbbbee
-    777777cc77777777c777bbb777777777777777777777777777777777777777777c77777cc77777777c7777777777777777777777777777777777777777777777777777777777777777cc7c777cbbbbee
-    7777777c7777c77c77cdb777777777777b77777777777777777777c7777c7777c77c77cc7777c7c777777777777777777777777777777777777777777777777777777777777777777777bc7ccebbbbee
-    7777777c7ccc777c77cbb777777777777c77777777777777777777c777c77777c7c777ccc7777cc7777777777777777777777777777777777777777777777777777777777777777777777cc7cebbbeee
-    77c777777ccc77cc7777777777777777777777c777777777777777c777c77777c77777ccc77777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeee
-    777777777cc777c7c7777777777777777777c77777777777777c77cc77cc777c77777cc7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbebe
-    77777777777777cc777777777777777c7c77c777c7777777777c77777cc777cc77777cc7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbebb
-    7777777777777c7777777777777777777c7777777777777777c777777777777c7777c777777777777777777777777777777777777777777777777777777777777777777777777777777777777eebbbbb
-    777777777777777777777777777777c77c7777777777c77777c77777777777777777ccc7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
-    777777777777777777777777777777777cc77777c7777777c7c77c7777777777777cc7cc777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
-    77777777777777777777777777777777777777777cc7777777767c7cc7777777777cccc7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
-    77777777777777777777777777777777c777777777c777777776cc777777777777ccc77c777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
-    777777777777777777777777777777777777777777777777777cc7777777777777ccc77c777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
-    777777777777777777777777777777777777777777777777777c7777777777777c7777c7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbe
-    77777777777777777777777777777777777777777777777777cc7777777c777777777cc777777777777777777777777777777777777777777777777777777777777777777777777777777777eebeebbe
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbebbee
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbee
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeebee
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbebee
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebe
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeeee
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeeee
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777eebeeeeb
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeeeb
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeeeb
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeebb
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebb
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebb
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebe
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeebe
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeebbe
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777bebbbebbe
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebbe
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebbe
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbbbe
-    77777777777777777777777777777777777777777777777777777777777777b7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebbe
-    77777777777777777777777777777777777777777777777777777777777777b7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebbe
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebbe
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebbe
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777bbbbeeebe
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbeeee
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbeeee
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cbebbbeeee
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cbeebbeeee
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cbebeee777
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ceeeec7777
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cc777ee77777
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c7777777c7777
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c777777777777
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777779977777777777777777777777777777777777777777777777777777777777777777777
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
-    7777777777777777777777777b77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
-    7777777777777777777777777777777777777777777777777777777777b77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
-    7777777777777777777777777777777777777777777777777777777777b77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cccc77777777777777777
-    77777777777777777777777777777777777777777777777777b77777777777777777777777777777777777777777777777777777777777777777777777777777777777777c77777c7777777777777777
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
-    7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
-    77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c7777
-    777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c777777777777777777777777
-    7777777777777777777777777777777777777777777777ccc777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c77777777777777777777777
-    777cccc77777777777777777777777777777777777777c7777c7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cc7777
-    7cccc7777777777777777b7777777777777777777777c7bb777777777777777777777777777777777777777777777777777777777777777777777777777c777777777777777777777777777777777777
-    c77c77777777777777777777777777777777777777cbb7bddb777bb77777777777777777777777777777777777777777777777777777777777777777777777c777777c77777777777777777777777777
-    777c777777777777777777777777777777777cccc7cbdbbddb7777b7777c7777777777777777777777777777777777777777777777777777777777777777777c77ccc7c7777777777777777777777777
-    77c7777777777777777777777777777777777bd7777bb77b77777777777777777777777777777777ccc77777777777777777777777777777777777777777777777777777777777777777777777777777
-    7777777cccc777777777777777777777777bdddbb777777777777777777767777777777777777777777777777777777777777777777777cc77c77c777777777777777777777777777777777777777777
-    7c77cc77777777777777777777777777c7cdddddb7777777777777777777c76cc7777777777777777c77c77c777777777777777777777777777cc7777777777777777777777777777777777777777777
-    7ccc77777777777777776777777777b7777b777b777777777777777777777777777777777777c777777776ccc77777777777777777777777777777777777777777777777777777777777777777777777
-    777777777ccccc777777777777777dd77777bbb77777b7777777777777777777777cc7777777c7c777c777c77c7cc7777777777777777777777777777777777777777777777777777777777777777777
-    c7cc7777ccc77677c7c777c7ccc777777777bbb7777777777777777777777777777777777777c77c77c777c77c7ccc777767777777777777777777777777777777777777777777777777777777777777
-    77ccc77cbb7dbcceecbbbb6bbbbbbbb777d9b77db7e7c77bbbb7b777e7bc7777777777777777777777e777bbb777b7bbbb77bb77777b77777777777777777b77b777777777e77777b7bb7777777e7777
-    777777cb999999999bcc999999999bbeee99bececbbcebeb9999ccceb99bc7777777777777eeeeeebbbebbbbbbebbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbebebbeeeeebbbbbbeebbbbbbbbeebbe
+            ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777ceeebec7777cecccebbbbbbbe77777cee77b77b7cebbbebeeec777cee77777777cbbbeebebe
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777ceebbbeb7777cecceebebbbbbe777777bebcee7b77ebbbebeeeec77cee77777777beebeebbbe
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777cebbbbeb7777ebcceebebbbbbe7777777ee7ee777bebbbebeeeec7ceee77777777bebbeebbbe
+            777777777777777777c77777777777777777777777777777777777777777777777777777777777777777eebbbe777777ebeeeebebbbbbb77777777ebee77777bbbbeebeee7eeec777777777ceeeebbbe
+            777777777777777777c77777777777777777777777777777777777777777777777777777777777777777eebbbe777777ebeeeebebbbbb7777777777ebbe7777bbbbebbeeeebee77777777777eeeebbee
+            777777777777777777c777777cc777777777777777777777777777777777777777777777777777777777eebbbe777777eebbeebebbbbb77777777b77eebbbb7ebbbebbeeebbee77777777777ebeebbee
+            77777777777777777cc7777ccc777777777777777777777777777777777777777777777777c777777777eebbbe7777777ebbeebebbbbe7777777777777ebb77ebbbebbbeeebe7777777777777beebbee
+            777777777777cc77cccc77cccc7777777b77777777777777777777777777777777777c7777c77777777cebbbbe7777777eebeebbbbbbe7777777777777ebbe7ebbbbbbbbeeec7777777777777bbebbbe
+            777777777777cc77cccc77ccc777c77777cc77777777c77777777777777777777777cc777cc7777777bcebebbb7777777eeeeeebbbbbeb777777777777bebbeeebbbbbebeee77777777777777ebebbbe
+            7777777cc777cc77cccc7cccc77cc7777cc777777777c77c77777b77777777777c77cc7777c7777777beebbbe77777777ceeeeebbbbbe777777777777777ebbbebbbbbeeeeec777777777c77cceebbbe
+            777c7777c7777cc7cccccccccb7cc7c77cc77777777cc7cc77777777777777777c77cc77cc777c77777eebebe77b77777ceeeeebbbbe7777777777777777bbbbbbbbbbebeeec7777777777c7ccbebbbb
+            7777cc77cc7777c7ccccccccc7ccc7c7ccc77777c77cc7cc7c77c777c77777777cc7ccc7ccc77cc7c7cebeebe77b77b77ceeeeebbbbe7777777777777777cbebbeebbbebeeee777b7c77c7ccc7debbbb
+            7c77ccc7ccc77ccccccccccccccc7cc7cc77cc77c7cccccccc7cc777c77cc7777cccccccccccccccccceeeeec77777b77ceeeebbbbbeb777777777777777777beeebbbebbeeecc7b7ccbcccccbbebbbb
+            77c7ccc7ccc77cccccccccccccccccccccc7cc7cccccccccccccc777c7cc77cc7cccccc7ccccccccccceeeee77cb77777eeeeebbbbbe777777777777777777bbeeebbbebbeeec7c77c77cccccbbebebb
+            7cc7ccc7ccc7ccccccccccccccccccccccc7cc7cccccc77ccccccc7cccccc7cccccccccccccccccccceeeeee77cb77777eeeeebbbbb777777777777777777777bebbbbebbeeeebccbcccccc77b7eebbb
+            cccccc7cccc7cccccccccccccccccccccc77cc7cccccccccc77ccc7cccccc7cccccccccc77777ccccc77ccee7c777777ceeeeebbbbb777777777777777777777bebbbbbbbeeeeccc7ccccccc777ebbbb
+            ccccccccccccccccccccccccccccccccccccccccccccc7ccccccccccccccccccccccccc7bdb7b7bbe77777cccc777777ceeeeebbbbbb777777777777777777777ebbbbbbebeeeccc7ccccb77777ebbbb
+            ccccc7777cccccccccccccccccccccccccc7cc777ccc77cccccccccccc777ccccccccccdbbbbbbbbb7bb7777cc77c7ccceeeeebbbbbb7777777777777777777777bbbbbbeeeeeecccccbdb77777ebbbb
+            77c777777cccccccccccccccccccccccc7c7c7777ccccc77cccccc777777777777cccc7bbdbbdddbbbbdb777ccc7c7cceeeeeebbbbe7c77777777777777777777bbbbbebeeeeeecccccddb77777ebbbe
+            7777777777ccccccccc7cc7c7cccccc7cc7c77ccc7cc77777777c777777777777bccb7c7dbdbdbddbb7bdb77ccccccceeeceeebebbccc777777777777c77777ccbbbbbb7ccceeecccccbdbb7777ebbbe
+            7777777777777ccccccccccccccccc77ccccccccccc77777777777777777777777bddb77bbdbbbbb77bbbdb77cccccccccceec7ebbccc777c77777777cc7777cc7bbbec7bbbceecccc7bbbb7777ebbee
+            777777777777777cccccccccccc7cc777ccccccccc77777777777777777777777ddddd7bbdbbbbb777dbbdb777c7ccc77ceeccccbbccccc7c77777777cc7777ccccbbc777bbbeccccc777b77777ebbee
+            777777777777777c7ccbccccc777c777cccc7ccc7777777777777777777777777bdddddbbddbbbbbbbdbbb7777777c777ccc77cbbccc7c7777777c7777ccccc7cccbc7777bbddccccc777b77777ebbeb
+            777777777777777ccc77cccc777cc777ccc77cc77777777777777777777777db77dddbdbbbbb77bdbbb77777777776777cc777cccc77cc7cc777ccc777ccccccccccc777bbb777c7777bbbb7777ebbeb
+            777777777777777ccc777cc7777c7777c777ccc77777777777777777777777ddb7bdb7bddbb777bdbb77777777777c777777cccc777ccc7cc7c777c77ccccccc7bddb777bb77777bb7bdbbb7777ebbeb
+            7777777777777777c777cc77777c77777777cc77777777777777777777777bddbdddb7bdddbb7bbbbb77777777c77c7c77777cc7777ccccccc7c77777ccc7ccc77dbd777bb7777db77bbbb77777ebbeb
+            77777777777777777777ccc7777c777777777777777777777777777777777dddddddddddddbb7bbbbb77777777cc777777c7cc7777cccccccccc777c77ccc7c777b7777777777777777b7777777ebbbb
+            777777777777777777777777777777c77777c7777777777777777777777cbdddddbbddddddbb77777777777777cc77777cc777777ccccccccc7ccccc7cccc77c777777777777777777777777777ebebb
+            777777777777777777c77777777777c7777c77777777777777777777777cdbdbddddddddddb777777777777777c777c77d7c777777ccccccccc7cccc7cccc77777777c777777777777777777777eebbb
+            777777777777777777777777777777777ccc7777777777777777777777777bb7bddbbbddddb777777777777777cc777bbdb7777777c7ccccccccccccccccc777777777777777777777777777777ebbbb
+            77777777777777777c7777cc777c77777ccc777777777777777777777bbbbb77bbbb77bddb777777777777777777777bbddbb7777777ccc77ccc7cccccccc777777777777777777777777777777eeebb
+            77777777777777777cccc777777cc7c77ccc777777777777777777777dddddb777777777b777777777777777bbb7777777bbbbc77777cc77cc77ccccccccc777b77777b77777777777777777777eebbb
+            7777777777777777777777777777c77c7c7777777777777777777777bddbbdb777777777777777777777777bb777777777bb777777777cc76777ccccccccc77777777777c77777777c77777777cebbeb
+            77777777777777777777777777777777c7777777777777777777777bddd7bbb7777777777777777777777777b77777777777777777777cccc777cccccc7cc777777c7777777777777c777777777ebbeb
+            7777777777777777777777cc77777777777777777777777777777c7bbbb7777777777777777777777777777777777777777777777c777777777cc7ccc777c777777cc7777c7777777c777777777ebeeb
+            777777777777777777c7777777777777777777777777777777777c777b777777777777777777777bb77777777777777777777777777777777777777cc777c7777777c7777c7777777c77c777777ebeeb
+            77777777777777777777777c77777777777777777777777777777777777777777777777bbb77777777777777777777777777777bb777cc7777777777c7777c777777c777767777777c777777777ebeee
+            777777777777777777c7777c77c7c777777777777777777777777c777777777777777bddb777777777777777777777777777777b77777c77777777ccc777bc77777777777777777c7c777777777ebeee
+            c77777777777777777c77c7c777cc777777777777777777bb777777777777777777bbddddb77777777777777777777777777777777777cc777777777c77777777777777767777c77cc7777777ccebebe
+            cc7777777777777777c777cc777cc7777c77777777cbbdbddbb7cc777777777777777dbbdb7777777777777777777777777777777777777777777777777777777777777ccc777777cc77777777cebebe
+            c7c7777777777777777cb7cc7777c7777c777777777ddbddddbb77777777777777777b77b77777777777777777777777777777777777777777777c777c7777777777777777c77777cc7777c7c7cebbbe
+            77c7c77777777777777c777c7777c7777777777777ddddddddb77c777777777777777777777777777777777777777777777777777777777c777777c77777777777777777c777c7777c7777c7c7cebbbe
+            7777c77777777777777c777777777777777c777c7bbbdddbbbb777777777777777777777777777777777c77777777777777777777777777cc777cccc7777777777777777c77cc77c777777c777cebbbe
+            777cc77777777777777c77777ccc777777777777bdbdbb77bdb777777777777777cc7777777777777777777777777777777777777c777777777c7ccc77c77777777777777c77c7c7c777777c77cbbbbe
+            7777777777777777c777777777d7777777cc777bdbd777777bb77777777777777777777777777777777777777777c7777777777777c7c7c777777c7c7c77c777c777777c77c77c77cc7cc77c77cbbbee
+            7777777777777777c7777777bdb77bbddd77c77bbbb7777777777777777777c77cc7777777777777777c77777777c777777c7ccc7777c7777cc777cc7c777cc7c77c7ccc77c77777c77c77777cebbbee
+            777c77777777777cc7777777b77777b77b77777bb7b7777777777777777777777777777c777777777777c7777777c7c7777777777777777777777777777777777777777c777c777777777c777cbbbbee
+            777777cc77777777c777bbb777777777777777777777777777777777777777777c77777cc77777777c7777777777777777777777777777777777777777777777777777777777777777cc7c777cbbbbee
+            7777777c7777c77c77cdb777777777777b77777777777777777777c7777c7777c77c77cc7777c7c777777777777777777777777777777777777777777777777777777777777777777777bc7ccebbbbee
+            7777777c7ccc777c77cbb777777777777c77777777777777777777c777c77777c7c777ccc7777cc7777777777777777777777777777777777777777777777777777777777777777777777cc7cebbbeee
+            77c777777ccc77cc7777777777777777777777c777777777777777c777c77777c77777ccc77777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeee
+            777777777cc777c7c7777777777777777777c77777777777777c77cc77cc777c77777cc7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbebe
+            77777777777777cc777777777777777c7c77c777c7777777777c77777cc777cc77777cc7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbebb
+            7777777777777c7777777777777777777c7777777777777777c777777777777c7777c777777777777777777777777777777777777777777777777777777777777777777777777777777777777eebbbbb
+            777777777777777777777777777777c77c7777777777c77777c77777777777777777ccc7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
+            777777777777777777777777777777777cc77777c7777777c7c77c7777777777777cc7cc777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
+            77777777777777777777777777777777777777777cc7777777767c7cc7777777777cccc7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
+            77777777777777777777777777777777c777777777c777777776cc777777777777ccc77c777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
+            777777777777777777777777777777777777777777777777777cc7777777777777ccc77c777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbb
+            777777777777777777777777777777777777777777777777777c7777777777777c7777c7777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbe
+            77777777777777777777777777777777777777777777777777cc7777777c777777777cc777777777777777777777777777777777777777777777777777777777777777777777777777777777eebeebbe
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbebbee
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbee
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeebee
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbebee
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebe
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeeee
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeeee
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777eebeeeeb
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeeeb
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeeeb
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeebb
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebb
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebb
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebe
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeeebe
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbeebbe
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777bebbbebbe
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebbe
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbebbe
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbbbe
+            77777777777777777777777777777777777777777777777777777777777777b7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebbe
+            77777777777777777777777777777777777777777777777777777777777777b7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebbe
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebbe
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbeebbe
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777bbbbeeebe
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbeeee
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ebbbbbeeee
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cbebbbeeee
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cbeebbeeee
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cbebeee777
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777ceeeec7777
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cc777ee77777
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c7777777c7777
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c777777777777
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777779977777777777777777777777777777777777777777777777777777777777777777777
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
+            7777777777777777777777777b77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
+            7777777777777777777777777777777777777777777777777777777777b77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
+            7777777777777777777777777777777777777777777777777777777777b77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cccc77777777777777777
+            77777777777777777777777777777777777777777777777777b77777777777777777777777777777777777777777777777777777777777777777777777777777777777777c77777c7777777777777777
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
+            7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777
+            77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c7777
+            777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c777777777777777777777777
+            7777777777777777777777777777777777777777777777ccc777777777777777777777777777777777777777777777777777777777777777777777777777777777777777c77777777777777777777777
+            777cccc77777777777777777777777777777777777777c7777c7777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777cc7777
+            7cccc7777777777777777b7777777777777777777777c7bb777777777777777777777777777777777777777777777777777777777777777777777777777c777777777777777777777777777777777777
+            c77c77777777777777777777777777777777777777cbb7bddb777bb77777777777777777777777777777777777777777777777777777777777777777777777c777777c77777777777777777777777777
+            777c777777777777777777777777777777777cccc7cbdbbddb7777b7777c7777777777777777777777777777777777777777777777777777777777777777777c77ccc7c7777777777777777777777777
+            77c7777777777777777777777777777777777bd7777bb77b77777777777777777777777777777777ccc77777777777777777777777777777777777777777777777777777777777777777777777777777
+            7777777cccc777777777777777777777777bdddbb777777777777777777767777777777777777777777777777777777777777777777777cc77c77c777777777777777777777777777777777777777777
+            7c77cc77777777777777777777777777c7cdddddb7777777777777777777c76cc7777777777777777c77c77c777777777777777777777777777cc7777777777777777777777777777777777777777777
+            7ccc77777777777777776777777777b7777b777b777777777777777777777777777777777777c777777776ccc77777777777777777777777777777777777777777777777777777777777777777777777
+            777777777ccccc777777777777777dd77777bbb77777b7777777777777777777777cc7777777c7c777c777c77c7cc7777777777777777777777777777777777777777777777777777777777777777777
+            c7cc7777ccc77677c7c777c7ccc777777777bbb7777777777777777777777777777777777777c77c77c777c77c7ccc777767777777777777777777777777777777777777777777777777777777777777
+            77ccc77cbb7dbcceecbbbb6bbbbbbbb777d9b77db7e7c77bbbb7b777e7bc7777777777777777777777e777bbb777b7bbbb77bb77777b77777777777777777b77b777777777e77777b7bb7777777e7777
+            777777cb999999999bcc999999999bbeee99bececbbcebeb9999ccceb99bc7777777777777eeeeeebbbebbbbbbebbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbebebbeeeeebbbbbbeebbbbbbbbeebbe
         `)
         scene.centerCameraAt(80, 60);
         scene.backgroundImage().fillRect(20, 20, 120, 60, 1)
@@ -8831,6 +8957,7 @@ namespace creatures {
         creature2.setSayHP(true);
         creature1.sprite.setFlag(SpriteFlag.Invisible, false);
         creature2.sprite.setFlag(SpriteFlag.Invisible, false);
+
 
         game.setDialogFrame(img`
             ..99999999999999999999..
@@ -8864,6 +8991,17 @@ namespace creatures {
         while (creature1.hp > 0 && creature2.hp > 0) {
             pause(200)
             if (turn == 0) {
+                let attackType: CreatureType = null;
+                story.printDialog("Pick a move.", 80, 90, 50, 150, 15, 1, story.TextSpeed.VeryFast)
+                const move1Type = getMoveFromType(getCreatureType1(creature1));
+                const move2Type = getMoveFromType(getCreatureType2(creature1));
+                //game.splash(getCreatureType1(creature1));
+                //game.splash(getCreatureType2(creature1));
+                story.showPlayerChoices(move1Type, move2Type);
+
+                pauseUntil(() => !story.isMenuOpen());
+                attackType = getTypeFromMove(story.getLastAnswer());
+
                 animation.runMovementAnimation(creature1.sprite, animation.animationPresets(animation.easeRight), 5000, false)
                 pause(500)
                 animation.stopAnimation(animation.AnimationTypes.All, creature1.sprite)
@@ -8871,15 +9009,31 @@ namespace creatures {
                 animation.runMovementAnimation(creature1.sprite, animation.animationPresets(animation.easeLeft), 2000, false)
                 pause(200)
                 animation.stopAnimation(animation.AnimationTypes.All, creature1.sprite)
-                if (Math.percentChance(6.25)) {                    
-                    creature2.hp -= Math.round(creature1.attackValue * 1.5);
+                let mult = calculateAttackMult(attackType, [creature2.creatureType1, creature2.creatureType2]);
+
+                if (Math.percentChance(6.25)) {
+                    creature2.hp -= Math.round(creature1.attackValue * mult * 1.5);
                     pause(50)
                     game.showLongText("Critical Hit", DialogLayout.Bottom)
                 } else {
-                    creature2.hp -= Math.round(creature1.attackValue);
+                    creature2.hp -= Math.round(creature1.attackValue * mult);
+                }
+                if (mult > 1) {
+                    game.showLongText("Super Effective", DialogLayout.Bottom);
+                } else if (mult < 1) {
+                    game.showLongText("Not very Effective", DialogLayout.Bottom);
                 }
                 turn = 1;
             } else {
+                const move1Type = getMoveFromType(getCreatureType1(creature2));
+                const move2Type = getMoveFromType(getCreatureType2(creature2));
+                let enemyMove = "";
+                if (Math.percentChance(50)) {
+                    enemyMove = move1Type;
+                } else {
+                    enemyMove = move2Type;
+                }
+                game.showLongText("Enemy " + creature2.name + " used " + enemyMove, DialogLayout.Bottom);
                 animation.runMovementAnimation(creature2.sprite, animation.animationPresets(animation.easeLeft), 5000, false)
                 pause(500)
                 animation.stopAnimation(animation.AnimationTypes.All, creature2.sprite)
@@ -8887,12 +9041,18 @@ namespace creatures {
                 animation.runMovementAnimation(creature2.sprite, animation.animationPresets(animation.easeRight), 2000, false)
                 pause(200)
                 animation.stopAnimation(animation.AnimationTypes.All, creature2.sprite)
+                let mult = calculateAttackMult(getTypeFromMove(enemyMove), [creature1.creatureType1, creature1.creatureType2]);
+                if (mult > 1) {
+                    game.showLongText("Super Effective", DialogLayout.Bottom);
+                } else if (mult < 1) {
+                    game.showLongText("Not very Effective", DialogLayout.Bottom);
+                }
                 if (Math.percentChance(6.25)) {
-                    creature1.hp -= Math.round(creature2.attackValue * 1.5);
+                    creature1.hp -= Math.round(creature2.attackValue * mult * 1.5);
                     pause(50)
                     game.showLongText("Critical Hit", DialogLayout.Bottom)
                 } else {
-                    creature1.hp -= Math.round(creature2.attackValue);
+                    creature1.hp -= Math.round(creature2.attackValue * mult);
                 }
                 turn = 0;
             }
@@ -9062,14 +9222,14 @@ namespace creatures {
         2: { 2: 2, 16: 0.5, 11: 2 },
         1: { 8: 2, 14: 2, 5: 0.5 },
     };
-    
+
 
     //% group="Value"
     //% blockId="creatures_getAttackMultiplier"
     //% expandableArgumentMode=toggle
     //% block="Calculate Attack Multiplier %attackType vs %defenseTypes" callInDebugger
-    export function calculateAttackMult(attackType: CreatureType, defenseTypes: CreatureType[]) : number {
-        let multiplier : number = 1.0;
+    export function calculateAttackMult(attackType: CreatureType, defenseTypes: CreatureType[]): number {
+        let multiplier: number = 1.0;
         //game.splash(attackType);
         defenseTypes.forEach((defenseType) => {
             //game.splash("Starting defenseType " + defenseType);
@@ -9080,7 +9240,7 @@ namespace creatures {
                     //game.splash("defense type exists in chart of " + attackType);
                     // Get effectiveness multiplier
                     const effectiveness = typeChart[attackType][defenseType];
-                    
+
                     // Update multiplier
                     multiplier *= effectiveness;
                 }

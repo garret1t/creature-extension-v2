@@ -3,9 +3,6 @@ namespace SpriteKind {
     export const House = SpriteKind.create()
     export const Lab = SpriteKind.create()
 }
-controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
-    game.splash(creatures.calculateAttackMult(CreatureType.Fire, [CreatureType.Grass, CreatureType.Bug]))
-})
 function makeMap () {
     tiles.setCurrentTilemap(tilemap`level`)
     tileUtil.createSpritesOnTiles(assets.tile`myTile1`, img`
@@ -434,12 +431,21 @@ function makePlayer () {
     scene.cameraFollowSprite(myPlayer)
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Grass, function (sprite, otherSprite) {
+    // If player is running through grass, run a chance to start a wild battle with a random pokemon from the route list
     if (characterAnimations.matchesRule(sprite, characterAnimations.rule(Predicate.Moving))) {
         timer.throttle("battleChance", 200, function () {
             if (Math.percentChance(15)) {
                 sprite.setFlag(SpriteFlag.GhostThroughSprites, true)
-                creatures.creatureBattleCreature(pikachuCreature, charmanderCreature)
+                controller.moveSprite(sprite, 0, 0)
+                wildCreature = creatures.makeCreatureFromID(
+                routeOneIds._pickRandom()
+                )
+                creatures.creatureBattleCreature(pikachuCreature, wildCreature)
                 scene.cameraFollowSprite(myPlayer)
+                timer.after(500, function () {
+                    controller.moveSprite(sprite, 80, 80)
+                    pikachuCreature.hp = 20
+                })
                 timer.after(7000, function () {
                     sprite.setFlag(SpriteFlag.GhostThroughSprites, false)
                 })
@@ -523,105 +529,26 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Grass, function (sprite, otherSp
         })
     }
 })
+let wildCreature: creatures.Creature = null
 let myPlayer: Sprite = null
 let mySprite: Sprite = null
-let charmanderCreature: creatures.Creature = null
+let routeOneIds: number[] = []
 let pikachuCreature: creatures.Creature = null
-let pikachu = sprites.create(img`
-    1111111111111111111111111111111111114111
-    11111111111111111111111111111111111ff111
-    1111f111111ddd1111111111111114f111f1f111
-    1111ff11111ddd11111111111114ff111f11f111
-    111144f11111dd111111111114f4f111f111f111
-    11111f4f11111dd111111114f44f111f11114111
-    11111444f11111d1111114f11df111f1111f1111
-    111111f1df1111111114f111df111f1111f11111
-    11111141ddf4ffffffff41ddf111f1111f111111
-    1111111fd4d111111111d4f4411f111111f11111
-    1d11111ffd111111111111df1111f411111f1111
-    11d1111f411111111111111df1111df4ddddf111
-    111dd11fd11111111dd111114111dd11fddddf11
-    111111fffd111111dffd1111df11d1111fddf111
-    111111f1ff111111f1ff111114111111fddf1111
-    11111fffff111111ffff11111df1111fddf11111
-    11111f1ff11111111ff11d4d11411111f44f1111
-    1111f1d11114f1111111d414d1df11111f44f111
-    1111f44111111111111144444114111111f4f111
-    1111f4d1d1111111d111d444d11f411111f4f111
-    1111fd11411ff11141111d4d11d4f1111f4f1111
-    11111f111f4114ff111111111144f411f4f11111
-    111111f111111111111111111d444f11f4f11111
-    111d114111ddddddd111d11114444f11f4f11111
-    1dd11f111dddddddddd14111d444d441f4f11d11
-    d11114111dddddddddddf11d444d1df14f11dd11
-    1111f111dddddddddddfd111ddd1d4f4f11dd111
-    1111fd41ddddddddddf44d41111d444ff1dd1111
-    111144f1dddddddddddf44f111d4444f11111111
-    111114fddddddddddddd4f11111dddf111111111
-    11111114ddddddddddddd111111111f111111111
-    1111111fddddddddddddd4d1111111f111111111
-    111111114ddddddddddd4d1111111d4111111111
-    11111d11f1ddddddddd4d1111111141111111111
-    1111dd11411dddddddd411111111df11dd111111
-    111dd1111411ddddddd41111111df1111ddd1111
-    11ddd1111f4111dddd4fdd1111df111111dddd11
-    1111111111f44d4ff41144ddd4f11111111dd111
-    1111111111f44441111f4444f111111111111111
-    11111111114ff4111114fff41111111111111111
-    `, SpriteKind.Creature)
-let charmander = sprites.create(img`
-    1111111111111111111111111111111111111111
-    1111111111111111111111111111111111111111
-    1111111111111111111111111111111411111411
-    1111111111111111111111111111114411114111
-    1111111111111111111111111111114411111111
-    11111111144ffff4111111141111144411111111
-    11111111f1144444f11111144111144411111411
-    1111111f114411144f1111144111144411114411
-    111111ff144114f4441111114111144441114411
-    111111f444414f1144f111111111144444114111
-    1111114f4444ff41f44111111111144444411111
-    11111ff444444ff4f4f111111f11144444441111
-    1111f4444444f1ff44ff111f1f1f144444444111
-    1114444444444f4444f4f11fff4f144444444111
-    111f41144444444444f444f114f4114444444111
-    111f444444444444f44f4f4114f1114444444411
-    111f444444444f4f444ff44444f1114444444411
-    1111f4444444ff4f444f444444f1114444444411
-    111f1f44444ffff4444444444f11111444444411
-    1111ff4ffffff444444444444f11111114444411
-    11111f114444411144444444f111111111f44111
-    111111f44444111114444444f111111111ff1111
-    1111111f444111111144444f111111111f4f1111
-    11111111ff4111111144444ff1111111f44f1111
-    1111111111f11111111444444f11111f144f1111
-    111111111141111114f44f4444f114f144441111
-    1111111111f411114f1ff411444ff41444f11111
-    111111111f1f4114f1f1f414444444444f111111
-    11111111141f4414ff4f4444444f4444f1111111
-    111111114111f444f444f444444f44ff11111111
-    11111111f1111f4ff4444f44444ff41111111111
-    11111111f11144fff44444f4444f111111111111
-    111111114111444ff4444444f4f1111111111111
-    111111111f1444444f444444ff11111111111111
-    1111111111f444444f444444f111111111111111
-    111111111114f44444f4444f1111111111111111
-    111111111f44444444f1fff11111111111111111
-    11111111441144444f4111111111111111111111
-    11111111f1f114ff411111111111111111111111
-    111111114f4f4111111111111111111111111111
-    `, SpriteKind.Creature)
-pikachuCreature = creatures.makeCreatureFromSprite(
-pikachu,
-CreatureType.Electric,
-CreatureType.None,
-"Pikachu"
+// Spawn a pikachu for the players pokemon
+pikachuCreature = creatures.makeCreatureFromID(
+25
 )
-charmanderCreature = creatures.makeCreatureFromSprite(
-charmander,
-CreatureType.Fire,
-CreatureType.None,
-"Charmander"
-)
+// Set the Route 1 Pokemon to be Pidgey, Rattata, and the three starters
+routeOneIds = [
+16,
+16,
+7,
+19,
+19,
+1,
+4
+]
+// Make tile map, spawn grass sprites so they can animate and place house sprites on place holder tiles
 makeMap()
+// Make player and set to animate when moving direction. Also place in middle of tile map and set camera to follow
 makePlayer()
