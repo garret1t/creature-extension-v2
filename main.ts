@@ -21,8 +21,5 @@ assets.tile`myTile2`,
 assets.tile`myTile3`
 )
 let myTrainer = creatures.makeCreatureTrainer(
-)
-// Spawn a pikachu for the players pokemon
-let pikachuCreature = creatures.makeCreatureFromID(
-25
+StarterPokemon.Pikachu
 )
