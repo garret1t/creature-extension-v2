@@ -82,7 +82,7 @@ namespace creatures {
         public _sayHP: boolean;
         public _sayXP: boolean;
 
-        constructor(spr: Sprite, cType: CreatureType, cType2: CreatureType, name: string, level:number = 5, evolutionLevel: number = 10, evolutionID: number = 0, xp: number = 0, hp: number = 20, attackValue: number = 5, xpReward: number = 15) {
+        constructor(spr: Sprite, cType: CreatureType, cType2: CreatureType, name: string, level:number = 5, evolutionLevel: number = 10, evolutionID: number = 0, xp: number = 0, hp: number = 20, attackValue: number = 5, xpReward: number = 150) {
             this._sprite = spr;
             this._creatureType1 = cType;
             this._creatureType2 = cType2;
@@ -8293,67 +8293,67 @@ namespace creatures {
                 return new Creature(sprite, CreatureType.None, CreatureType.None, "Missingno", level,0, 0, xp, hp, attackValue);
                 break;
             case 1:
-                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Bulbasaur", level, 0, 2, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Bulbasaur", level, 16, 2, xp, hp, attackValue);
                 break;
             case 2:
-                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Ivysaur", level, 0, 3, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Ivysaur", level, 32, 3, xp, hp, attackValue);
                 break;
             case 3:
                 return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Venosaur", level, 0,0, xp, hp, attackValue);
                 break;
             case 4:
-                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Charmander", level, 0,5, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Charmander", level, 16,5, xp, hp, attackValue);
                 break;
             case 5:
-                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Charmeleon", level, 0,6, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Charmeleon", level, 32,6, xp, hp, attackValue);
                 break;
             case 6:
                 return new Creature(sprite, CreatureType.Fire, CreatureType.Flying, "Charizard", level, 0,0, xp, hp, attackValue);
                 break;
             case 7:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Squirtle", level, 0, 8,xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Squirtle", level, 16, 8,xp, hp, attackValue);
                 break;
             case 8:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Wartortle", level, 0, 9,xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Wartortle", level, 32, 9,xp, hp, attackValue);
                 break;
             case 9:
                 return new Creature(sprite, CreatureType.Water, CreatureType.None, "Blastoise", level, 0, 0,xp, hp, attackValue);
                 break;
             case 10:
-                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Caterpie", level, 0, 11,xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Caterpie", level, 7, 11,xp, hp, attackValue);
                 break;
             case 11:
-                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Metapod", level, 0, 12,xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Metapod", level, 10, 12,xp, hp, attackValue);
                 break;
             case 12:
                 return new Creature(sprite, CreatureType.Bug, CreatureType.Flying, "Butterfree", level, 0, 0,xp, hp, attackValue);
                 break;
             case 13:
-                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Weedle", level, 0, 14,xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Weedle", level, 7, 14,xp, hp, attackValue);
                 break;
             case 14:
-                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Kakuna", level, 0, 15,xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Kakuna", level, 10, 15,xp, hp, attackValue);
                 break;
             case 15:
                 return new Creature(sprite, CreatureType.Bug, CreatureType.None, "Beedrill", level, 0, 0,xp, hp, attackValue);
                 break;
             case 16:
-                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Pidgey", level, 0, 17, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Pidgey", level, 18, 17, xp, hp, attackValue);
                 break;
             case 17:
-                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Pidgeotto", level, 0, 18, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Pidgeotto", level, 36, 18, xp, hp, attackValue);
                 break;
             case 18:
                 return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Pidgeot", level, 0, 0, xp, hp, attackValue);
                 break;
             case 19:
-                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Rattata", level, 0, 20, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Rattata", level, 20, 20, xp, hp, attackValue);
                 break;
             case 20:
                 return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Raticate", level, 0, 0, xp, hp, attackValue);
                 break;
             case 21:
-                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Spearow", level, 0,22, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Spearow", level, 20,22, xp, hp, attackValue);
 
                 break;
             case 22:
@@ -8361,7 +8361,7 @@ namespace creatures {
 
                 break;
             case 23:
-                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Ekans", level, 0, 24,xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Ekans", level, 22, 24,xp, hp, attackValue);
 
                 break;
             case 24:
@@ -8369,7 +8369,7 @@ namespace creatures {
 
                 break;
             case 25:
-                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Pikachu", level, 0, 26, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Pikachu", level, 20, 26, xp, hp, attackValue);
 
                 break;
             case 26:
@@ -8377,7 +8377,7 @@ namespace creatures {
 
                 break;
             case 27:
-                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Sandshrew", level, 0, 28, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Sandshrew", level, 22, 28, xp, hp, attackValue);
 
                 break;
             case 28:
@@ -8385,11 +8385,11 @@ namespace creatures {
 
                 break;
             case 29:
-                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidoran (f)", level, 0, 30, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidoran (f)", level, 16, 30, xp, hp, attackValue);
 
                 break;
             case 30:
-                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidorina", level, 0,31, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidorina", level, 32,31, xp, hp, attackValue);
 
                 break;
             case 31:
@@ -8397,11 +8397,11 @@ namespace creatures {
 
                 break;
             case 32:
-                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidoran (m)", level, 0,33, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidoran (m)", level, 16,33, xp, hp, attackValue);
 
                 break;
             case 33:
-                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidorino", level, 0,34, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Nidorino", level, 32,34, xp, hp, attackValue);
 
                 break;
             case 34:
@@ -8409,7 +8409,7 @@ namespace creatures {
 
                 break;
             case 35:
-                return new Creature(sprite, CreatureType.Fairy, CreatureType.None, "Clefairy", level, 0,36, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fairy, CreatureType.None, "Clefairy", level, 20,36, xp, hp, attackValue);
 
                 break;
             case 36:
@@ -8417,7 +8417,7 @@ namespace creatures {
 
                 break;
             case 37:
-                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Vulpix", level, 0,38, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Vulpix", level, 20,38, xp, hp, attackValue);
 
                 break;
             case 38:
@@ -8425,7 +8425,7 @@ namespace creatures {
 
                 break;
             case 39:
-                return new Creature(sprite, CreatureType.Normal, CreatureType.Fairy, "Jigglypuff", level, 0,40, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Fairy, "Jigglypuff", level, 20,40, xp, hp, attackValue);
 
                 break;
             case 40:
@@ -8433,7 +8433,7 @@ namespace creatures {
 
                 break;
             case 41:
-                return new Creature(sprite, CreatureType.Poison, CreatureType.Flying, "Zubat", level, 0,42, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.Flying, "Zubat", level, 22,42, xp, hp, attackValue);
 
                 break;
             case 42:
@@ -8441,11 +8441,11 @@ namespace creatures {
 
                 break;
             case 43:
-                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Oddish", level, 0,44, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Oddish", level, 21,44, xp, hp, attackValue);
 
                 break;
             case 44:
-                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Gloom", level, 0,45, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Gloom", level, 34,45, xp, hp, attackValue);
 
                 break;
             case 45:
@@ -8453,7 +8453,7 @@ namespace creatures {
 
                 break;
             case 46:
-                return new Creature(sprite, CreatureType.Bug, CreatureType.Grass, "Paras", level, 0,47, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.Grass, "Paras", level, 24,47, xp, hp, attackValue);
 
                 break;
             case 47:
@@ -8461,7 +8461,7 @@ namespace creatures {
 
                 break;
             case 48:
-                return new Creature(sprite, CreatureType.Bug, CreatureType.Poison, "Venonat", level, 0,49, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Bug, CreatureType.Poison, "Venonat", level, 31,49, xp, hp, attackValue);
 
                 break;
             case 49:
@@ -8469,7 +8469,7 @@ namespace creatures {
 
                 break;
             case 50:
-                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Diglett", level, 0,51, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Diglett", level, 26,51, xp, hp, attackValue);
 
                 break;
             case 51:
@@ -8477,7 +8477,7 @@ namespace creatures {
 
                 break;
             case 52:
-                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Meowth", level, 0,53, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Meowth", level, 28,53, xp, hp, attackValue);
 
                 break;
             case 53:
@@ -8485,7 +8485,7 @@ namespace creatures {
 
                 break;
             case 54:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Psyduck", level, 0,55, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Psyduck", level, 33,55, xp, hp, attackValue);
 
                 break;
             case 55:
@@ -8493,7 +8493,7 @@ namespace creatures {
 
                 break;
             case 56:
-                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Mankey", level, 0,57, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Mankey", level, 28,57, xp, hp, attackValue);
 
                 break;
             case 57:
@@ -8501,7 +8501,7 @@ namespace creatures {
 
                 break;
             case 58:
-                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Growlithe", level, 0,59, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Growlithe", level, 20,59, xp, hp, attackValue);
 
                 break;
             case 59:
@@ -8509,11 +8509,11 @@ namespace creatures {
 
                 break;
             case 60:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Poliwag", level, 0,61, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Poliwag", level, 25,61, xp, hp, attackValue);
 
                 break;
             case 61:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Poliwhirl", level, 0,62, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Poliwhirl", level, 34,62, xp, hp, attackValue);
 
                 break;
             case 62:
@@ -8521,11 +8521,11 @@ namespace creatures {
 
                 break;
             case 63:
-                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Abra", level, 0,64, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Abra", level, 16,64, xp, hp, attackValue);
 
                 break;
             case 64:
-                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Kadabra", level, 0,65, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Kadabra", level, 32,65, xp, hp, attackValue);
 
                 break;
             case 65:
@@ -8533,11 +8533,11 @@ namespace creatures {
 
                 break;
             case 66:
-                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Machop", level, 0,67, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Machop", level, 28,67, xp, hp, attackValue);
 
                 break;
             case 67:
-                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Machoke", level, 0,68, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fighting, CreatureType.None, "Machoke", level, 38,68, xp, hp, attackValue);
 
                 break;
             case 68:
@@ -8545,11 +8545,11 @@ namespace creatures {
 
                 break;
             case 69:
-                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Bellsprout", level, 0,70, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Bellsprout", level, 21,70, xp, hp, attackValue);
 
                 break;
             case 70:
-                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Weepinbell", level, 0,71, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Poison, "Weepinbell", level, 34,71, xp, hp, attackValue);
 
                 break;
             case 71:
@@ -8557,7 +8557,7 @@ namespace creatures {
 
                 break;
             case 72:
-                return new Creature(sprite, CreatureType.Water, CreatureType.Poison, "Tentacool", level, 0,73, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Poison, "Tentacool", level, 30,73, xp, hp, attackValue);
 
                 break;
             case 73:
@@ -8565,11 +8565,11 @@ namespace creatures {
 
                 break;
             case 74:
-                return new Creature(sprite, CreatureType.Rock, CreatureType.Ground, "Geodude", level, 0,75, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Ground, "Geodude", level, 25,75, xp, hp, attackValue);
 
                 break;
             case 75:
-                return new Creature(sprite, CreatureType.Rock, CreatureType.Ground, "Graveler", level, 0,76, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Ground, "Graveler", level, 35,76, xp, hp, attackValue);
 
                 break;
             case 76:
@@ -8577,7 +8577,7 @@ namespace creatures {
 
                 break;
             case 77:
-                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Ponyta", level, 0,78, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Ponyta", level, 40,78, xp, hp, attackValue);
 
                 break;
             case 78:
@@ -8585,7 +8585,7 @@ namespace creatures {
 
                 break;
             case 79:
-                return new Creature(sprite, CreatureType.Water, CreatureType.Psychic, "Slowpoke", level, 0,80, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.Psychic, "Slowpoke", level, 37,80, xp, hp, attackValue);
 
                 break;
             case 80:
@@ -8593,7 +8593,7 @@ namespace creatures {
 
                 break;
             case 81:
-                return new Creature(sprite, CreatureType.Electric, CreatureType.Steel, "Magnemite", level, 0,82, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.Steel, "Magnemite", level, 30,82, xp, hp, attackValue);
 
                 break;
             case 82:
@@ -8605,7 +8605,7 @@ namespace creatures {
 
                 break;
             case 84:
-                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Doduo", level, 0,85, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.Flying, "Doduo", level, 31,85, xp, hp, attackValue);
 
                 break;
             case 85:
@@ -8613,7 +8613,7 @@ namespace creatures {
 
                 break;
             case 86:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Seel", level, 0,87, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Seel", level, 34,87, xp, hp, attackValue);
 
                 break;
             case 87:
@@ -8621,7 +8621,7 @@ namespace creatures {
 
                 break;
             case 88:
-                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Grimer", level, 0,89, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Grimer", level, 38,89, xp, hp, attackValue);
 
                 break;
             case 89:
@@ -8629,7 +8629,7 @@ namespace creatures {
 
                 break;
             case 90:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Shelder", level, 0,91, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Shelder", level, 26,91, xp, hp, attackValue);
 
                 break;
             case 91:
@@ -8637,11 +8637,11 @@ namespace creatures {
 
                 break;
             case 92:
-                return new Creature(sprite, CreatureType.Ghost, CreatureType.Poison, "Gastly", level, 0,93, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ghost, CreatureType.Poison, "Gastly", level, 25,93, xp, hp, attackValue);
 
                 break;
             case 93:
-                return new Creature(sprite, CreatureType.Ghost, CreatureType.Poison, "Haunter", level, 0,94, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ghost, CreatureType.Poison, "Haunter", level, 35,94, xp, hp, attackValue);
 
                 break;
             case 94:
@@ -8653,7 +8653,7 @@ namespace creatures {
 
                 break;
             case 96:
-                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Drowsee", level, 0,97, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Psychic, CreatureType.None, "Drowsee", level, 26,97, xp, hp, attackValue);
 
                 break;
             case 97:
@@ -8661,7 +8661,7 @@ namespace creatures {
 
                 break;
             case 98:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Krabby", level, 0,99, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Krabby", level, 28,99, xp, hp, attackValue);
 
                 break;
             case 99:
@@ -8669,7 +8669,7 @@ namespace creatures {
 
                 break;
             case 100:
-                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Voltorb", level, 0,101, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Voltorb", level, 30,101, xp, hp, attackValue);
 
                 break;
             case 101:
@@ -8677,7 +8677,7 @@ namespace creatures {
 
                 break;
             case 102:
-                return new Creature(sprite, CreatureType.Grass, CreatureType.Psychic, "Exeggcute", level, 0,103, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Grass, CreatureType.Psychic, "Exeggcute", level, 30,103, xp, hp, attackValue);
 
                 break;
             case 103:
@@ -8685,7 +8685,7 @@ namespace creatures {
 
                 break;
             case 104:
-                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Cubone", level, 0,105, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.None, "Cubone", level, 28,105, xp, hp, attackValue);
 
                 break;
             case 105:
@@ -8705,7 +8705,7 @@ namespace creatures {
 
                 break;
             case 109:
-                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Koffing", level, 0,110, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Poison, CreatureType.None, "Koffing", level, 35,110, xp, hp, attackValue);
 
                 break;
             case 110:
@@ -8713,7 +8713,7 @@ namespace creatures {
 
                 break;
             case 111:
-                return new Creature(sprite, CreatureType.Ground, CreatureType.Rock, "Rhyhorn", level, 0,112, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Ground, CreatureType.Rock, "Rhyhorn", level, 42,112, xp, hp, attackValue);
 
                 break;
             case 112:
@@ -8733,7 +8733,7 @@ namespace creatures {
 
                 break;
             case 116:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Horsea", level, 0,117, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Horsea", level, 32,117, xp, hp, attackValue);
 
                 break;
             case 117:
@@ -8741,7 +8741,7 @@ namespace creatures {
 
                 break;
             case 118:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Goldeen", level, 0,119, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Goldeen", level, 33,119, xp, hp, attackValue);
 
                 break;
             case 119:
@@ -8749,7 +8749,7 @@ namespace creatures {
 
                 break;
             case 120:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Staryu", level, 0, 121, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Staryu", level, 30, 121, xp, hp, attackValue);
 
                 break;
             case 121:
@@ -8785,7 +8785,7 @@ namespace creatures {
 
                 break;
             case 129:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Magikarp", level, 0, 130, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Magikarp", level, 20, 130, xp, hp, attackValue);
 
                 break;
             case 130:
@@ -8801,19 +8801,19 @@ namespace creatures {
 
                 break;
             case 133:
-                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Eevee", level, 0, 134, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Normal, CreatureType.None, "Eevee", level, 10, 134, xp, hp, attackValue);
 
                 break;
             case 134:
-                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Vaporeon", level, 0, 135, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Water, CreatureType.None, "Vaporeon", level, 20, 135, xp, hp, attackValue);
 
                 break;
             case 135:
-                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Jolteon", level, 0, 136, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Electric, CreatureType.None, "Jolteon", level, 30, 136, xp, hp, attackValue);
 
                 break;
             case 136:
-                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Flareon", level, 0, 137, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Fire, CreatureType.None, "Flareon", level, 0, 0, xp, hp, attackValue);
 
                 break;
             case 137:
@@ -8821,7 +8821,7 @@ namespace creatures {
 
                 break;
             case 138:
-                return new Creature(sprite, CreatureType.Rock, CreatureType.Water, "Omanyte", level, 0,139, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Water, "Omanyte", level, 40,139, xp, hp, attackValue);
 
                 break;
             case 139:
@@ -8829,7 +8829,7 @@ namespace creatures {
 
                 break;
             case 140:
-                return new Creature(sprite, CreatureType.Rock, CreatureType.Water, "Kabuto", level, 0,141, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Rock, CreatureType.Water, "Kabuto", level, 40,141, xp, hp, attackValue);
 
                 break;
             case 141:
@@ -8857,11 +8857,11 @@ namespace creatures {
 
                 break;
             case 147:
-                return new Creature(sprite, CreatureType.Dragon, CreatureType.None, "Dratini", level, 0,148, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Dragon, CreatureType.None, "Dratini", level, 30,148, xp, hp, attackValue);
 
                 break;
             case 148:
-                return new Creature(sprite, CreatureType.Dragon, CreatureType.None, "Dragonair", level, 0,149, xp, hp, attackValue);
+                return new Creature(sprite, CreatureType.Dragon, CreatureType.None, "Dragonair", level, 55,149, xp, hp, attackValue);
 
                 break;
             case 149:
@@ -9826,7 +9826,8 @@ namespace creatures {
             ................................................................................................................................................................
         `);
         tiles.setCurrentTilemap(map)
-
+        wildCreature.sprite.destroy();
+        
         scene.centerCameraAt(player.sprite.x, player.sprite.y);
         pause(100);
         for (let creature of player.partyPokemon){
@@ -9843,10 +9844,37 @@ namespace creatures {
         }
         if (creature.level >= creature.evolutionLevel) {
             if (creature._evolutionID != 0) {
+                const oldSprite = creature.sprite;
+                controller.moveSprite(myTrainer.sprite, 0, 0);
+                creature.sprite.setFlag(SpriteFlag.Invisible, false);
+                creature.sprite.setPosition(scene.cameraLeft() + 80, scene.cameraTop() + 30)
                 story.printDialog(creature._name + " is evolving...", 80, 90, 50, 150, 15, 1, story.TextSpeed.VeryFast);
+                pause(200)
+                creature.sprite.startEffect(effects.warmRadial, 1500)
+                pause(500)
+                
+                animation.runMovementAnimation(creature.sprite, animation.animationPresets(animation.bobbing), 500, false)
+                pause(500);
+
+                animation.runMovementAnimation(creature.sprite, animation.animationPresets(animation.bobbing), 500, false)
+                pause(500);
+                creature.sprite.startEffect(effects.warmRadial, 1500)
+                animation.runMovementAnimation(creature.sprite, animation.animationPresets(animation.bobbing), 500, false)
+                pause(500);
+
+                animation.runMovementAnimation(creature.sprite, animation.animationPresets(animation.bobbing), 500, false)
+                pause(500);
+
+                animation.runMovementAnimation(creature.sprite, animation.animationPresets(animation.bobbing), 500, false)
+                pause(500);
+                creature.sprite.startEffect(effects.warmRadial, 1500)
+                pause(500)
+
                 const evId = creature._evolutionID;
                 let evolution = makeCreatureFromID(evId);
                 creature._sprite = evolution.sprite;
+                oldSprite.setImage(creature._sprite.image);
+                oldSprite.setPosition(scene.cameraLeft() + 80, scene.cameraTop() + 30)
                 creature._creatureType1 = evolution.creatureType1;
                 creature._creatureType2 = evolution.creatureType2;
                 creature._name = evolution.name;
@@ -9864,6 +9892,8 @@ namespace creatures {
                 creature._healthbar.setFlag(SpriteFlag.Invisible, true);
                 pause(500);
                 game.showLongText("Your Pokemon evolved into " + creature.name + ".", DialogLayout.Bottom);
+                oldSprite.destroy();
+                controller.moveSprite(myTrainer.sprite, 80, 80);
             }
         }
     }
@@ -10638,7 +10668,7 @@ namespace creatures {
         }
         let myTrainer = new Trainer("Ash", 0, myPlayer, moveUp, moveDown, moveLeft, moveRight);
         //game.splash(starter)
-        myTrainer.addPartyPokemon(makeCreatureFromID(starter));
+        myTrainer.addPartyPokemon(makeCreatureFromID(starter,5,1200));
         //myTrainer.addPartyPokemon(makeCreatureFromID(150));
         //myTrainer.addPartyPokemon(makeCreatureFromID(1));
         //myTrainer.addPartyPokemon(makeCreatureFromID(4));
