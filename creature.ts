@@ -8913,7 +8913,7 @@ namespace creatures {
     }
 
     //% group="Value"
-    //% blockId="creatures_getCreatureType"
+    //% blockId="creatures_getCreatureTypeTwo"
     //% expandableArgumentMode=toggle
     //% block="$creature=variables_get(myCreature) CreatureType2" callInDebugger
     export function getCreatureType2(creature: Creature): CreatureType {
@@ -8922,7 +8922,7 @@ namespace creatures {
 
 
     //% group="Value"
-    //% blockId="creatures_setCreatureType2"
+    //% blockId="creatures_setCreatureTypeTwo"
     //% expandableArgumentMode=toggle
     //% block="set $creature=variables_get(myCreature) CreatureType2 to %creatureType2" callInDebugger
     export function setCreatureType2(creature: Creature, creatureType2: CreatureType) {
@@ -8948,7 +8948,7 @@ namespace creatures {
 
 
     
-    function creatureBattleCreature(creature1: Creature, creature2: Creature) : boolean {
+    export function creatureBattleCreature(creature1: Creature, creature2: Creature) : boolean {
         let turn: number = 0;
         
         creature1.sprite.setPosition(50, 55)
@@ -9462,7 +9462,7 @@ namespace creatures {
     }
 
     //% blockId=creatures_trainerBattleWild
-    //% block="make $player=variables_get(myTrainer) battle $wildCreature=variables_get(wildCreature)"
+    //% block="make $player=variables_get(myTrainer) battle wild $wildCreature=variables_get(wildCreature)"
     //% expandableArgumentMode=toggle
     //% group="Battle"
     //% weight=80
@@ -9838,7 +9838,7 @@ namespace creatures {
         
     }
 
-    function checkEvolve(creature: Creature){
+    export function checkEvolve(creature: Creature){
         if(creature.evolutionLevel == 0) {
             return;
         }
@@ -9900,7 +9900,7 @@ namespace creatures {
     
 
 
-    function checkLevelUp(creature: Creature){
+    export function checkLevelUp(creature: Creature){
         let levelUpThresholds = [5, 6, 7, 8, 9, 10, 12, 14, 18, 25]
         for (let i = 0; i < 90; i++) {
             levelUpThresholds.push(levelUpThresholds[9 + i] + (i * 5) +3)
@@ -10170,7 +10170,7 @@ namespace creatures {
             mySprite.y += -32
         }
     }
-
+    //let myTrainer : Trainer = null;
 
     //% group="Create"
     //% blockId=creatures_setTrainer 
