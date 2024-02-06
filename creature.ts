@@ -248,12 +248,14 @@ namespace creatures {
 
         //% block="set $this(myCreature) Say HP $sayHP=toggleOnOff"
         //% blockId="creatures_setSayHP"
+        //% group ="Value"
         setSayHP(sayHP: boolean) {
             this._sayHP = sayHP
         }
 
         //% block="set $this(myCreature) Say XP $sayXP=toggleOnOff"
         //% blockId="creatures_setSayXP"
+        //% group ="Value"
         setSayXP(sayXP: boolean) {
             this._sayXP = sayXP
         }
@@ -8276,7 +8278,7 @@ namespace creatures {
     }
 
     //% blockId=makeCreatureFromID 
-    //% block="make creature from id $id || with\n xp $xp hp $hp attackValue $attackValue"
+    //% block="make creature from id $id || with\n level $level xp $xp hp $hp attackValue $attackValue"
     //% expandableArgumentMode=toggle
     //% blockSetVariable=myCreature
     //% group="Create"
